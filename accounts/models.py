@@ -45,3 +45,24 @@ class CurrentStatus(models.Model):
 
     def __str__(self):
         return self.name
+
+
+class Region(models.Model):
+    """시/도 테이블"""
+
+    name = models.CharField(max_length=50, unique=True)
+
+    def __str__(self):
+        return self.name
+
+
+class SubRegion(models.Model):
+    """시/군/구 테이블 (Region을 참조)"""
+
+    name = models.CharField(max_length=50)
+    region = models.ForeignKey(
+        Region, on_delete=models.CASCADE, related_name="subregions"
+    )
+
+    def __str__(self):
+        return f"{self.region.name} - {self.name}"
