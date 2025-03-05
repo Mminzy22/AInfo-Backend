@@ -1,4 +1,5 @@
 from django.contrib.auth.models import BaseUserManager
+from django.db import models
 
 
 class UserManager(BaseUserManager):
@@ -17,3 +18,30 @@ class UserManager(BaseUserManager):
         extra_fields.setdefault("is_staff", True)
         extra_fields.setdefault("is_superuser", True)
         return self.create_user(email, password, **extra_fields)
+
+
+class Interest(models.Model):
+    """관심 분야 테이블"""
+
+    name = models.CharField(max_length=20, unique=True)
+
+    def __str__(self):
+        return self.name
+
+
+class EducationLevel(models.Model):
+    """최종 학력 테이블"""
+
+    name = models.CharField(max_length=20, unique=True)
+
+    def __str__(self):
+        return self.name
+
+
+class CurrentStatus(models.Model):
+    """현재 상태 테이블"""
+
+    name = models.CharField(max_length=20, unique=True)
+
+    def __str__(self):
+        return self.name
