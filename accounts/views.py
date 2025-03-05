@@ -4,8 +4,9 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework_simplejwt.tokens import RefreshToken
 
-from .models import SubRegion
+from .models import Interest, SubRegion
 from .serializers import (
+    InterestSerializer,
     ProfileUpdateSerializer,
     SignupSerializer,
     SubRegionSerializer,
@@ -85,4 +86,13 @@ class SubRegionListView(generics.ListAPIView):
 
     queryset = SubRegion.objects.all()
     serializer_class = SubRegionSerializer
+    permission_classes = [permissions.AllowAny]
+
+
+# 모든 관심 분야 목록 조회 (GET /api/v1/accounts/interests/)
+class InterestListView(generics.ListAPIView):
+    """전체 관심 분야 목록 조회 API"""
+
+    queryset = Interest.objects.all()
+    serializer_class = InterestSerializer
     permission_classes = [permissions.AllowAny]
