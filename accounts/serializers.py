@@ -72,7 +72,7 @@ class UserSerializer(serializers.ModelSerializer):
 
 
 # 회원가입 직렬화 (회원가입에 필요한 필드만 포함)
-class SginupSerializer(serializers.ModelSerializer):
+class SignupSerializer(serializers.ModelSerializer):
     """회원가입 직렬화"""
 
     password = serializers.CharField(

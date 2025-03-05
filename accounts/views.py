@@ -4,15 +4,15 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework_simplejwt.tokens import RefreshToken
 
-from .serializers import SginupSerializer, UserSerializer
+from .serializers import SignupSerializer, UserSerializer
 
 User = get_user_model()
 
 
 # 회원가입 (POST /api/v1/accounts/signup/)
-class SginupView(generics.CreateAPIView):
+class SignupView(generics.CreateAPIView):
     queryset = User.objects.all()
-    serializer_class = SginupSerializer
+    serializer_class = SignupSerializer
     permission_classes = [permissions.AllowAny]  # 누구나 회원가입 가능
 
 
