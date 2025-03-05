@@ -51,6 +51,7 @@ CORS_ALLOWED_ORIGINS = (
 # Application definition
 
 INSTALLED_APPS = [
+    'django.contrib.sites',
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
@@ -75,6 +76,10 @@ INSTALLED_APPS = [
     # Local apps
     'accounts',
 ]
+
+
+SITE_ID = 1
+
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
@@ -124,7 +129,7 @@ ACCOUNT_LOGIN_METHODS = {"email"}
 # ACCOUNT_AUTHENTICATION_METHOD = "email"  # 이메일 로그인 사용
 ACCOUNT_EMAIL_REQUIRED = True
 ACCOUNT_USERNAME_REQUIRED = False
-ACCOUNT_EMAIL_VERIFICATION = "none"  # 이메일 인증 필수
+ACCOUNT_EMAIL_VERIFICATION = "none"  # 이메일 인증
 
 
 # 환경에 따라 Google OAuth 설정 다르게 적용
