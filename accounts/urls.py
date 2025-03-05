@@ -3,6 +3,7 @@ from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 
 from .views import (
     CurrentStatusListView,
+    EducationLevelListView,
     InterestListView,
     LogoutView,
     ProfileView,
@@ -30,5 +31,10 @@ urlpatterns = [
     path("interests/", InterestListView.as_view(), name="interest_list"),
     path(
         "current-statuses/", CurrentStatusListView.as_view(), name="current_status_list"
+    ),
+    path(
+        "education-levels/",
+        EducationLevelListView.as_view(),
+        name="education_level_list",
     ),
 ]
