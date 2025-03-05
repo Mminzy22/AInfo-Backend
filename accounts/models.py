@@ -1,3 +1,4 @@
+from allauth.socialaccount.models import SocialAccount  # 소셜 로그인 데이터 삭제용
 from django.contrib.auth.models import (
     AbstractBaseUser,
     BaseUserManager,
@@ -118,6 +119,11 @@ class User(AbstractBaseUser, PermissionsMixin):
 
     USERNAME_FIELD = "email"
     REQUIRED_FIELDS = []
+
+    def delete(self, *args, **kwargs):
+        """회원 탈퇴 시 연관된 소셜 계정도 삭제"""
+        SocialAccount.objects.filter(user=self).delete()  # 소셜 계정 삭제
+        super().delete(*args, **kwargs)  # 사용자 삭제
 
     def __str__(self):
         return f"{self.name or 'Unknown'} ({self.email})"
