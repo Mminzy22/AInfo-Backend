@@ -4,7 +4,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework_simplejwt.tokens import RefreshToken
 
-from .serializers import SignupSerializer, UserSerializer
+from .serializers import ProfileUpdateSerializer, SignupSerializer, UserSerializer
 
 User = get_user_model()
 
@@ -60,3 +60,14 @@ class LogoutView(APIView):
                 {"error": "유효하지 않은 토큰입니다."},
                 status=status.HTTP_400_BAD_REQUEST,
             )
+
+
+# 회원 프로필 조회 및 수정 API (GET, PUT /api/v1/accounts/profile/)
+class ProfileView(generics.RetrieveUpdateAPIView):
+    """회원 프로필 조회 및 수정 API"""
+
+    serializer_class = ProfileUpdateSerializer
+
+    def get_object(self):
+        """현재 로그인한 사용자 반환"""
+        return self.request.user
