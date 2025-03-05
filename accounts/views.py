@@ -4,7 +4,16 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework_simplejwt.tokens import RefreshToken
 
-from .serializers import ProfileUpdateSerializer, SignupSerializer, UserSerializer
+from .models import CurrentStatus, EducationLevel, Interest, SubRegion
+from .serializers import (
+    CurrentStatusSerializer,
+    EducationLevelSerializer,
+    InterestSerializer,
+    ProfileUpdateSerializer,
+    SignupSerializer,
+    SubRegionSerializer,
+    UserSerializer,
+)
 
 User = get_user_model()
 
@@ -71,3 +80,39 @@ class ProfileView(generics.RetrieveUpdateAPIView):
     def get_object(self):
         """현재 로그인한 사용자 반환"""
         return self.request.user
+
+
+# 모든 시/군/구 목록 조회 (GET /api/v1/accounts/subregions/)
+class SubRegionListView(generics.ListAPIView):
+    """전체 시/군/구 목록 조회 API (시/도 정보 포함)"""
+
+    queryset = SubRegion.objects.all()
+    serializer_class = SubRegionSerializer
+    permission_classes = [permissions.AllowAny]
+
+
+# 모든 관심 분야 목록 조회 (GET /api/v1/accounts/interests/)
+class InterestListView(generics.ListAPIView):
+    """전체 관심 분야 목록 조회 API"""
+
+    queryset = Interest.objects.all()
+    serializer_class = InterestSerializer
+    permission_classes = [permissions.AllowAny]
+
+
+# 모든 현재 상태 목록 조회 (GET /api/v1/accounts/current-statuses/)
+class CurrentStatusListView(generics.ListAPIView):
+    """전체 현재 상태 목록 조회 API"""
+
+    queryset = CurrentStatus.objects.all()
+    serializer_class = CurrentStatusSerializer
+    permission_classes = [permissions.AllowAny]
+
+
+# 모든 학력 목록 조회 (GET /api/v1/accounts/education-levels/)
+class EducationLevelListView(generics.ListAPIView):
+    """전체 학력 목록 조회 API"""
+
+    queryset = EducationLevel.objects.all()
+    serializer_class = EducationLevelSerializer
+    permission_classes = [permissions.AllowAny]

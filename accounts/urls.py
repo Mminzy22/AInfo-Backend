@@ -1,7 +1,15 @@
 from django.urls import path
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 
-from .views import LogoutView, ProfileView, SignupView
+from .views import (
+    CurrentStatusListView,
+    EducationLevelListView,
+    InterestListView,
+    LogoutView,
+    ProfileView,
+    SignupView,
+    SubRegionListView,
+)
 
 app_name = "accounts"
 
@@ -19,4 +27,14 @@ urlpatterns = [
     ),
     path("logout/", LogoutView.as_view(), name="logout"),
     path("profile/", ProfileView.as_view(), name="profile"),
+    path("subregions/", SubRegionListView.as_view(), name="subregion_list"),
+    path("interests/", InterestListView.as_view(), name="interest_list"),
+    path(
+        "current-statuses/", CurrentStatusListView.as_view(), name="current_status_list"
+    ),
+    path(
+        "education-levels/",
+        EducationLevelListView.as_view(),
+        name="education_level_list",
+    ),
 ]
