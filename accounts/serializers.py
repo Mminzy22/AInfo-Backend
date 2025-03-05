@@ -1,7 +1,7 @@
 from django.contrib.auth import get_user_model
 from rest_framework import serializers
 
-from .models import CurrentStatus, EducationLevel, Interest
+from .models import CurrentStatus, EducationLevel, Interest, SubRegion
 
 User = get_user_model()
 
@@ -25,3 +25,12 @@ class CurrentStatusSerializer(serializers.ModelSerializer):
     class Meta:
         model = CurrentStatus
         fields = ["id", "name"]
+
+
+# 시/군/구 직렬화
+class SubRegionSerializer(serializers.ModelSerializer):
+    region = serializers.StringRelatedField()  # 시/도를 문자열로 반환
+
+    class Meta:
+        model = SubRegion
+        fields = ["id", "name", "region"]
