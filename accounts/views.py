@@ -4,8 +4,9 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework_simplejwt.tokens import RefreshToken
 
-from .models import Interest, SubRegion
+from .models import CurrentStatus, Interest, SubRegion
 from .serializers import (
+    CurrentStatusSerializer,
     InterestSerializer,
     ProfileUpdateSerializer,
     SignupSerializer,
@@ -95,4 +96,13 @@ class InterestListView(generics.ListAPIView):
 
     queryset = Interest.objects.all()
     serializer_class = InterestSerializer
+    permission_classes = [permissions.AllowAny]
+
+
+# 모든 현재 상태 목록 조회 (GET /api/v1/accounts/current-statuses/)
+class CurrentStatusListView(generics.ListAPIView):
+    """전체 현재 상태 목록 조회 API"""
+
+    queryset = CurrentStatus.objects.all()
+    serializer_class = CurrentStatusSerializer
     permission_classes = [permissions.AllowAny]
