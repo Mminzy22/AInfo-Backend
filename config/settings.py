@@ -60,9 +60,8 @@ INSTALLED_APPS = [
     # Third-party apps
     "rest_framework",
     "rest_framework_simplejwt",
-    "rest_framework.authtoken",
+    "rest_framework_simplejwt.token_blacklist",  # 로그아웃 시 토큰 블랙리스트 사용
     "corsheaders",
-    "dj_rest_auth",  # REST API 인증 추가
     "allauth",
     "allauth.account",  # 이메일 로그인 지원
     "allauth.socialaccount",  # 소셜 로그인 지원
@@ -95,28 +94,14 @@ AUTHENTICATION_BACKENDS = [
 ]
 
 
-REST_USE_JWT = True
-JWT_AUTH_COOKIE = "access_token"  # JWT를 쿠키에 저장
-JWT_AUTH_REFRESH_COOKIE = "refresh_token"  # 리프레시 토큰을 쿠키에 저장
-
-
-# JWT 기반 인증만 사용할 경우 Token 모델 비활성화
-DJ_REST_AUTH = {"TOKEN_MODEL": None}
-
-
-# JWT 토큰 설정 (액세스 & 리프레시)
 SIMPLE_JWT = {
-    "ACCESS_TOKEN_LIFETIME": timedelta(minutes=60),
-    "REFRESH_TOKEN_LIFETIME": timedelta(days=1),
-    "ROTATE_REFRESH_TOKENS": True,
-    "BLACKLIST_AFTER_ROTATION": True,
-    "SLIDING_TOKEN_REFRESH_LIFETIME": timedelta(days=1),  # 추가
+    "ACCESS_TOKEN_LIFETIME": timedelta(hours=1),
+    "REFRESH_TOKEN_LIFETIME": timedelta(days=7),
 }
 
 
 # 기본 로그인 필드 설정 (이메일 기반 로그인)
 ACCOUNT_LOGIN_METHODS = {"email"}
-# ACCOUNT_AUTHENTICATION_METHOD = "email"  # 이메일 로그인 사용
 ACCOUNT_EMAIL_REQUIRED = True
 ACCOUNT_USERNAME_REQUIRED = False
 ACCOUNT_EMAIL_VERIFICATION = "none"  # 이메일 인증
@@ -126,9 +111,14 @@ ACCOUNT_EMAIL_VERIFICATION = "none"  # 이메일 인증
 if DEBUG:  # 개발 환경
     GOOGLE_CLIENT_ID = env("GOOGLE_CLIENT_ID_LOCAL")
     GOOGLE_CLIENT_SECRET = env("GOOGLE_CLIENT_SECRET_LOCAL")
+    GOOGLE_REDIRECT_URIS = [
+        env("GOOGLE_REDIRECT_URI_LOCAL"),  # 127.0.0.1
+        env("GOOGLE_REDIRECT_URI_LOCALHOST"),  # localhost
+    ]
 else:  # 운영 환경
     GOOGLE_CLIENT_ID = env("GOOGLE_CLIENT_ID_PROD")
     GOOGLE_CLIENT_SECRET = env("GOOGLE_CLIENT_SECRET_PROD")
+    GOOGLE_REDIRECT_URIS = [env("GOOGLE_REDIRECT_URI_PROD")]
 
 SOCIALACCOUNT_PROVIDERS = {
     "google": {
@@ -144,7 +134,7 @@ SOCIALACCOUNT_PROVIDERS = {
         "APP": {
             "client_id": GOOGLE_CLIENT_ID,
             "secret": GOOGLE_CLIENT_SECRET,
-            "redirect_uris": [env("GOOGLE_REDIRECT_URI")],
+            "redirect_uris": GOOGLE_REDIRECT_URIS,
         },
     }
 }
@@ -241,28 +231,4 @@ REST_FRAMEWORK = {
     ),
     # 2. 기본 권한 (로그인한 사용자만 API 접근 가능)
     "DEFAULT_PERMISSION_CLASSES": ("rest_framework.permissions.IsAuthenticated",),
-    # # 3. 페이지네이션 (한 페이지당 10개)
-    # 'DEFAULT_PAGINATION_CLASS':
-    #   'rest_framework.pagination.PageNumberPagination',
-    # 'PAGE_SIZE': 10,
-    # # 4. 검색 및 필터링 기능
-    # 'DEFAULT_FILTER_BACKENDS': [
-    #     'django_filters.rest_framework.DjangoFilterBackend',  # 필터링
-    #     'rest_framework.filters.SearchFilter',  # 검색
-    #     'rest_framework.filters.OrderingFilter',  # 정렬
-    # ],
-    # # 5. 요청 제한 (과도한 요청 방지)
-    # 'DEFAULT_THROTTLE_CLASSES': [
-    #     'rest_framework.throttling.AnonRateThrottle',  # 익명 사용자 제한
-    #     'rest_framework.throttling.UserRateThrottle',  # 로그인 사용자 제한
-    # ],
-    # 'DEFAULT_THROTTLE_RATES': {
-    #     'anon': '10/minute',  # 익명 사용자는 1분에 10회 요청 가능
-    #     'user': '100/minute',  # 로그인한 사용자는 1분에 100회 요청 가능
-    # },
-    # # 6. API 응답 포맷 (운영에서는 BrowsableAPIRenderer 제거)
-    # 'DEFAULT_RENDERER_CLASSES': [
-    #     'rest_framework.renderers.JSONRenderer',  # JSON 응답
-    #     'rest_framework.renderers.BrowsableAPIRenderer', # HTML 렌더링
-    # ],
 }
