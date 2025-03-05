@@ -69,3 +69,33 @@ class UserSerializer(serializers.ModelSerializer):
     def get_is_social(self, obj):
         """소셜 로그인 여부 확인"""
         return SocialAccount.objects.filter(user=obj).exists()
+
+
+# 회원가입 직렬화 (회원가입에 필요한 필드만 포함)
+class RegisterSerializer(serializers.ModelSerializer):
+    """회원가입 직렬화"""
+
+    password = serializers.CharField(
+        write_only=True, min_length=8, style={"input_type": "password"}
+    )
+
+    class Meta:
+        model = User
+        fields = ["email", "password", "name", "terms_agree", "marketing_agree"]
+
+    def validate_terms_agree(self, value):
+        """이메일 수집 및 활용 동의는 필수"""
+        if not value:
+            raise serializers.ValidationError("이메일 수집 및 활용 동의는 필수입니다.")
+        return value
+
+    def create(self, validated_data):
+        """새로운 사용자 생성"""
+        user = User.objects.create_user(
+            email=validated_data["email"],
+            password=validated_data["password"],
+            name=validated_data.get("name", ""),
+            terms_agree=validated_data["terms_agree"],
+            marketing_agree=validated_data.get("marketing_agree", False),
+        )
+        return user
