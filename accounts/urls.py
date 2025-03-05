@@ -2,6 +2,7 @@ from django.urls import path
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 
 from .views import (
+    CurrentStatusListView,
     InterestListView,
     LogoutView,
     ProfileView,
@@ -27,4 +28,7 @@ urlpatterns = [
     path("profile/", ProfileView.as_view(), name="profile"),
     path("subregions/", SubRegionListView.as_view(), name="subregion_list"),
     path("interests/", InterestListView.as_view(), name="interest_list"),
+    path(
+        "current-statuses/", CurrentStatusListView.as_view(), name="current_status_list"
+    ),
 ]
