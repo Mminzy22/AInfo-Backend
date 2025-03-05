@@ -45,7 +45,6 @@ class LoginView(APIView):
 
 # 로그아웃 (POST /api/v1/accounts/logout/)
 class LogoutView(APIView):
-    permission_classes = [permissions.IsAuthenticated]
 
     def post(self, request):
         """리프레시 토큰을 블랙리스트에 추가하여 로그아웃 처리"""
