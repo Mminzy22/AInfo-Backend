@@ -68,6 +68,7 @@ INSTALLED_APPS = [
     "allauth.socialaccount.providers.google",  # Google 소셜 로그인 지원
     # Local apps
     "accounts",
+    "chatbot",
 ]
 
 
