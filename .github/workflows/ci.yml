@@ -11,19 +11,32 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Set up Python
-        uses: actions/setup-python@v3
+        uses: actions/setup-python@v4
         with:
           python-version: "3.9"
 
       - name: Install dependencies
         run: |
-          pip install black flake8
+          pip install black isort flake8
 
-      - name: Run flake8 (Python Lint)
-        run: flake8 .
+      # pyproject.toml과 .flake8 설정 파일이 존재하는지 확인
+      - name: Debug pyproject.toml
+        run: cat pyproject.toml || echo "pyproject.toml not found"
 
+      - name: Debug .flake8
+        run: cat .flake8 || echo ".flake8 not found"
+
+      # black 실행
       - name: Run black (Code Formatting Check)
         run: black --check .
+
+      # isort 실행
+      - name: Run isort (Import Sorting Check)
+        run: isort . --check-only
+
+      # flake8 실행
+      - name: Run flake8 (Python Lint)
+        run: flake8 --config .flake8
