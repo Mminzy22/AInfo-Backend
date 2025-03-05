@@ -99,3 +99,23 @@ class SignupSerializer(serializers.ModelSerializer):
             marketing_agree=validated_data.get("marketing_agree", False),
         )
         return user
+
+
+# 회원 프로필 수정 직렬화
+class ProfileUpdateSerializer(serializers.ModelSerializer):
+    """회원 프로필 수정 직렬화"""
+
+    email = serializers.EmailField(read_only=True)  # 이메일 필드 추가 (읽기 전용)
+
+    class Meta:
+        model = User
+        fields = [
+            "email",
+            "name",
+            "birth_date",
+            "interests",
+            "location",
+            "current_status",
+            "education_level",
+            "marketing_agree",
+        ]
