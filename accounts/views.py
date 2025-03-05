@@ -4,9 +4,10 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework_simplejwt.tokens import RefreshToken
 
-from .models import CurrentStatus, Interest, SubRegion
+from .models import CurrentStatus, EducationLevel, Interest, SubRegion
 from .serializers import (
     CurrentStatusSerializer,
+    EducationLevelSerializer,
     InterestSerializer,
     ProfileUpdateSerializer,
     SignupSerializer,
@@ -105,4 +106,13 @@ class CurrentStatusListView(generics.ListAPIView):
 
     queryset = CurrentStatus.objects.all()
     serializer_class = CurrentStatusSerializer
+    permission_classes = [permissions.AllowAny]
+
+
+# 모든 학력 목록 조회 (GET /api/v1/accounts/education-levels/)
+class EducationLevelListView(generics.ListAPIView):
+    """전체 학력 목록 조회 API"""
+
+    queryset = EducationLevel.objects.all()
+    serializer_class = EducationLevelSerializer
     permission_classes = [permissions.AllowAny]
