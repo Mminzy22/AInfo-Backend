@@ -41,3 +41,23 @@ class LoginView(APIView):
             {"error": "이메일 또는 비밀번호가 올바르지 않습니다."},
             status=status.HTTP_401_UNAUTHORIZED,
         )
+
+
+# 로그아웃 (POST /api/v1/accounts/logout/)
+class LogoutView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def post(self, request):
+        """리프레시 토큰을 블랙리스트에 추가하여 로그아웃 처리"""
+        try:
+            refresh_token = request.data.get("refresh_token")
+            token = RefreshToken(refresh_token)
+            token.blacklist()  # 토큰 블랙리스트에 추가 (token_blacklist 활성화 필요)
+            return Response(
+                {"message": "로그아웃되었습니다."}, status=status.HTTP_200_OK
+            )
+        except Exception:
+            return Response(
+                {"error": "유효하지 않은 토큰입니다."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
