@@ -4,7 +4,13 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework_simplejwt.tokens import RefreshToken
 
-from .serializers import ProfileUpdateSerializer, SignupSerializer, UserSerializer
+from .models import SubRegion
+from .serializers import (
+    ProfileUpdateSerializer,
+    SignupSerializer,
+    SubRegionSerializer,
+    UserSerializer,
+)
 
 User = get_user_model()
 
@@ -71,3 +77,12 @@ class ProfileView(generics.RetrieveUpdateAPIView):
     def get_object(self):
         """현재 로그인한 사용자 반환"""
         return self.request.user
+
+
+# 모든 시/군/구 목록 조회 (GET /api/v1/accounts/subregions/)
+class SubRegionListView(generics.ListAPIView):
+    """전체 시/군/구 목록 조회 API (시/도 정보 포함)"""
+
+    queryset = SubRegion.objects.all()
+    serializer_class = SubRegionSerializer
+    permission_classes = [permissions.AllowAny]
