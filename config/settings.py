@@ -40,6 +40,14 @@ ALLOWED_HOSTS = (
 )
 
 
+CORS_ALLOWED_ORIGINS = (
+    # 프론트엔드가 실행되는 주소 (라이브 서버 플러그인 사용 시)
+    ["http://localhost:5500","http://127.0.0.1:5500"]
+    if DEBUG
+    else env.list("CORS_ALLOWED_ORIGINS", default=[])
+)
+
+
 # Application definition
 
 INSTALLED_APPS = [
@@ -54,8 +62,15 @@ INSTALLED_APPS = [
     'rest_framework',
     "rest_framework_simplejwt",
     'rest_framework.authtoken',
+    'corsheaders',
 
     'dj_rest_auth',  # REST API 인증 추가
+
+    'allauth',
+    'allauth.account',  # 이메일 로그인 지원
+    
+    'allauth.socialaccount',  # 소셜 로그인 지원
+    'allauth.socialaccount.providers.google',  # Google 소셜 로그인 지원
 
     # Local apps
     'accounts',
@@ -63,13 +78,82 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
+    'corsheaders.middleware.CorsMiddleware', # corsheaders 미들웨어 추가
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
+
+    # django-allauth의 AccountMiddleware
+    "allauth.account.middleware.AccountMiddleware",
 ]
+
+
+AUTHENTICATION_BACKENDS = [
+    'django.contrib.auth.backends.ModelBackend',  # 기본 Django 인증
+    'allauth.account.auth_backends.AuthenticationBackend',  # 소셜 로그인 인증
+]
+
+
+REST_USE_JWT = True
+JWT_AUTH_COOKIE = "access_token"  # JWT를 쿠키에 저장
+JWT_AUTH_REFRESH_COOKIE = "refresh_token"  # 리프레시 토큰을 쿠키에 저장
+
+
+# JWT 기반 인증만 사용할 경우 Token 모델 비활성화
+DJ_REST_AUTH = {
+    "TOKEN_MODEL": None
+}
+
+
+# JWT 토큰 설정 (액세스 & 리프레시)
+SIMPLE_JWT = {
+    "ACCESS_TOKEN_LIFETIME": timedelta(minutes=60),
+    "REFRESH_TOKEN_LIFETIME": timedelta(days=1),
+    "ROTATE_REFRESH_TOKENS": True,
+    "BLACKLIST_AFTER_ROTATION": True,
+    "SLIDING_TOKEN_REFRESH_LIFETIME": timedelta(days=1),  # 추가
+}
+
+
+
+# 기본 로그인 필드 설정 (이메일 기반 로그인)
+ACCOUNT_LOGIN_METHODS = {"email"}
+# ACCOUNT_AUTHENTICATION_METHOD = "email"  # 이메일 로그인 사용
+ACCOUNT_EMAIL_REQUIRED = True
+ACCOUNT_USERNAME_REQUIRED = False
+ACCOUNT_EMAIL_VERIFICATION = "none"  # 이메일 인증 필수
+
+
+# 환경에 따라 Google OAuth 설정 다르게 적용
+if DEBUG:  # 개발 환경
+    GOOGLE_CLIENT_ID = env("GOOGLE_CLIENT_ID_LOCAL")
+    GOOGLE_CLIENT_SECRET = env("GOOGLE_CLIENT_SECRET_LOCAL")
+else:  # 운영 환경
+    GOOGLE_CLIENT_ID = env("GOOGLE_CLIENT_ID_PROD")
+    GOOGLE_CLIENT_SECRET = env("GOOGLE_CLIENT_SECRET_PROD")
+
+SOCIALACCOUNT_PROVIDERS = {
+    "google": {
+        "SCOPE": [
+            "openid",
+            "profile",
+            "email",
+        ],
+        "AUTH_PARAMS": {
+            "access_type": "online",
+        },
+        "OAUTH_PKCE_ENABLED": True,  # PKCE 사용 (보안 강화)
+        "APP": {
+            "client_id": GOOGLE_CLIENT_ID,
+            "secret": GOOGLE_CLIENT_SECRET,
+            "redirect_uris": [env("GOOGLE_REDIRECT_URI")
+            ],
+        },
+    }
+}
 
 
 ROOT_URLCONF = "config.urls"
