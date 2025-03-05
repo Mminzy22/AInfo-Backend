@@ -10,17 +10,16 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/4.2/ref/settings/
 """
 
-from pathlib import Path
-import environ
 from datetime import timedelta
+from pathlib import Path
+
+import environ
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 # 환경 변수 로드
-env = environ.Env(
-    DEBUG=(bool, False)  # DEBUG 값을 boolean으로 변환, 기본값 False
-)
+env = environ.Env(DEBUG=(bool, False))  # DEBUG 값을 boolean으로 변환, 기본값 False
 
 # .env 파일 로드
 environ.Env.read_env(BASE_DIR / ".env")
@@ -42,7 +41,7 @@ ALLOWED_HOSTS = (
 
 CORS_ALLOWED_ORIGINS = (
     # 프론트엔드가 실행되는 주소 (라이브 서버 플러그인 사용 시)
-    ["http://localhost:5500","http://127.0.0.1:5500"]
+    ["http://localhost:5500", "http://127.0.0.1:5500"]
     if DEBUG
     else env.list("CORS_ALLOWED_ORIGINS", default=[])
 )
@@ -51,30 +50,25 @@ CORS_ALLOWED_ORIGINS = (
 # Application definition
 
 INSTALLED_APPS = [
-    'django.contrib.sites',
+    "django.contrib.sites",
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
-
     # Third-party apps
-    'rest_framework',
+    "rest_framework",
     "rest_framework_simplejwt",
-    'rest_framework.authtoken',
-    'corsheaders',
-
-    'dj_rest_auth',  # REST API 인증 추가
-
-    'allauth',
-    'allauth.account',  # 이메일 로그인 지원
-    
-    'allauth.socialaccount',  # 소셜 로그인 지원
-    'allauth.socialaccount.providers.google',  # Google 소셜 로그인 지원
-
+    "rest_framework.authtoken",
+    "corsheaders",
+    "dj_rest_auth",  # REST API 인증 추가
+    "allauth",
+    "allauth.account",  # 이메일 로그인 지원
+    "allauth.socialaccount",  # 소셜 로그인 지원
+    "allauth.socialaccount.providers.google",  # Google 소셜 로그인 지원
     # Local apps
-    'accounts',
+    "accounts",
 ]
 
 
@@ -83,22 +77,21 @@ SITE_ID = 1
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
-    'corsheaders.middleware.CorsMiddleware', # corsheaders 미들웨어 추가
+    "corsheaders.middleware.CorsMiddleware",  # corsheaders 미들웨어 추가
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
-
     # django-allauth의 AccountMiddleware
     "allauth.account.middleware.AccountMiddleware",
 ]
 
 
 AUTHENTICATION_BACKENDS = [
-    'django.contrib.auth.backends.ModelBackend',  # 기본 Django 인증
-    'allauth.account.auth_backends.AuthenticationBackend',  # 소셜 로그인 인증
+    "django.contrib.auth.backends.ModelBackend",  # 기본 Django 인증
+    "allauth.account.auth_backends.AuthenticationBackend",  # 소셜 로그인 인증
 ]
 
 
@@ -108,9 +101,7 @@ JWT_AUTH_REFRESH_COOKIE = "refresh_token"  # 리프레시 토큰을 쿠키에 �
 
 
 # JWT 기반 인증만 사용할 경우 Token 모델 비활성화
-DJ_REST_AUTH = {
-    "TOKEN_MODEL": None
-}
+DJ_REST_AUTH = {"TOKEN_MODEL": None}
 
 
 # JWT 토큰 설정 (액세스 & 리프레시)
@@ -121,7 +112,6 @@ SIMPLE_JWT = {
     "BLACKLIST_AFTER_ROTATION": True,
     "SLIDING_TOKEN_REFRESH_LIFETIME": timedelta(days=1),  # 추가
 }
-
 
 
 # 기본 로그인 필드 설정 (이메일 기반 로그인)
@@ -154,8 +144,7 @@ SOCIALACCOUNT_PROVIDERS = {
         "APP": {
             "client_id": GOOGLE_CLIENT_ID,
             "secret": GOOGLE_CLIENT_SECRET,
-            "redirect_uris": [env("GOOGLE_REDIRECT_URI")
-            ],
+            "redirect_uris": [env("GOOGLE_REDIRECT_URI")],
         },
     }
 }
@@ -186,7 +175,7 @@ WSGI_APPLICATION = "config.wsgi.application"
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
 
 DATABASES = {
-    'default': (
+    "default": (
         {
             "ENGINE": "django.db.backends.sqlite3",
             "NAME": BASE_DIR / "db.sqlite3",
@@ -242,27 +231,22 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 # Django REST framework settings
 REST_FRAMEWORK = {
     # 1. 인증 방식 (JWT + 세션)
-    'DEFAULT_AUTHENTICATION_CLASSES': (
-        'rest_framework_simplejwt.authentication.JWTAuthentication',  # 일반 API
-        'rest_framework.authentication.SessionAuthentication',  # Admin 페이지
+    "DEFAULT_AUTHENTICATION_CLASSES": (
+        "rest_framework_simplejwt.authentication.JWTAuthentication",  # 일반 API
+        "rest_framework.authentication.SessionAuthentication",  # Admin 페이지
     ),
-
     # 2. 기본 권한 (로그인한 사용자만 API 접근 가능)
-    'DEFAULT_PERMISSION_CLASSES': (
-        'rest_framework.permissions.IsAuthenticated',
-    ),
-
+    "DEFAULT_PERMISSION_CLASSES": ("rest_framework.permissions.IsAuthenticated",),
     # # 3. 페이지네이션 (한 페이지당 10개)
-    # 'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
+    # 'DEFAULT_PAGINATION_CLASS':
+    #   'rest_framework.pagination.PageNumberPagination',
     # 'PAGE_SIZE': 10,
-
     # # 4. 검색 및 필터링 기능
     # 'DEFAULT_FILTER_BACKENDS': [
     #     'django_filters.rest_framework.DjangoFilterBackend',  # 필터링
     #     'rest_framework.filters.SearchFilter',  # 검색
     #     'rest_framework.filters.OrderingFilter',  # 정렬
     # ],
-
     # # 5. 요청 제한 (과도한 요청 방지)
     # 'DEFAULT_THROTTLE_CLASSES': [
     #     'rest_framework.throttling.AnonRateThrottle',  # 익명 사용자 제한
@@ -272,11 +256,9 @@ REST_FRAMEWORK = {
     #     'anon': '10/minute',  # 익명 사용자는 1분에 10회 요청 가능
     #     'user': '100/minute',  # 로그인한 사용자는 1분에 100회 요청 가능
     # },
-
     # # 6. API 응답 포맷 (운영에서는 BrowsableAPIRenderer 제거)
     # 'DEFAULT_RENDERER_CLASSES': [
     #     'rest_framework.renderers.JSONRenderer',  # JSON 응답
     #     'rest_framework.renderers.BrowsableAPIRenderer', # HTML 렌더링
     # ],
-
 }
