@@ -22,4 +22,5 @@ urlpatterns = [
     path("admin/", admin.site.urls),
     # API v1
     path("api/v1/accounts/", include("accounts.urls", namespace="accounts")),
+    path("api/v1/chatnot/", include("chatbot.urls", namespace="chatbot")),
 ]
