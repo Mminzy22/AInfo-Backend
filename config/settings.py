@@ -27,6 +27,11 @@ environ.Env.read_env(BASE_DIR / ".env")
 # ChromaDB 저장 경로 설정
 CHROMA_DB_DIR = env("CHROMA_DB_DIR", default=str(BASE_DIR / "chroma_db"))
 
+# API 키 설정
+GOV24_API_KEY = env("GOV24_API_KEY")
+YOUTH_POLICY_API_KEY = env("YOUTH_POLICY_API_KEY")
+EMPLOYMENT_API_KEY = env("EMPLOYMENT_API_KEY")
+
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
 
