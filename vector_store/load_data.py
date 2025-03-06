@@ -64,3 +64,119 @@ def create_pdf_vectorstore():
     )
     print(f"PDF 벡터 저장 완료 ({len(texts)}개)")
     return len(texts)
+
+
+def get_gov_services():
+    """정부24 공공서비스 목록 조회"""
+    url = f"{GOV24_BASE_URL}/serviceList"
+    all_services = []
+    total_count = 0
+
+    print("정부24 데이터 수집 중...")
+
+    # 첫 페이지 요청으로 총 개수 확인
+    try:
+        first_page_params = {
+            "serviceKey": GOV24_API_KEY,
+            "page": 1,
+            "perPage": PAGE_SIZE,
+        }
+        first_response = requests.get(url, params=first_page_params)
+        if first_response.status_code == 200:
+            first_data = first_response.json()
+            total_count = first_data.get("totalCount", 0)
+            if "data" in first_data:
+                all_services.extend(first_data.get("data", []))
+
+            expected_pages = min(MAX_PAGES, (total_count + PAGE_SIZE - 1) // PAGE_SIZE)
+            print(f"정부24 총 정책 수: {total_count}, 예상 페이지 수: {expected_pages}")
+
+            # 2페이지부터 데이터 수집
+            for page in tqdm(
+                range(2, expected_pages + 1),
+                desc="정부24 데이터 수집",
+                dynamic_ncols=True,
+            ):
+                params = {
+                    "serviceKey": GOV24_API_KEY,
+                    "page": page,
+                    "perPage": PAGE_SIZE,
+                }
+                response = requests.get(url, params=params)
+                if response.status_code == 200:
+                    data = response.json()
+                    services = data.get("data", [])
+                    if not services:
+                        break
+                    all_services.extend(services)
+                else:
+                    print(f"정부24 API 요청 실패: 상태 코드 {response.status_code}")
+                    break
+                time.sleep(API_RATE_LIMIT_DELAY)
+    except Exception as e:
+        print(f"정부24 API 오류: {e}")
+
+    print(f"정부24 데이터 수집 완료: {len(all_services)}개")
+    return all_services
+
+
+def get_youth_policies():
+    """청년정책 목록 조회"""
+    all_policies = []
+    total_count = 0
+
+    print("청년정책 데이터 수집 중...")
+
+    # 첫 페이지 요청으로 총 개수 확인
+    try:
+        first_page_params = {
+            "apiKeyNm": YOUTH_POLICY_API_KEY,
+            "pageNum": 1,
+            "pageSize": PAGE_SIZE,
+            "rtnType": "json",
+        }
+        first_response = requests.get(
+            YOUTH_POLICY_URL, params=first_page_params, timeout=10
+        )
+        if first_response.status_code == 200:
+            first_data = first_response.json()
+            total_count = (
+                first_data.get("result", {}).get("pagging", {}).get("totCount", 0)
+            )
+            policies = first_data.get("result", {}).get("youthPolicyList", [])
+            all_policies.extend(policies)
+
+            expected_pages = min(MAX_PAGES, (total_count + PAGE_SIZE - 1) // PAGE_SIZE)
+            print(
+                f"청년정책 총 정책 수: {total_count}, 예상 페이지 수: {expected_pages}"
+            )
+
+            # 2페이지부터 데이터 수집
+            for page in tqdm(
+                range(2, expected_pages + 1),
+                desc="청년정책 데이터 수집",
+                dynamic_ncols=True,
+            ):
+                params = {
+                    "apiKeyNm": YOUTH_POLICY_API_KEY,
+                    "pageNum": page,
+                    "pageSize": PAGE_SIZE,
+                    "rtnType": "json",
+                }
+                response = requests.get(YOUTH_POLICY_URL, params=params, timeout=10)
+                if response.status_code != 200 or not response.text.strip():
+                    break
+                try:
+                    data = response.json()
+                    policies = data.get("result", {}).get("youthPolicyList", [])
+                    if not policies:
+                        break
+                    all_policies.extend(policies)
+                except requests.exceptions.JSONDecodeError:
+                    break
+                time.sleep(API_RATE_LIMIT_DELAY)
+    except requests.exceptions.RequestException as e:
+        print(f"청년정책 API 오류: {e}")
+
+    print(f"청년정책 데이터 수집 완료: {len(all_policies)}개")
+    return all_policies
