@@ -294,3 +294,110 @@ def get_employment_programs():
 
     print(f"고용24 데이터 수집 완료: {len(all_programs)}개")
     return all_programs
+
+
+def save_api_data_to_chroma():
+    """API 데이터를 벡터DB에 저장"""
+    # 데이터 수집
+    gov_services = get_gov_services()
+    youth_policies = get_youth_policies()
+    employment_programs = get_employment_programs()
+
+    documents = []
+    print("문서 변환 중...")
+
+    # 정부24 데이터 추가
+    print(f"정부24 데이터 처리 중... ({len(gov_services)}개)")
+    for item in tqdm(gov_services, desc="정부24 문서 변환", dynamic_ncols=True):
+        doc = Document(
+            page_content=f"{item.get('servNm', '이름 없음')}\n{item.get('servDgst', '설명 없음')}",
+            metadata={"source": "정부24", "id": item.get("servId", "unknown_id")},
+        )
+        documents.append(doc)
+
+    # 청년정책 데이터 추가
+    print(f"청년정책 데이터 처리 중... ({len(youth_policies)}개)")
+    for item in tqdm(youth_policies, desc="청년정책 문서 변환", dynamic_ncols=True):
+        doc = Document(
+            page_content=f"{item.get('plcyNm', '이름 없음')}\n{item.get('plcyExplnCn', '설명 없음')}",
+            metadata={"source": "청년정책", "id": item.get("plcyNo", "unknown_id")},
+        )
+        documents.append(doc)
+
+    # 고용24 데이터 추가
+    print(f"고용24 데이터 처리 중... ({len(employment_programs)}개)")
+    for item in tqdm(employment_programs, desc="고용24 문서 변환", dynamic_ncols=True):
+        doc = Document(
+            page_content=f"{item.get('title', '이름 없음')}\n{item.get('content', '설명 없음')}",
+            metadata={"source": "고용24", "id": item.get("code", "unknown_id")},
+        )
+        documents.append(doc)
+
+    if not documents:
+        print("벡터화할 문서가 없습니다.")
+        return 0
+
+    print(f"총 {len(documents)}개 문서 임베딩 준비 완료")
+
+    # 벡터DB 저장
+    print("임베딩 모델 초기화 중...")
+    embeddings = OpenAIEmbeddings(model="text-embedding-3-small")
+
+    try:
+        from langchain_chroma import Chroma
+
+        print("langchain_chroma 패키지 사용")
+    except ImportError:
+        from langchain_community.vectorstores import Chroma
+
+        print("langchain_community 패키지 사용")
+
+    vectorstore = Chroma(
+        persist_directory=CHROMA_DB_DIR,
+        collection_name="startup_support_policies",
+        embedding_function=embeddings,
+    )
+
+    # 배치 처리
+    batch_size = 100
+    total_batches = (len(documents) + batch_size - 1) // batch_size
+
+    print(f"벡터DB에 저장 중... (총 {total_batches}개 배치)")
+    for i in tqdm(range(total_batches), desc="벡터DB 저장 진행", dynamic_ncols=True):
+        start_idx = i * batch_size
+        end_idx = min((i + 1) * batch_size, len(documents))
+        vectorstore.add_documents(documents[start_idx:end_idx])
+        tqdm.write(
+            f"  배치 {i+1}/{total_batches} 완료 ({start_idx+1}-{end_idx}번 문서)"
+        )
+
+    print(f"API 데이터 {len(documents)}개 벡터DB 저장 완료")
+    return len(documents)
+
+
+if __name__ == "__main__":
+    try:
+        print("=== 데이터 로딩 시작 ===")
+        start_time = time.time()
+
+        print("\n[STEP 1/2] PDF 벡터 저장")
+        pdf_count = create_pdf_vectorstore()
+
+        print("\n[STEP 2/2] API 데이터 벡터 저장")
+        api_count = save_api_data_to_chroma()
+
+        end_time = time.time()
+        elapsed_time = end_time - start_time
+        hours, remainder = divmod(elapsed_time, 3600)
+        minutes, seconds = divmod(remainder, 60)
+
+        print("\n=== 데이터 로딩 완료 ===")
+        print(f"PDF 문서: {pdf_count}개")
+        print(f"API 문서: {api_count}개")
+        print(f"총 문서: {pdf_count + api_count}개")
+        print(f"소요 시간: {int(hours)}시간 {int(minutes)}분 {int(seconds)}초")
+    except Exception as e:
+        print(f"데이터 로딩 실패: {e}")
+        import traceback
+
+        traceback.print_exc()
