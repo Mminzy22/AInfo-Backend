@@ -41,3 +41,26 @@ def load_pdf():
         raise FileNotFoundError(f"PDF 파일을 찾을 수 없습니다: {PDF_PATH}")
     print("PDF 파일 로드 중...")
     return PyMuPDFLoader(PDF_PATH).load()
+
+
+def create_pdf_vectorstore():
+    """PDF 문서를 벡터로 변환하여 저장"""
+    documents = load_pdf()
+    print(f"PDF 문서 분할 중... (총 {len(documents)}개 문서)")
+
+    text_splitter = CharacterTextSplitter(
+        chunk_size=2000, chunk_overlap=200, separator="\n"
+    )
+    texts = text_splitter.split_documents(documents)
+
+    print(f"PDF 문서 임베딩 중... (총 {len(texts)}개 조각)")
+    embeddings = OpenAIEmbeddings(model="text-embedding-3-small")
+
+    Chroma.from_documents(
+        documents=texts,
+        embedding=embeddings,
+        collection_name="startup_support_policies",
+        persist_directory=CHROMA_DB_DIR,
+    )
+    print(f"PDF 벡터 저장 완료 ({len(texts)}개)")
+    return len(texts)
