@@ -33,3 +33,11 @@ EMPLOYMENT_URL = (
 MAX_PAGES = 600
 PAGE_SIZE = 20
 API_RATE_LIMIT_DELAY = 0.5
+
+
+def load_pdf():
+    """PDF 문서 로드"""
+    if not PDF_PATH or not os.path.exists(PDF_PATH):
+        raise FileNotFoundError(f"PDF 파일을 찾을 수 없습니다: {PDF_PATH}")
+    print("PDF 파일 로드 중...")
+    return PyMuPDFLoader(PDF_PATH).load()
