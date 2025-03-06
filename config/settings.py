@@ -24,6 +24,9 @@ env = environ.Env(DEBUG=(bool, False))  # DEBUG 값을 boolean으로 변환, 기
 # .env 파일 로드
 environ.Env.read_env(BASE_DIR / ".env")
 
+# ChromaDB 저장 경로 설정
+CHROMA_DB_DIR = env("CHROMA_DB_DIR", default=str(BASE_DIR / "chroma_db"))
+
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
 
