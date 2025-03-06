@@ -32,6 +32,9 @@ GOV24_API_KEY = env("GOV24_API_KEY")
 YOUTH_POLICY_API_KEY = env("YOUTH_POLICY_API_KEY")
 EMPLOYMENT_API_KEY = env("EMPLOYMENT_API_KEY")
 
+# PDF 저장 폴더 설정
+PDF_DIR = BASE_DIR / "data" / "pdf"
+
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
 
