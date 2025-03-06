@@ -1,14 +1,15 @@
 import os
-import django
 import time
-import requests
 import xml.etree.ElementTree as ET
+
+import django
+import requests
 from django.conf import settings
+from langchain.schema import Document
 from langchain_community.document_loaders import PyMuPDFLoader
 from langchain_community.vectorstores import Chroma
 from langchain_openai import OpenAIEmbeddings
 from langchain_text_splitters import CharacterTextSplitter
-from langchain.schema import Document
 from tqdm import tqdm  # 진행 상황 표시용
 
 # Django 설정 로드
