@@ -180,3 +180,117 @@ def get_youth_policies():
 
     print(f"청년정책 데이터 수집 완료: {len(all_policies)}개")
     return all_policies
+
+
+def get_employment_programs():
+    """고용24 구직자취업역량강화 프로그램 조회"""
+    all_programs = []
+    total_count = 0
+
+    print("고용24 데이터 수집 중...")
+
+    # 첫 페이지 요청으로 총 개수 확인
+    try:
+        first_page_params = {
+            "authKey": EMPLOYMENT_API_KEY,
+            "returnType": "XML",
+            "startPage": 1,
+            "display": PAGE_SIZE,
+        }
+        first_response = requests.get(
+            EMPLOYMENT_URL, params=first_page_params, timeout=15
+        )
+        if first_response.status_code == 200:
+            try:
+                root = ET.fromstring(first_response.text)
+                total_element = root.find(".//total")
+                if total_element is not None and total_element.text:
+                    total_count = int(total_element.text)
+
+                # 첫 페이지 데이터 처리
+                items = root.findall(".//empPgmSchdInvite")
+                for item in items:
+                    program = {}
+                    for child in item:
+                        program[child.tag] = child.text
+
+                    mapped_program = {
+                        "title": program.get("pgmNm", "")
+                        + (
+                            " - " + program.get("pgmSubNm", "")
+                            if program.get("pgmSubNm")
+                            else ""
+                        ),
+                        "content": program.get("pgmTarget", ""),
+                        "code": program.get("pgmNm", ""),
+                        "startDate": program.get("pgmStdt", ""),
+                        "endDate": program.get("pgmEndt", ""),
+                        "location": program.get("openPlcCont", ""),
+                        "time": program.get("operationTime", ""),
+                        "organization": program.get("orgNm", ""),
+                    }
+                    all_programs.append(mapped_program)
+
+                expected_pages = min(
+                    MAX_PAGES, (total_count + PAGE_SIZE - 1) // PAGE_SIZE
+                )
+                print(
+                    f"고용24 총 정책 수: {total_count}, 예상 페이지 수: {expected_pages}"
+                )
+
+                # 2페이지부터 데이터 수집
+                for page in tqdm(
+                    range(2, expected_pages + 1),
+                    desc="고용24 데이터 수집",
+                    dynamic_ncols=True,
+                ):
+                    params = {
+                        "authKey": EMPLOYMENT_API_KEY,
+                        "returnType": "XML",
+                        "startPage": page,
+                        "display": PAGE_SIZE,
+                    }
+                    response = requests.get(EMPLOYMENT_URL, params=params, timeout=15)
+                    if response.status_code != 200 or not response.text.strip():
+                        break
+                    try:
+                        root = ET.fromstring(response.text)
+                        error_element = root.find(".//error")
+                        if error_element is not None:
+                            break
+
+                        items = root.findall(".//empPgmSchdInvite")
+                        if not items:
+                            break
+
+                        for item in items:
+                            program = {}
+                            for child in item:
+                                program[child.tag] = child.text
+
+                            mapped_program = {
+                                "title": program.get("pgmNm", "")
+                                + (
+                                    " - " + program.get("pgmSubNm", "")
+                                    if program.get("pgmSubNm")
+                                    else ""
+                                ),
+                                "content": program.get("pgmTarget", ""),
+                                "code": program.get("pgmNm", ""),
+                                "startDate": program.get("pgmStdt", ""),
+                                "endDate": program.get("pgmEndt", ""),
+                                "location": program.get("openPlcCont", ""),
+                                "time": program.get("operationTime", ""),
+                                "organization": program.get("orgNm", ""),
+                            }
+                            all_programs.append(mapped_program)
+                    except ET.ParseError:
+                        break
+                    time.sleep(API_RATE_LIMIT_DELAY)
+            except ET.ParseError as e:
+                print(f"XML 파싱 오류: {e}")
+    except requests.exceptions.RequestException as e:
+        print(f"고용24 API 오류: {e}")
+
+    print(f"고용24 데이터 수집 완료: {len(all_programs)}개")
+    return all_programs
