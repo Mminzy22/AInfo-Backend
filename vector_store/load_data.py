@@ -21,3 +21,15 @@ PDF_PATH = settings.PDF_PATH
 GOV24_API_KEY = settings.GOV24_API_KEY
 YOUTH_POLICY_API_KEY = settings.YOUTH_POLICY_API_KEY
 EMPLOYMENT_API_KEY = settings.EMPLOYMENT_API_KEY
+
+# API URL
+GOV24_BASE_URL = "https://api.odcloud.kr/api/gov24/v3"
+YOUTH_POLICY_URL = "https://www.youthcenter.go.kr/go/ythip/getPlcy"
+EMPLOYMENT_URL = (
+    "https://www.work24.go.kr/cm/openApi/call/wk/callOpenApiSvcInfo217L01.do"
+)
+
+# 데이터 수집 설정
+MAX_PAGES = 600
+PAGE_SIZE = 20
+API_RATE_LIMIT_DELAY = 0.5
