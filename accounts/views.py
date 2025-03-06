@@ -9,7 +9,6 @@ from .serializers import (
     CurrentStatusSerializer,
     EducationLevelSerializer,
     InterestSerializer,
-    ProfileUpdateSerializer,
     SignupSerializer,
     SubRegionSerializer,
     UserSerializer,
@@ -75,7 +74,7 @@ class LogoutView(APIView):
 class ProfileView(generics.RetrieveUpdateAPIView):
     """회원 프로필 조회 및 수정 API"""
 
-    serializer_class = ProfileUpdateSerializer
+    serializer_class = UserSerializer
 
     def get_object(self):
         """현재 로그인한 사용자 반환"""
