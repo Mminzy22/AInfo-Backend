@@ -35,7 +35,7 @@ EMPLOYMENT_API_KEY = env("EMPLOYMENT_API_KEY")
 # PDF 저장 폴더 설정
 PDF_DIR = BASE_DIR / "data" / "pdf"
 
-# .env에서 파일명을 불러와서 data/pdfs/ 내에서 찾도록 설정
+# .env에서 파일명을 불러와서 data/pdf/ 내에서 찾도록 설정
 PDF_FILENAME = env("PDF_PATH", default="")
 PDF_PATH = str(PDF_DIR / PDF_FILENAME) if PDF_FILENAME else None
 
