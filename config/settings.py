@@ -24,6 +24,21 @@ env = environ.Env(DEBUG=(bool, False))  # DEBUG 값을 boolean으로 변환, 기
 # .env 파일 로드
 environ.Env.read_env(BASE_DIR / ".env")
 
+# ChromaDB 저장 경로 설정
+CHROMA_DB_DIR = env("CHROMA_DB_DIR", default=str(BASE_DIR / "chroma_db"))
+
+# API 키 설정
+GOV24_API_KEY = env("GOV24_API_KEY")
+YOUTH_POLICY_API_KEY = env("YOUTH_POLICY_API_KEY")
+EMPLOYMENT_API_KEY = env("EMPLOYMENT_API_KEY")
+
+# PDF 저장 폴더 설정
+PDF_DIR = BASE_DIR / "data" / "pdf"
+
+# .env에서 파일명을 불러와서 data/pdf/ 내에서 찾도록 설정
+PDF_FILENAME = env("PDF_PATH", default="")
+PDF_PATH = str(PDF_DIR / PDF_FILENAME) if PDF_FILENAME else None
+
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
 
