@@ -118,20 +118,9 @@ class EducationLevelListView(generics.ListAPIView):
 
 
 # 회원 탈퇴 (DELETE /api/v1/accounts/delete/)
-class DeleteAccountView(APIView):
+class DeleteAccountView(generics.DestroyAPIView):
+    """회원 탈퇴 API"""
 
-    def delete(self, request):
-        """현재 로그인한 사용자의 계정을 삭제"""
-        user = request.user  # 현재 로그인한 사용자 가져오기
-
-        try:
-            user.delete()  # User 모델의 delete 메서드 호출 (소셜 계정도 함께 삭제됨)
-            return Response(
-                {"message": "회원 탈퇴가 완료되었습니다."},
-                status=status.HTTP_204_NO_CONTENT,
-            )
-        except Exception as e:
-            return Response(
-                {"error": f"회원 탈퇴 중 오류가 발생했습니다: {str(e)}"},
-                status=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            )
+    def get_object(self):
+        """현재 로그인한 사용자 반환"""
+        return self.request.user
