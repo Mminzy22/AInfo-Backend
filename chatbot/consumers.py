@@ -18,7 +18,12 @@ class ChatConsumer(AsyncWebsocketConsumer):
 
         llm_response = await self.llm_response(user_message)
 
-        await self.send(text_data=json.dumps({"response": llm_response}))
+        await self.send(
+            text_data=json.dumps(
+                {"response": llm_response},
+                ensure_ascii=False,
+            )
+        )
 
     async def llm_response(self, user_message):
         llm_response = get_chatbot_response(user_message)
