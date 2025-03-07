@@ -65,6 +65,9 @@ CORS_ALLOWED_ORIGINS = (
 # Application definition
 
 INSTALLED_APPS = [
+    # Third-party apps
+    "daphne",
+    "channels",
     "django.contrib.sites",
     "django.contrib.admin",
     "django.contrib.auth",
@@ -183,7 +186,7 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = "config.wsgi.application"
-
+ASGI_APPLICATION = "config.asgi.application"
 
 # Database
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
@@ -199,6 +202,17 @@ DATABASES = {
     )
 }
 
+
+REDIS_HOST = env("REDIS_HOST", default="127.0.0.1")
+REDIS_PORT = env.int("REDIS_PORT", default=6379)
+CHANNEL_LAYERS = {
+    "default": {
+        "BACKEND": "channels_redis.core.RedisChannelLayer",
+        "CONFIG": {
+            "hosts": [(REDIS_HOST, REDIS_PORT)],
+        },
+    },
+}
 
 # 사용자 모델 설정
 AUTH_USER_MODEL = "accounts.User"
