@@ -203,6 +203,17 @@ DATABASES = {
 }
 
 
+REDIS_HOST = env("REDIS_HOST", default="127.0.0.1")
+REDIS_PORT = env.int("REDIS_PORT", default=6379)
+CHANNEL_LAYERS = {
+    'default': {
+        'BACKEND': 'channels_redis.core.RedisChannelLayer',
+        'CONFIG': {
+            'hosts': [(REDIS_HOST, REDIS_PORT)],
+        },
+    },
+}
+
 # 사용자 모델 설정
 AUTH_USER_MODEL = "accounts.User"
 
