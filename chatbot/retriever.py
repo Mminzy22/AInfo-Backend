@@ -1,8 +1,7 @@
 from django.conf import settings
 from langchain.retrievers.multi_query import MultiQueryRetriever
 from langchain_chroma import Chroma
-from langchain_community.chat_models import ChatOpenAI
-from langchain_openai import OpenAIEmbeddings
+from langchain_openai import ChatOpenAI, OpenAIEmbeddings
 
 
 class VectorRetriever:
