@@ -44,6 +44,35 @@ class AccountsTests(APITestCase):
         self.assertIn("access", response.data)
         self.assertIn("refresh", response.data)
 
+    def test_token_refresh(self):
+        """JWT 토큰 갱신 테스트"""
+        data = {"refresh": str(self.refresh)}
+        response = self.client.post(self.token_refresh_url, data)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertIn("access", response.data)
+
+    def test_profile_retrieve(self):
+        """프로필 조회 테스트"""
+        self.client.credentials(HTTP_AUTHORIZATION=f"Bearer {self.access_token}")
+        response = self.client.get(self.profile_url)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data["email"], self.user.email)
+
+    def test_profile_update(self):
+        """프로필 수정 테스트"""
+        self.client.credentials(
+            HTTP_AUTHORIZATION=f"Bearer {self.access_token}"
+        )  # 인증 추가
+        data = {
+            "name": "Updated Name",
+            "interests_ids": [],
+            "location_id": None,
+            "current_status_id": None,
+            "education_level_id": None,
+        }
+        response = self.client.put(self.profile_url, data, format="json")
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
     def test_logout(self):
         """로그아웃 테스트"""
         self.client.credentials(HTTP_AUTHORIZATION=f"Bearer {self.access_token}")
