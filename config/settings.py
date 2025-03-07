@@ -246,7 +246,16 @@ STATIC_URL = "static/"
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 
-# Django REST framework settings
+# 기본 권한 설정을 .env에서 불러옴 (DEBUG 모드일 때는 기본적으로 IsAuthenticated)
+DEFAULT_PERMISSION_CLASSES = (
+    ["rest_framework.permissions.IsAuthenticated"]
+    if DEBUG
+    else env.list(
+        "DEFAULT_PERMISSION_CLASSES",
+        default=["rest_framework.permissions.IsAuthenticated"],
+    )
+)
+
 REST_FRAMEWORK = {
     # 1. 인증 방식 (JWT + 세션)
     "DEFAULT_AUTHENTICATION_CLASSES": (
@@ -254,5 +263,5 @@ REST_FRAMEWORK = {
         "rest_framework.authentication.SessionAuthentication",  # Admin 페이지
     ),
     # 2. 기본 권한 (로그인한 사용자만 API 접근 가능)
-    "DEFAULT_PERMISSION_CLASSES": ("rest_framework.permissions.IsAuthenticated",),
+    "DEFAULT_PERMISSION_CLASSES": DEFAULT_PERMISSION_CLASSES,
 }

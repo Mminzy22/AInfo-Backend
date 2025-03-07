@@ -79,6 +79,7 @@ jobs:
           echo "EMPLOYMENT_API_KEY=${{ secrets.EMPLOYMENT_API_KEY }}" >> $GITHUB_ENV
           echo "PDF_PATH=${{ secrets.PDF_PATH }}" >> $GITHUB_ENV
           echo "CHROMA_DB_DIR=${{ secrets.CHROMA_DB_DIR }}" >> $GITHUB_ENV
+          echo "DEFAULT_PERMISSION_CLASSES=${{ secrets.DEFAULT_PERMISSION_CLASSES }}" >> $GITHUB_ENV
 
       - name: Set up Django test database
         env:
