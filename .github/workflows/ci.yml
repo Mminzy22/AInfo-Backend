@@ -40,3 +40,32 @@ jobs:
       # flake8 실행
       - name: Run flake8 (Python Lint)
         run: flake8 --config .flake8
+
+  test:
+    name: Run Django Tests (SQLite)
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
+        run: |
+          pip install -r requirements.txt
+
+      - name: Set up Django test database
+        env:
+          DJANGO_SETTINGS_MODULE: config.settings
+        run: |
+          python manage.py migrate --noinput
+
+      - name: Run tests
+        env:
+          DJANGO_SETTINGS_MODULE: config.settings
+        run: |
+          python manage.py test accounts
