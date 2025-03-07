@@ -81,6 +81,7 @@ INSTALLED_APPS = [
     "allauth.account",  # 이메일 로그인 지원
     "allauth.socialaccount",  # 소셜 로그인 지원
     "allauth.socialaccount.providers.google",  # Google 소셜 로그인 지원
+    "allauth.socialaccount.providers.kakao",  # 카카오 소셜 로그인 추가
     # Local apps
     "accounts",
     "chatbot",
@@ -121,36 +122,44 @@ ACCOUNT_LOGIN_METHODS = {"email"}
 ACCOUNT_EMAIL_REQUIRED = True
 ACCOUNT_USERNAME_REQUIRED = False
 ACCOUNT_EMAIL_VERIFICATION = "none"  # 이메일 인증
+ACCOUNT_ADAPTER = "allauth.account.adapter.DefaultAccountAdapter"
+SOCIALACCOUNT_ADAPTER = "allauth.socialaccount.adapter.DefaultSocialAccountAdapter"
 
 
-# 환경에 따라 Google OAuth 설정 다르게 적용
+# allauth 설정 추가
+ACCOUNT_USER_MODEL_USERNAME_FIELD = None  # username 필드 없음
+
+
+
+# 환경에 따라 Google, kakao OAuth 설정 다르게 적용
 if DEBUG:  # 개발 환경
-    GOOGLE_CLIENT_ID = env("GOOGLE_CLIENT_ID_LOCAL")
-    GOOGLE_CLIENT_SECRET = env("GOOGLE_CLIENT_SECRET_LOCAL")
-    GOOGLE_REDIRECT_URIS = [
-        env("GOOGLE_REDIRECT_URI_LOCAL"),  # 127.0.0.1
-        env("GOOGLE_REDIRECT_URI_LOCALHOST"),  # localhost
-    ]
+    LOGIN_REDIRECT_URL = env("FRONTEND_DEV_URL")
+    LOGOUT_REDIRECT_URL = env("FRONTEND_DEV_URL")
 else:  # 운영 환경
-    GOOGLE_CLIENT_ID = env("GOOGLE_CLIENT_ID_PROD")
-    GOOGLE_CLIENT_SECRET = env("GOOGLE_CLIENT_SECRET_PROD")
-    GOOGLE_REDIRECT_URIS = [env("GOOGLE_REDIRECT_URI_PROD")]
+    LOGIN_REDIRECT_URL = env("FRONTEND_PROD_URL")
+    LOGOUT_REDIRECT_URL = env("FRONTEND_PROD_URL")
 
 SOCIALACCOUNT_PROVIDERS = {
+    "kakao": {
+        "APP": {
+            "client_id": env("KAKAO_CLIENT_ID"),  # 카카오 REST API 키
+            "secret": env("KAKAO_SECRET"),  # 카카오 Client Secret (필요시)
+            "key": "",
+        },
+        "AUTH_PARAMS": {"prompt": "select_account"},
+    },
     "google": {
         "SCOPE": [
             "openid",
-            "profile",
             "email",
         ],
         "AUTH_PARAMS": {
             "access_type": "online",
         },
-        "OAUTH_PKCE_ENABLED": True,  # PKCE 사용 (보안 강화)
         "APP": {
-            "client_id": GOOGLE_CLIENT_ID,
-            "secret": GOOGLE_CLIENT_SECRET,
-            "redirect_uris": GOOGLE_REDIRECT_URIS,
+            "client_id": env("GOOGLE_CLIENT_ID"),
+            "secret": env("GOOGLE_CLIENT_SECRET"),
+            "redirect_uris": env("GOOGLE_REDIRECT_URI"),
         },
     }
 }
