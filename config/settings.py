@@ -130,7 +130,6 @@ SOCIALACCOUNT_ADAPTER = "allauth.socialaccount.adapter.DefaultSocialAccountAdapt
 ACCOUNT_USER_MODEL_USERNAME_FIELD = None  # username 필드 없음
 
 
-
 # 환경에 따라 Google, kakao OAuth 설정 다르게 적용
 if DEBUG:  # 개발 환경
     LOGIN_REDIRECT_URL = env("FRONTEND_DEV_URL")
@@ -161,7 +160,7 @@ SOCIALACCOUNT_PROVIDERS = {
             "secret": env("GOOGLE_CLIENT_SECRET"),
             "redirect_uris": env("GOOGLE_REDIRECT_URI"),
         },
-    }
+    },
 }
 
 

@@ -94,7 +94,9 @@ class UserSerializer(serializers.ModelSerializer):
     def get_kakao_id(self, obj):
         """카카오 로그인 사용자의 UID 반환"""
         social_user = SocialAccount.objects.filter(user=obj, provider="kakao").first()
-        return social_user.uid if social_user else None  # 카카오 로그인 사용자면 UID 반환, 아니면 None
+        return (
+            social_user.uid if social_user else None
+        )  # 카카오 로그인 사용자면 UID 반환, 아니면 None
 
     def update(self, instance, validated_data):
         """프로필 업데이트 로직"""
