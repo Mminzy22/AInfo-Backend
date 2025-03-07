@@ -65,6 +65,10 @@ CORS_ALLOWED_ORIGINS = (
 # Application definition
 
 INSTALLED_APPS = [
+    # Third-party apps
+    'daphne',     
+    'channels', 
+    
     "django.contrib.sites",
     "django.contrib.admin",
     "django.contrib.auth",
