@@ -2,6 +2,7 @@ from django.conf import settings
 from langchain_chroma import Chroma
 from langchain_openai import OpenAIEmbeddings
 
+
 class VectorRetriever:
     _instance = None
 
@@ -22,3 +23,13 @@ class VectorRetriever:
         )
 
         self.retriever = self.vector_store.as_retriever()
+
+        # MultiQueryRetriever 생성 (재사용)
+        self.llm = ChatOpenAI(model_name="gpt-4o-mini")
+        self.multi_query_retriever = MultiQueryRetriever.from_llm(
+            retriever=self.retriever, llm=self.llm
+        )
+
+    def get_multi_query_retriever(self):
+        """MultiQueryRetriever 객체 반환 (한 번만 생성 후 재사용)"""
+        return self.multi_query_retriever
