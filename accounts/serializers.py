@@ -43,6 +43,7 @@ class UserSerializer(serializers.ModelSerializer):
 
     email = serializers.EmailField(read_only=True)  # 이메일 필드 (읽기 전용)
     is_social = serializers.SerializerMethodField()  # 소셜 로그인 여부 확인
+    kakao_id = serializers.SerializerMethodField()  # 카카오 UID 추가
 
     # 프로필 조회 시 객체 반환
     interests = InterestSerializer(many=True, read_only=True)  # ManyToMany (읽기 전용)
@@ -80,6 +81,7 @@ class UserSerializer(serializers.ModelSerializer):
             "education_level",  # GET 요청 시 객체 반환
             "education_level_id",  # PUT 요청 시 ID 값으로 업데이트
             "is_social",  # 소셜 로그인 여부
+            "kakao_id",  # 카카오 고유 ID 추가
             "terms_agree",
             "marketing_agree",
             "created_at",
@@ -88,6 +90,11 @@ class UserSerializer(serializers.ModelSerializer):
     def get_is_social(self, obj):
         """소셜 로그인 여부 확인"""
         return SocialAccount.objects.filter(user=obj).exists()
+
+    def get_kakao_id(self, obj):
+        """카카오 로그인 사용자의 UID 반환"""
+        social_user = SocialAccount.objects.filter(user=obj, provider="kakao").first()
+        return social_user.uid if social_user else None  # 카카오 로그인 사용자면 UID 반환, 아니면 None
 
     def update(self, instance, validated_data):
         """프로필 업데이트 로직"""
