@@ -58,6 +58,28 @@ jobs:
         run: |
           pip install -r requirements.txt
 
+      - name: Set environment variables
+        run: |
+          echo "DJANGO_SECRET_KEY=${{ secrets.DJANGO_SECRET_KEY }}" >> $GITHUB_ENV
+          echo "DEBUG=${{ secrets.DEBUG }}" >> $GITHUB_ENV
+          echo "ALLOWED_HOSTS=${{ secrets.ALLOWED_HOSTS }}" >> $GITHUB_ENV
+          echo "CORS_ALLOWED_ORIGINS=${{ secrets.CORS_ALLOWED_ORIGINS }}" >> $GITHUB_ENV
+          echo "DATABASE_URL=${{ secrets.DATABASE_URL }}" >> $GITHUB_ENV
+          echo "REDIS_URL=${{ secrets.REDIS_URL }}" >> $GITHUB_ENV
+          echo "GOOGLE_CLIENT_ID=${{ secrets.GOOGLE_CLIENT_ID }}" >> $GITHUB_ENV
+          echo "GOOGLE_CLIENT_SECRET=${{ secrets.GOOGLE_CLIENT_SECRET }}" >> $GITHUB_ENV
+          echo "GOOGLE_REDIRECT_URI=${{ secrets.GOOGLE_REDIRECT_URI }}" >> $GITHUB_ENV
+          echo "KAKAO_CLIENT_ID=${{ secrets.KAKAO_CLIENT_ID }}" >> $GITHUB_ENV
+          echo "KAKAO_SECRET=${{ secrets.KAKAO_SECRET }}" >> $GITHUB_ENV
+          echo "FRONTEND_DEV_URL=${{ secrets.FRONTEND_DEV_URL }}" >> $GITHUB_ENV
+          echo "FRONTEND_PROD_URL=${{ secrets.FRONTEND_PROD_URL }}" >> $GITHUB_ENV
+          echo "OPENAI_API_KEY=${{ secrets.OPENAI_API_KEY }}" >> $GITHUB_ENV
+          echo "GOV24_API_KEY=${{ secrets.GOV24_API_KEY }}" >> $GITHUB_ENV
+          echo "YOUTH_POLICY_API_KEY=${{ secrets.YOUTH_POLICY_API_KEY }}" >> $GITHUB_ENV
+          echo "EMPLOYMENT_API_KEY=${{ secrets.EMPLOYMENT_API_KEY }}" >> $GITHUB_ENV
+          echo "PDF_PATH=${{ secrets.PDF_PATH }}" >> $GITHUB_ENV
+          echo "CHROMA_DB_DIR=${{ secrets.CHROMA_DB_DIR }}" >> $GITHUB_ENV
+
       - name: Set up Django test database
         env:
           DJANGO_SETTINGS_MODULE: config.settings
