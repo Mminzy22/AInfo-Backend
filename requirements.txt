@@ -17,3 +17,6 @@ langchain-core==0.3.39
 langchain-openai==0.3.7
 langchain-text-splitters==0.3.6
 pymupdf==1.25.3
+daphne==4.1.2
+channels==4.2.0
+channels_redis==4.2.1
