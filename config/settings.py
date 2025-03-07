@@ -66,9 +66,8 @@ CORS_ALLOWED_ORIGINS = (
 
 INSTALLED_APPS = [
     # Third-party apps
-    'daphne',     
-    'channels', 
-    
+    "daphne",
+    "channels",
     "django.contrib.sites",
     "django.contrib.admin",
     "django.contrib.auth",
@@ -187,7 +186,7 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = "config.wsgi.application"
-
+ASGI_APPLICATION = "config.asgi.application"
 
 # Database
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
