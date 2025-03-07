@@ -1,5 +1,7 @@
 from django.conf import settings
+from langchain.retrievers.multi_query import MultiQueryRetriever
 from langchain_chroma import Chroma
+from langchain_community.chat_models import ChatOpenAI
 from langchain_openai import OpenAIEmbeddings
 
 
@@ -33,3 +35,15 @@ class VectorRetriever:
     def get_multi_query_retriever(self):
         """MultiQueryRetriever 객체 반환 (한 번만 생성 후 재사용)"""
         return self.multi_query_retriever
+
+    def get_retriever(self, limit=1000):
+        """ChromaDB의 retriever 객체 반환"""
+        return self.retriever
+
+    def get_vectorstore_count(self):
+        """저장된 벡터 개수 확인"""
+        return self.vector_store._collection.count()
+
+    def format_docs(self, docs):
+        """검색된 문서를 하나의 문자열로 변환"""
+        return "\n\n".join(getattr(doc, "page_content", "") for doc in docs)
