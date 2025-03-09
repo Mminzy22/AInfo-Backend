@@ -17,14 +17,15 @@ class ChatConsumer(AsyncWebsocketConsumer):
 
     사용 방식:
     - WebSocket 연결 시 사용자를 인증하고, 인증된 사용자만 채팅 이용 가능
-    - 클라이언트가 메시지를 전송하면 Chatbot 모델이 응답을 반환
+    - 클라이언트가 메시지를 전송하면 Chatbot 모델을 호츌하여 점진적인 응답을 생성
+    - `is_streaming=True`로 스트리밍 중임을 같이 알림
+    - 생성이 끝나면 완전한 메시지와 'is_streaming=False`도 같이 보내 스트리밍이 끝남을 알림
     - 인증되지 않은 사용자는 메시지를 전송할 수 없으며, 에러 메시지를 반환
 
     매서드(Method)
     - connect(): WebSocket 연결을 초기화하고 사용자 인증을 수행함.
     - disconnect(close_code): Websocket 연결 종료
     - receive(text_data): 클라이언트의 메시지를 받아 Chatbot에 전달
-    - llm_response(user_message): Chatbot에서 응답을 받아옴
     - get_user(): user_id를 기반으로 데이터베이스에서 사용자 정보 조회
     """
 
@@ -53,19 +54,22 @@ class ChatConsumer(AsyncWebsocketConsumer):
         data = json.loads(text_data)
         user_message = data["message"]
 
-        llm_response = await self.llm_response(user_message)
+        # 생성되고 있는 답변의 chunk과 스트리밍 중임을 알림
+        async for chunk in get_chatbot_response(user_message):
+            await self.send(
+                text_data=json.dumps(
+                    {"response": chunk, "is_streaming": True},
+                    ensure_ascii=False,
+                )
+            )
 
+        # 완전히 답변 생성이 끝나면 최종 답변과 스트리밍이 끝남을 알림
         await self.send(
             text_data=json.dumps(
-                {"response": llm_response},
+                {"response": chunk, "is_streaming": False},
                 ensure_ascii=False,
             )
         )
-
-    async def llm_response(self, user_message):
-        llm_response = get_chatbot_response(user_message)
-        response = llm_response.get("response")
-        return response
 
     @sync_to_async
     def get_user(self):
