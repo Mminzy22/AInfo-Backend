@@ -1,3 +1,4 @@
+import requests
 from django.contrib.auth import get_user_model
 from rest_framework import generics, permissions, status
 from rest_framework.response import Response
@@ -124,3 +125,59 @@ class DeleteAccountView(generics.DestroyAPIView):
     def get_object(self):
         """현재 로그인한 사용자 반환"""
         return self.request.user
+
+
+# 카카오 소셜 로그인 (POST /api/v1/accounts/kakao-login/)
+class KakaoLoginView(APIView):
+    permission_classes = [permissions.AllowAny]  # 비회원도 접근 가능
+
+    def post(self, request):
+        access_token = request.data.get("access_token")
+        if not access_token:
+            return Response({"error": "Access token이 필요합니다."}, status=400)
+
+        # 1. 카카오 API 호출
+        kakao_api = "https://kapi.kakao.com/v2/user/me"
+        headers = {"Authorization": f"Bearer {access_token}"}
+        response = requests.get(kakao_api, headers=headers)
+
+        if response.status_code != 200:
+            return Response({"error": "카카오 인증 실패"}, status=400)
+
+        kakao_data = response.json()
+        kakao_id = kakao_data.get("id")
+
+        if not kakao_id:
+            return Response({"error": "카카오 사용자 정보 없음"}, status=400)
+
+        # 2. 이메일 정보 (없으면 가짜 이메일 생성)
+        kakao_account = kakao_data.get("kakao_account", {})
+        email = kakao_account.get("email") or f"kakao_{kakao_id}@kakao.com"
+
+        # 3. 사용자 확인 또는 생성
+        user, created = User.objects.get_or_create(
+            email=email,
+            defaults={
+                "password": User.objects.make_random_password(),
+                "is_social": True,
+                "social_type": "kakao",
+                "name": kakao_data.get("properties", {}).get("nickname", ""),
+            },
+        )
+
+        # 4. JWT 발급
+        refresh = RefreshToken.for_user(user)
+
+        return Response(
+            {
+                "refresh": str(refresh),
+                "access": str(refresh.access_token),
+                "user": {
+                    "email": user.email,
+                    "name": user.name,
+                    "is_social": user.is_social,
+                    "social_type": user.social_type,
+                },
+            },
+            status=200,
+        )

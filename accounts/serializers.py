@@ -1,5 +1,6 @@
-from allauth.socialaccount.models import SocialAccount  # 소셜 로그인 여부 확인용
 from django.contrib.auth import get_user_model
+from django.contrib.auth.password_validation import validate_password
+from django.core.exceptions import ValidationError
 from rest_framework import serializers
 
 from .models import CurrentStatus, EducationLevel, Interest, SubRegion
@@ -30,7 +31,7 @@ class CurrentStatusSerializer(serializers.ModelSerializer):
 
 # 시/군/구 직렬화
 class SubRegionSerializer(serializers.ModelSerializer):
-    region = serializers.StringRelatedField()  # 시/도를 문자열로 반환
+    region = serializers.StringRelatedField()
 
     class Meta:
         model = SubRegion
@@ -39,19 +40,15 @@ class SubRegionSerializer(serializers.ModelSerializer):
 
 # 사용자 기본 정보 직렬화
 class UserSerializer(serializers.ModelSerializer):
-    """회원 프로필 조회 및 수정 직렬화"""
+    email = serializers.EmailField(read_only=True)
 
-    email = serializers.EmailField(read_only=True)  # 이메일 필드 (읽기 전용)
-    is_social = serializers.SerializerMethodField()  # 소셜 로그인 여부 확인
-    kakao_id = serializers.SerializerMethodField()  # 카카오 UID 추가
+    # GET 시 객체 반환
+    interests = InterestSerializer(many=True, read_only=True)
+    education_level = EducationLevelSerializer(read_only=True)
+    current_status = CurrentStatusSerializer(read_only=True)
+    location = SubRegionSerializer(read_only=True)
 
-    # 프로필 조회 시 객체 반환
-    interests = InterestSerializer(many=True, read_only=True)  # ManyToMany (읽기 전용)
-    education_level = EducationLevelSerializer(read_only=True)  # ForeignKey (읽기 전용)
-    current_status = CurrentStatusSerializer(read_only=True)  # ForeignKey (읽기 전용)
-    location = SubRegionSerializer(read_only=True)  # ForeignKey (읽기 전용)
-
-    # 프로필 수정 시 ID 값만 받기
+    # PUT 시 ID 값 받기
     interests_ids = serializers.PrimaryKeyRelatedField(
         queryset=Interest.objects.all(), many=True, write_only=True
     )
@@ -72,31 +69,20 @@ class UserSerializer(serializers.ModelSerializer):
             "email",
             "name",
             "birth_date",
-            "interests",  # GET 요청 시 객체 반환
-            "interests_ids",  # PUT 요청 시 ID 값으로 업데이트
-            "location",  # GET 요청 시 객체 반환
-            "location_id",  # PUT 요청 시 ID 값으로 업데이트
-            "current_status",  # GET 요청 시 객체 반환
-            "current_status_id",  # PUT 요청 시 ID 값으로 업데이트
-            "education_level",  # GET 요청 시 객체 반환
-            "education_level_id",  # PUT 요청 시 ID 값으로 업데이트
-            "is_social",  # 소셜 로그인 여부
-            "kakao_id",  # 카카오 고유 ID 추가
+            "interests",
+            "interests_ids",
+            "location",
+            "location_id",
+            "current_status",
+            "current_status_id",
+            "education_level",
+            "education_level_id",
+            "is_social",  # ← allauth 없이 모델 필드로 제공
+            "social_type",  # ← 'kakao', 'google' 등
             "terms_agree",
             "marketing_agree",
             "created_at",
         ]
-
-    def get_is_social(self, obj):
-        """소셜 로그인 여부 확인"""
-        return SocialAccount.objects.filter(user=obj).exists()
-
-    def get_kakao_id(self, obj):
-        """카카오 로그인 사용자의 UID 반환"""
-        social_user = SocialAccount.objects.filter(user=obj, provider="kakao").first()
-        return (
-            social_user.uid if social_user else None
-        )  # 카카오 로그인 사용자면 UID 반환, 아니면 None
 
     def update(self, instance, validated_data):
         """프로필 업데이트 로직"""
@@ -105,7 +91,6 @@ class UserSerializer(serializers.ModelSerializer):
         if "interests_ids" in validated_data:
             instance.interests.set(validated_data.pop("interests_ids"))
 
-        # ForeignKey 필드 업데이트
         instance.education_level = validated_data.pop(
             "education_level_id", instance.education_level
         )
@@ -114,7 +99,6 @@ class UserSerializer(serializers.ModelSerializer):
         )
         instance.location = validated_data.pop("location_id", instance.location)
 
-        # 나머지 필드 업데이트
         for attr, value in validated_data.items():
             setattr(instance, attr, value)
 
@@ -122,7 +106,7 @@ class UserSerializer(serializers.ModelSerializer):
         return instance
 
 
-# 회원가입 직렬화 (회원가입에 필요한 필드만 포함)
+# 회원가입 직렬화
 class SignupSerializer(serializers.ModelSerializer):
     """회원가입 직렬화"""
 
@@ -138,6 +122,17 @@ class SignupSerializer(serializers.ModelSerializer):
         """이메일 수집 및 활용 동의는 필수"""
         if not value:
             raise serializers.ValidationError("이메일 수집 및 활용 동의는 필수입니다.")
+        return value
+
+    def validate_password(self, value):
+        """
+        Django 기본 비밀번호 유효성 검사기 사용.
+        실패 시 ValidationError 발생 → 프론트에 전달됨.
+        """
+        try:
+            validate_password(value)  # Django 내부 validator 실행
+        except ValidationError as e:
+            raise serializers.ValidationError(e.messages)  # 리스트 형태로 반환
         return value
 
     def create(self, validated_data):

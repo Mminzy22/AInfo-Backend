@@ -11,7 +11,7 @@ class AccountsTests(APITestCase):
     def setUp(self):
         """테스트용 유저 생성"""
         self.user = User.objects.create_user(
-            email="testuser@example.com", password="testpassword"
+            email="testuser@example.com", password="Test1234!"
         )
         self.login_url = reverse("accounts:token_obtain_pair")
         self.signup_url = reverse("accounts:signup")
@@ -20,7 +20,6 @@ class AccountsTests(APITestCase):
         self.delete_url = reverse("accounts:delete_account")
         self.token_refresh_url = reverse("accounts:token_refresh")
 
-        # JWT 토큰 발급
         self.refresh = RefreshToken.for_user(self.user)
         self.access_token = str(self.refresh.access_token)
 
@@ -28,7 +27,7 @@ class AccountsTests(APITestCase):
         """회원가입 테스트"""
         data = {
             "email": "newuser@example.com",
-            "password": "newpassword",
+            "password": "Newpass123!",
             "terms_agree": True,
             "marketing_agree": False,
         }
@@ -38,7 +37,7 @@ class AccountsTests(APITestCase):
 
     def test_login(self):
         """로그인 테스트"""
-        data = {"email": "testuser@example.com", "password": "testpassword"}
+        data = {"email": "testuser@example.com", "password": "Test1234!"}
         response = self.client.post(self.login_url, data)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertIn("access", response.data)
@@ -60,9 +59,7 @@ class AccountsTests(APITestCase):
 
     def test_profile_update(self):
         """프로필 수정 테스트"""
-        self.client.credentials(
-            HTTP_AUTHORIZATION=f"Bearer {self.access_token}"
-        )  # 인증 추가
+        self.client.credentials(HTTP_AUTHORIZATION=f"Bearer {self.access_token}")
         data = {
             "name": "Updated Name",
             "interests_ids": [],

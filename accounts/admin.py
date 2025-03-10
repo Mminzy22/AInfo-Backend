@@ -1,3 +1,28 @@
-# from django.contrib import admin
+from django.contrib import admin
 
-# Register your models here.
+from .models import CurrentStatus, EducationLevel, Interest, SubRegion, User
+
+
+@admin.register(CurrentStatus)
+class CurrentStatusAdmin(admin.ModelAdmin):
+    pass
+
+
+@admin.register(EducationLevel)
+class EducationLevelAdmin(admin.ModelAdmin):
+    pass
+
+
+@admin.register(Interest)
+class InterestAdmin(admin.ModelAdmin):
+    pass
+
+
+@admin.register(SubRegion)
+class SubRegionAdmin(admin.ModelAdmin):
+    pass
+
+
+@admin.register(User)
+class UserAdmin(admin.ModelAdmin):
+    pass
