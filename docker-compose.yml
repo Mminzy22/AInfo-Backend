@@ -1,0 +1,22 @@
+version: '3.8'
+
+services:
+  # web:
+  #   build: .
+  #   container_name: drf_app
+  #   restart: always
+  #   env_file:
+  #     - .env
+  #   volumes:     # 배포시 주석처리
+  #     - .:/app
+  #   depends_on:
+  #     - redis
+  #   ports:
+  #     - "8000:8000"
+
+  redis:
+    image: redis:latest
+    container_name: redis_server
+    restart: always
+    ports:
+      - "6379:6379"
