@@ -1,9 +1,9 @@
+import requests
 from django.contrib.auth import get_user_model
 from rest_framework import generics, permissions, status
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework_simplejwt.tokens import RefreshToken
-import requests
 
 from .models import CurrentStatus, EducationLevel, Interest, SubRegion
 from .serializers import (
@@ -126,9 +126,10 @@ class DeleteAccountView(generics.DestroyAPIView):
         """현재 로그인한 사용자 반환"""
         return self.request.user
 
+
 # 카카오 소셜 로그인 (POST /api/v1/accounts/kakao-login/)
 class KakaoLoginView(APIView):
-    permission_classes = [permissions.AllowAny]   # 비회원도 접근 가능
+    permission_classes = [permissions.AllowAny]  # 비회원도 접근 가능
 
     def post(self, request):
         access_token = request.data.get("access_token")

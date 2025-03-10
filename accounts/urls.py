@@ -6,11 +6,11 @@ from .views import (
     DeleteAccountView,
     EducationLevelListView,
     InterestListView,
+    KakaoLoginView,
     LogoutView,
     ProfileView,
     SignupView,
     SubRegionListView,
-    KakaoLoginView,
 )
 
 app_name = "accounts"
@@ -40,6 +40,5 @@ urlpatterns = [
         name="education_level_list",
     ),
     path("delete/", DeleteAccountView.as_view(), name="delete_account"),
-
     path("kakao-login/", KakaoLoginView.as_view(), name="kakao_login"),
 ]
