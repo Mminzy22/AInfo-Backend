@@ -68,7 +68,6 @@ INSTALLED_APPS = [
     # Third-party apps
     "daphne",
     "channels",
-    "django.contrib.sites",
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
@@ -80,11 +79,6 @@ INSTALLED_APPS = [
     "rest_framework_simplejwt",
     "rest_framework_simplejwt.token_blacklist",  # 로그아웃 시 토큰 블랙리스트 사용
     "corsheaders",
-    "allauth",
-    "allauth.account",  # 이메일 로그인 지원
-    "allauth.socialaccount",  # 소셜 로그인 지원
-    "allauth.socialaccount.providers.google",  # Google 소셜 로그인 지원
-    "allauth.socialaccount.providers.kakao",  # 카카오 소셜 로그인 추가
     # Local apps
     "accounts",
     "chatbot",
@@ -103,14 +97,11 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
-    # django-allauth의 AccountMiddleware
-    "allauth.account.middleware.AccountMiddleware",
 ]
 
 
 AUTHENTICATION_BACKENDS = [
     "django.contrib.auth.backends.ModelBackend",  # 기본 Django 인증
-    "allauth.account.auth_backends.AuthenticationBackend",  # 소셜 로그인 인증
 ]
 
 
@@ -125,47 +116,6 @@ ACCOUNT_LOGIN_METHODS = {"email"}
 ACCOUNT_EMAIL_REQUIRED = True
 ACCOUNT_USERNAME_REQUIRED = False
 ACCOUNT_EMAIL_VERIFICATION = "none"  # 이메일 인증
-ACCOUNT_ADAPTER = "allauth.account.adapter.DefaultAccountAdapter"
-SOCIALACCOUNT_ADAPTER = "allauth.socialaccount.adapter.DefaultSocialAccountAdapter"
-
-
-# allauth 설정 추가
-ACCOUNT_USER_MODEL_USERNAME_FIELD = None  # username 필드 없음
-
-
-# 환경에 따라 Google, kakao OAuth 설정 다르게 적용
-if DEBUG:  # 개발 환경
-    LOGIN_REDIRECT_URL = env("FRONTEND_DEV_URL")
-    LOGOUT_REDIRECT_URL = env("FRONTEND_DEV_URL")
-else:  # 운영 환경
-    LOGIN_REDIRECT_URL = env("FRONTEND_PROD_URL")
-    LOGOUT_REDIRECT_URL = env("FRONTEND_PROD_URL")
-
-SOCIALACCOUNT_PROVIDERS = {
-    "kakao": {
-        "APP": {
-            "client_id": env("KAKAO_CLIENT_ID"),  # 카카오 REST API 키
-            "secret": env("KAKAO_SECRET"),  # 카카오 Client Secret (필요시)
-            "key": "",
-        },
-        "AUTH_PARAMS": {"prompt": "select_account"},
-    },
-    "google": {
-        "SCOPE": [
-            "openid",
-            "email",
-        ],
-        "AUTH_PARAMS": {
-            "access_type": "online",
-        },
-        "APP": {
-            "client_id": env("GOOGLE_CLIENT_ID"),
-            "secret": env("GOOGLE_CLIENT_SECRET"),
-            "redirect_uris": env("GOOGLE_REDIRECT_URI"),
-        },
-    },
-}
-
 
 ROOT_URLCONF = "config.urls"
 
