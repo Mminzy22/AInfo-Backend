@@ -77,8 +77,8 @@ class UserSerializer(serializers.ModelSerializer):
             "current_status_id",
             "education_level",
             "education_level_id",
-            "is_social",      # ← allauth 없이 모델 필드로 제공
-            "social_type",    # ← 'kakao', 'google' 등
+            "is_social",  # ← allauth 없이 모델 필드로 제공
+            "social_type",  # ← 'kakao', 'google' 등
             "terms_agree",
             "marketing_agree",
             "created_at",
@@ -91,8 +91,12 @@ class UserSerializer(serializers.ModelSerializer):
         if "interests_ids" in validated_data:
             instance.interests.set(validated_data.pop("interests_ids"))
 
-        instance.education_level = validated_data.pop("education_level_id", instance.education_level)
-        instance.current_status = validated_data.pop("current_status_id", instance.current_status)
+        instance.education_level = validated_data.pop(
+            "education_level_id", instance.education_level
+        )
+        instance.current_status = validated_data.pop(
+            "current_status_id", instance.current_status
+        )
         instance.location = validated_data.pop("location_id", instance.location)
 
         for attr, value in validated_data.items():
@@ -119,7 +123,7 @@ class SignupSerializer(serializers.ModelSerializer):
         if not value:
             raise serializers.ValidationError("이메일 수집 및 활용 동의는 필수입니다.")
         return value
-    
+
     def validate_password(self, value):
         """
         Django 기본 비밀번호 유효성 검사기 사용.
