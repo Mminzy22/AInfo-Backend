@@ -5,6 +5,7 @@ from channels.generic.websocket import AsyncWebsocketConsumer
 
 from accounts.models import User
 
+from .serializers import ChatbotSerializer
 from .utils import get_chatbot_response
 
 
@@ -53,6 +54,16 @@ class ChatConsumer(AsyncWebsocketConsumer):
 
         data = json.loads(text_data)
         user_message = data["message"]
+
+        serializer = ChatbotSerializer(data={"message": user_message})
+        if not serializer.is_valid():
+            await self.send(
+                text_data=json.dumps(
+                    {"error": "잘못된 메시지 형식입니다."},
+                    ensure_ascii=False,
+                )
+            )
+            return
 
         # 생성되고 있는 답변의 chunk과 스트리밍 중임을 알림
         async for chunk in get_chatbot_response(user_message):
