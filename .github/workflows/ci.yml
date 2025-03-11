@@ -91,4 +91,4 @@ jobs:
         env:
           DJANGO_SETTINGS_MODULE: config.settings
         run: |
-          python manage.py test accounts
+          python manage.py test
