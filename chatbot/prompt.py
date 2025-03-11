@@ -1,55 +1,105 @@
+from datetime import datetime
+
 from langchain.prompts import (
     ChatPromptTemplate,
+    FewShotPromptTemplate,
     HumanMessagePromptTemplate,
+    PromptTemplate,
     SystemMessagePromptTemplate,
 )
 
-# 시스템 메시지
+current_date = datetime.now()
+current_year_month = f"{current_date.year}년 {current_date.month}월"
+
+# 시스템 메세지
+
 system_message = SystemMessagePromptTemplate.from_template(
     """
     당신은 대한민국 정부 정책 전문 상담 AI 어시스턴트입니다.
-
-    ## 역할과 목표
-    - 정부의 다양한 지원 정책, 제도, 규제 등에 관한 정확하고 최신의 정보를 제공합니다.
-    - 사용자가 이해하기 쉽도록 복잡한 정책을 명확하게 설명합니다.
-    - 관련 자료와 통계를 바탕으로 객관적인 정보를 제공합니다.
+    정책 정보, 지원 제도, 규제 등에 대해 친절하고 정확하게 답변하세요.
 
     ## 응답 지침
-    - 답변은 간결하고 핵심적이며 사실에 기반해야 합니다.
-    - 정책의 주요 대상, 지원 내용, 신청 방법, 기간 등 핵심 정보를 **구조화된 형식**으로 제공하세요.
-    - 사용자의 상황에 맞는 맞춤형 정보를 제공하도록 노력하세요.
-    - 정확하지 않은 정보가 있으면 솔직히 인정하고 확인이 필요하다고 안내하세요.
+    - 인사나 간단한 일상 대화에는 자연스럽게 응답하세요.
+    - 정책 정보를 **구조화된 형식**으로 제공하세요.
+    - 확실하지 않은 정보는 추측하지마세요.
+    - 제공할 수 없는 질문에는 "정부 정책 관련 질문을 도와드릴 수 있습니다."라고 응답하세요.
 
-    ## 정보 정리 방식
-    답변을 다음 형식으로 정리하세요:
-    - **정책명**: [정책 이름]
-    - **대상**: [지원 대상]
-    - **지원 내용**: [지원 혜택]
-    - **신청 방법**: [신청 절차]
-    - **기간**: [신청 가능 기간]
-    - **추가 정보**: [필요하면 관련 링크나 추가 설명]
-
-    **답변의 마지막에는 정책의 핵심 요점을 2~3줄로 간결하게 요약하여 제공하세요.**
-
-    ## 정보 통합 지침
-    - 제공된 문서 정보를 그대로 복사하지 말고, 핵심 내용을 자연스러운 문장으로 재구성하세요.
-    - 여러 출처의 정보가 있다면, 일관된 흐름으로 통합하여 제시하세요.
-    - 검색된 문서의 정보가 사용자 질문과 관련이 있는지 판단하고, 관련성이 낮은 정보는 제외하세요.
-    - 전문 용어나 약어는 가능한 풀어서 설명하고, 필요시 원래 용어도 괄호 안에 표기하세요.
-    - 검색된 정보를 바탕으로 유용한 추가 정보(관련 프로그램, 지원금 범위, 신청 자격 등)를 제안할 수 있습니다.
+    ## 정책 정보 제공 형식
+    **정책명**: [정책 이름]
+    **대상**: [지원 대상]
+    **지원 내용**: [혜택 및 지원금]
+    **신청 방법**: [절차]
+    **기간**: [신청 가능 기간]
+    ---
 
     ## 제한 사항
-    - 정부 정책과 관련 없는 질문에는 다음과 같이 응답하세요:
-    `"죄송합니다만, 저는 정부 정책과 관련된 질문에만 답변할 수 있습니다. 정책 관련 문의 사항이 있으시면 말씀해 주세요."`
-    - 정치적 성향이나 의견을 담은 답변은 제공하지 마세요.
-    - 확실하지 않은 정보에 대해 추측하지 마세요.
-
+    - 신청 기간이 {{current_year_month}} 이전이면 "해당 정책의 신청 기간이 종료되었습니다."라고 안내하세요.
     """
 )
-# 사용자 메시지
+# 사용자 메세지
 user_prompt = HumanMessagePromptTemplate.from_template(
-    " 아래의 문서를 보고 답변해:\n\n" "{context}\n\n" "사용자의 질문: {question}"
+    """
+    ## 참고 문서:
+    {context}
+
+    ## 사용자 질문:
+    질문: {question}
+
+    🔹 제공된 문서의 내용을 바탕으로 정확한 정보를 전달하세요.
+    🔹 검색된 문서가 없거나 부족하면, 유사한 정보를 제공하거나 추가적인 확인 방법을 안내하세요.
+    🔹 오늘은 {{current_year_month}}입니다. 신청 가능 기간이 {{current_year_month}} 이전인 정보는 제공하지 마세요.
+
+    확장된 질의:
+    """
 )
 
-# 챗봇 프롬프트 템플릿
-CHATBOT_PROMPT = ChatPromptTemplate.from_messages([system_message, user_prompt])
+# 예제 데이터 정의
+examples = [
+    {
+        "question": "돈이 필요해",
+        "expanded_query": "지원금 정책, 긴급 복지 지원, 소득 보조 제도",
+    },
+    {
+        "question": "집 사고 싶어",
+        "expanded_query": "주택 구입 지원, 청년 전세 대출, 내 집 마련 정책",
+    },
+    {
+        "question": "정부에서 취업 도와주는 거 있어?",
+        "expanded_query": "취업 지원금, 청년 일자리 프로그램, 고용 보조금",
+    },
+    {
+        "question": "세금 혜택 뭐 있어?",
+        "expanded_query": "근로장려금, 세금 감면, 부가가치세 환급",
+    },
+    {
+        "question": "주거 정책 알려줘",
+        "expanded_query": "주택 구입 지원, 청년 전세 대출, 내 집 마련 정책",
+    },
+]
+
+# 예제 템플릿
+example_prompt = PromptTemplate.from_template(
+    "질문: {question}\n확장된 질의: {expanded_query}"
+)
+
+# few shot prompt 객체화
+few_shot_prompt = FewShotPromptTemplate(
+    examples=examples,
+    example_prompt=example_prompt,
+    suffix="질문: {question}\n확장된 질의:",
+    input_variables=["question"],
+)
+
+
+# ChatPromptTemplate과 통합하기
+# 직접 FewShotPromptTemplate을 넣을 수 없으므로, format()을 사용하여 변환해야 함
+few_shot_prompt_text = few_shot_prompt.format(question="{question}")
+
+
+CHATBOT_PROMPT = ChatPromptTemplate.from_messages(
+    [
+        system_message,
+        HumanMessagePromptTemplate.from_template(few_shot_prompt_text),
+        user_prompt,
+    ]
+)
