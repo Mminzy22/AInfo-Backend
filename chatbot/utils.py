@@ -7,7 +7,8 @@ from .retriever import VectorRetriever
 
 # 리트리버 인스턴스 생성 (싱글톤으로 구현된 리트리버에 맞춰 전역 변수로 생성)
 vector_retriever = VectorRetriever()
-retriever = vector_retriever.get_retriever()
+# 멀티쿼리리트리버로 변경
+retriever = vector_retriever.get_multi_query_retriever
 
 
 async def get_chatbot_response(user_message):
