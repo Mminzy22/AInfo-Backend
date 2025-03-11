@@ -1,5 +1,8 @@
 import requests
+from django.conf import settings
 from django.contrib.auth import get_user_model
+from google.auth.transport import requests as google_requests
+from google.oauth2 import id_token as google_id_token
 from rest_framework import generics, permissions, status
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -162,6 +165,59 @@ class KakaoLoginView(APIView):
                 "is_social": True,
                 "social_type": "kakao",
                 "name": kakao_data.get("properties", {}).get("nickname", ""),
+            },
+        )
+
+        # 4. JWT 발급
+        refresh = RefreshToken.for_user(user)
+
+        return Response(
+            {
+                "refresh": str(refresh),
+                "access": str(refresh.access_token),
+                "user": {
+                    "email": user.email,
+                    "name": user.name,
+                    "is_social": user.is_social,
+                    "social_type": user.social_type,
+                },
+            },
+            status=200,
+        )
+
+
+class GoogleLoginView(APIView):
+    permission_classes = [permissions.AllowAny]
+
+    def post(self, request):
+        id_token = request.data.get("id_token")
+        if not id_token:
+            return Response({"error": "ID Token이 필요합니다."}, status=400)
+
+        try:
+            # 1. 구글 ID 토큰 검증 (구글 서버의 공개 키로 검증됨)
+            idinfo = google_id_token.verify_oauth2_token(
+                id_token,
+                google_requests.Request(),
+                audience=settings.GOOGLE_CLIENT_ID,  # 보통은 CLIENT_ID를 넣는 것이 권장됨
+            )
+        except ValueError:
+            return Response({"error": "유효하지 않은 ID 토큰입니다."}, status=400)
+
+        # 2. 사용자 정보 추출
+        email = idinfo.get("email")
+        name = idinfo.get("name", "")
+        if not email:
+            return Response({"error": "구글 이메일 정보가 없습니다."}, status=400)
+
+        # 3. 사용자 확인 또는 생성
+        user, _ = User.objects.get_or_create(
+            email=email,
+            defaults={
+                "password": User.objects.make_random_password(),
+                "is_social": True,
+                "social_type": "google",
+                "name": name,
             },
         )
 
