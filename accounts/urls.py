@@ -5,6 +5,7 @@ from .views import (
     CurrentStatusListView,
     DeleteAccountView,
     EducationLevelListView,
+    GoogleLoginView,
     InterestListView,
     KakaoLoginView,
     LogoutView,
@@ -41,4 +42,5 @@ urlpatterns = [
     ),
     path("delete/", DeleteAccountView.as_view(), name="delete_account"),
     path("kakao-login/", KakaoLoginView.as_view(), name="kakao_login"),
+    path("google-login/", GoogleLoginView.as_view(), name="google_login"),
 ]
