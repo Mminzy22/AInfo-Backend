@@ -1,0 +1,7 @@
+[tool.black]
+line-length = 88
+exclude = 'venv/'
+
+[tool.isort]
+profile = "black"
+skip = ["venv"]
