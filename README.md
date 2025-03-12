@@ -25,6 +25,10 @@ AInfo는 맞춤형 공공서비스 추천 AI 챗봇입니다. Django Rest Framew
     - WebSocket에서 JWT 인증 미들웨어 적용
     - 챗봇 메시지 스트리밍 기능 추가
 
+### 🐣 Release Version : 1.0.0
+
+### 🔗 서비스 접속 : [https://www.ainfo.ai.kr](https://www.ainfo.ai.kr/)
+
 ### 🔗연결 Frontend repo: [AInfo-Frontend](https://github.com/Mminzy22/AInfo-Frontend)
 
 ---
@@ -49,7 +53,8 @@ AInfo는 맞춤형 공공서비스 추천 AI 챗봇입니다. Django Rest Framew
 │   │   ├── documentation.md → 문서화 관련 템플릿
 │   │   └── feature_request.md → 기능 요청 양식
 │   └── workflows/ # GitHub Actions 설정
-│       └── ci.yml → CI/CD 관련 설정
+│       ├── ci.yml → CI 관련 설정
+│       └── cd.yml → CD 관련 설정
 │
 ├── accounts/ # 사용자 인증 및 관리
 │   ├── migrations/ → DB 마이그레이션 파일
@@ -74,7 +79,7 @@ AInfo는 맞춤형 공공서비스 추천 AI 챗봇입니다. Django Rest Framew
 │   ├── serializers.py → 챗봇 데이터 직렬화 로직
 │   ├── tests.py → 챗봇 테스트 코드
 │   ├── urls.py → 챗봇 관련 URL 설정
-│   └──  utils.py → 챗봇 LLM 구현 관련 파일
+│   └── utils.py → 챗봇 LLM 구현 관련 파일
 │
 ├── config/ # 프로젝트 설정 및 환경 변수
 │   ├── init.py → 설정 패키지 초기화
@@ -186,10 +191,16 @@ pip install -r requirements.txt
 python manage.py migrate
 ```
 
-### 5. 서버 실행
+### 5. 데이터 로드
 
 ```bash
-redis-server
+python -m vector_store.load_data
+```
+
+### 6. 서버 실행
+
+```bash
+docker run --rm -p 6379:6379 --name redis-server redis
 python manage.py runserver
 ```
 
@@ -197,7 +208,7 @@ python manage.py runserver
 
 ## API 문서
 
-API 엔드포인트 및 요청/응답 예시는 [API 문서](https://www.notion.so/1a7af76d38e28182a3d5e14e7d24b764?pvs=21)에서 확인하세요.
+API 엔드포인트 및 요청/응답 예시는 [API 문서](https://www.notion.so/API-1a7af76d38e28182a3d5e14e7d24b764?pvs=21)에서 확인하세요.
 
 ---
 
