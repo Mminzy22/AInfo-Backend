@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from .models import CurrentStatus, EducationLevel, Interest, SubRegion, User
+from .models import CurrentStatus, EducationLevel, Interest, Region, SubRegion, User
 
 
 @admin.register(CurrentStatus)
@@ -25,4 +25,9 @@ class SubRegionAdmin(admin.ModelAdmin):
 
 @admin.register(User)
 class UserAdmin(admin.ModelAdmin):
+    pass
+
+
+@admin.register(Region)
+class RegionAdmin(admin.ModelAdmin):
     pass
