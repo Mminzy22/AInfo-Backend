@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from .models import CurrentStatus, EducationLevel, Interest, SubRegion, User, Region
+from .models import CurrentStatus, EducationLevel, Interest, Region, SubRegion, User
 
 
 @admin.register(CurrentStatus)
