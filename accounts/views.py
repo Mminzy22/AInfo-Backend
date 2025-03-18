@@ -2,10 +2,7 @@ import requests
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.contrib.sites.shortcuts import get_current_site
-from django.core.mail import send_mail
-from django.template.loader import render_to_string
-from django.utils.encoding import force_bytes
-from django.utils.http import urlsafe_base64_decode, urlsafe_base64_encode
+from django.utils.http import urlsafe_base64_decode
 from google.auth.transport import requests as google_requests
 from google.oauth2 import id_token as google_id_token
 from rest_framework import generics, permissions, status
@@ -22,6 +19,7 @@ from .serializers import (
     SubRegionSerializer,
     UserSerializer,
 )
+from .tasks import send_verify_email
 from .tokens import token_for_verify_mail
 
 User = get_user_model()
@@ -39,27 +37,13 @@ class SignupView(generics.CreateAPIView):
 
         - perform_create 메서드를 오버라이딩
         - uid와 tokens.py 에서 작성한 CreateToken 을 통해 만든 token 을 인증메일에 포함
+        - 기존 메일발송 로직 tasks.py 로 이동 -> Celery 로 비동기처리하기 위함
         """
         user = serializer.save()
 
-        # 이메일 인증을 위한 토큰 생성
-        token = token_for_verify_mail.make_token(user)
-        uid = urlsafe_base64_encode(force_bytes(user.pk))
-
-        # 인증 URL 생성
-        current_site = get_current_site(self.request)  # 현재 사이트 도메인 가져오기
-        mail_subject = "이메일 인증을 완료해주세요."
-        message = render_to_string(
-            "account/activate_email.html",
-            {
-                "user": user,
-                "domain": current_site.domain,
-                "uid": uid,
-                "token": token,
-            },
-        )
-
-        send_mail(mail_subject, message, "ainfo.ai.kr@gmail.com", [user.email])
+        current_site = get_current_site(self.request)
+        domain = current_site.domain
+        send_verify_email.delay(user.id, user.email, domain)
 
         return Response(
             {"message": "회원가입 완료, 이메일 인증을 확인해주세요."},
