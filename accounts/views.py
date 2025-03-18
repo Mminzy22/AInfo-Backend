@@ -13,6 +13,7 @@ from django.contrib.sites.shortcuts import get_current_site
 from .tokens import token_for_verify_mail
 from django.template.loader import render_to_string
 from django.utils.encoding import force_bytes
+from django.utils.http import urlsafe_base64_decode
 
 from .models import CurrentStatus, EducationLevel, Interest, SubRegion
 from .serializers import (
@@ -285,3 +286,28 @@ class GoogleLoginView(APIView):
             },
             status=200,
         )
+
+
+class ActivateEmailView(APIView):
+    """
+    Description: 메일로보낸 인증링크를 통해 들어온요청 을 처리하는 클래스
+    
+    - uid, token 과같이 보낸 인증메일을 통해 판별한후 email_verified 를 True 로 변경
+    """
+    permission_classes = [permissions.AllowAny]
+
+    def get(self, request, uid, token):
+        try:
+            # uid 디코딩
+            uid_decoded = urlsafe_base64_decode(uid).decode()
+            user = User.objects.get(pk=uid_decoded)
+        except (TypeError, ValueError, OverflowError, User.DoesNotExist):
+            user = None
+
+        # 토큰 확인
+        if user and token_for_verify_mail.check_token(user, token):
+            user.email_verified = True
+            user.save()
+            return Response({"message": "이메일 인증이 완료되었습니다."}, status=status.HTTP_200_OK)
+        else:
+            return Response({"error": "잘못된 인증 링크입니다."}, status=status.HTTP_400_BAD_REQUEST)
