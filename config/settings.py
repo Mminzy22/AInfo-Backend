@@ -79,6 +79,7 @@ INSTALLED_APPS = [
     "rest_framework_simplejwt",
     "rest_framework_simplejwt.token_blacklist",  # 로그아웃 시 토큰 블랙리스트 사용
     "corsheaders",
+    "celery",
     # Local apps
     "accounts",
     "chatbot",
@@ -175,6 +176,14 @@ CHANNEL_LAYERS = {
         },
     },
 }
+
+# CELERY 관련설정 --> Redis 를 브로커로 설정
+CELERY_BROKER_URL = f"redis://{REDIS_HOST}:{REDIS_PORT}/0"
+CELERY_RESULT_BACKEND = f"redis://{REDIS_HOST}:{REDIS_PORT}/0"
+# 메시지 직렬화 방식 설정
+CELERY_ACCEPT_CONTENT = ["json"]
+CELERY_TASK_SERIALIZER = "json"
+
 
 # 사용자 모델 설정
 AUTH_USER_MODEL = "accounts.User"
