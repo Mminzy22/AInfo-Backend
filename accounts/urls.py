@@ -2,18 +2,18 @@ from django.urls import path
 from rest_framework_simplejwt.views import TokenRefreshView
 
 from .views import (
+    ActivateEmailView,
     CurrentStatusListView,
     DeleteAccountView,
     EducationLevelListView,
     GoogleLoginView,
     InterestListView,
     KakaoLoginView,
+    LoginView,
     LogoutView,
     ProfileView,
     SignupView,
     SubRegionListView,
-    LoginView,
-    ActivateEmailView,
 )
 
 app_name = "accounts"

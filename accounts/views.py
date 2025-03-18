@@ -1,19 +1,17 @@
 import requests
 from django.conf import settings
 from django.contrib.auth import get_user_model
+from django.contrib.sites.shortcuts import get_current_site
+from django.core.mail import send_mail
+from django.template.loader import render_to_string
+from django.utils.encoding import force_bytes
+from django.utils.http import urlsafe_base64_decode, urlsafe_base64_encode
 from google.auth.transport import requests as google_requests
 from google.oauth2 import id_token as google_id_token
 from rest_framework import generics, permissions, status
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework_simplejwt.tokens import RefreshToken
-from django.core.mail import send_mail
-from django.utils.http import urlsafe_base64_encode
-from django.contrib.sites.shortcuts import get_current_site
-from .tokens import token_for_verify_mail
-from django.template.loader import render_to_string
-from django.utils.encoding import force_bytes
-from django.utils.http import urlsafe_base64_decode
 
 from .models import CurrentStatus, EducationLevel, Interest, SubRegion
 from .serializers import (
@@ -24,6 +22,7 @@ from .serializers import (
     SubRegionSerializer,
     UserSerializer,
 )
+from .tokens import token_for_verify_mail
 
 User = get_user_model()
 
@@ -37,7 +36,7 @@ class SignupView(generics.CreateAPIView):
     def perform_create(self, serializer):
         """
         Description: 회원가입후 이메일 인증 메일 발송을 위한 함수
-        
+
         - perform_create 메서드를 오버라이딩
         - uid와 tokens.py 에서 작성한 CreateToken 을 통해 만든 token 을 인증메일에 포함
         """
@@ -48,16 +47,19 @@ class SignupView(generics.CreateAPIView):
         uid = urlsafe_base64_encode(force_bytes(user.pk))
 
         # 인증 URL 생성
-        current_site = get_current_site(self.request)   # 현재 사이트 도메인 가져오기
-        mail_subject = '이메일 인증을 완료해주세요.'
-        message = render_to_string('account/activate_email.html', {
-            'user': user,
-            'domain': current_site.domain,
-            'uid': uid,
-            'token': token,
-        })
-        
-        send_mail(mail_subject, message, 'ainfo.ai.kr@gmail.com', [user.email])
+        current_site = get_current_site(self.request)  # 현재 사이트 도메인 가져오기
+        mail_subject = "이메일 인증을 완료해주세요."
+        message = render_to_string(
+            "account/activate_email.html",
+            {
+                "user": user,
+                "domain": current_site.domain,
+                "uid": uid,
+                "token": token,
+            },
+        )
+
+        send_mail(mail_subject, message, "ainfo.ai.kr@gmail.com", [user.email])
 
         return Response(
             {"message": "회원가입 완료, 이메일 인증을 확인해주세요."},
@@ -75,7 +77,7 @@ class LoginView(APIView):
         password = request.data.get("password")
 
         user = User.objects.filter(email=email).first()
-        
+
         if not user:
             return Response(
                 {"error": "이메일 또는 비밀번호가 올바르지 않습니다."},
@@ -291,9 +293,10 @@ class GoogleLoginView(APIView):
 class ActivateEmailView(APIView):
     """
     Description: 메일로보낸 인증링크를 통해 들어온요청 을 처리하는 클래스
-    
+
     - uid, token 과같이 보낸 인증메일을 통해 판별한후 email_verified 를 True 로 변경
     """
+
     permission_classes = [permissions.AllowAny]
 
     def get(self, request, uid, token):
@@ -308,6 +311,10 @@ class ActivateEmailView(APIView):
         if user and token_for_verify_mail.check_token(user, token):
             user.email_verified = True
             user.save()
-            return Response({"message": "이메일 인증이 완료되었습니다."}, status=status.HTTP_200_OK)
+            return Response(
+                {"message": "이메일 인증이 완료되었습니다."}, status=status.HTTP_200_OK
+            )
         else:
-            return Response({"error": "잘못된 인증 링크입니다."}, status=status.HTTP_400_BAD_REQUEST)
+            return Response(
+                {"error": "잘못된 인증 링크입니다."}, status=status.HTTP_400_BAD_REQUEST
+            )
