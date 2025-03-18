@@ -13,6 +13,7 @@ from .views import (
     SignupView,
     SubRegionListView,
     LoginView,
+    ActivateEmailView,
 )
 
 app_name = "accounts"
@@ -44,4 +45,5 @@ urlpatterns = [
     path("delete/", DeleteAccountView.as_view(), name="delete_account"),
     path("kakao-login/", KakaoLoginView.as_view(), name="kakao_login"),
     path("google-login/", GoogleLoginView.as_view(), name="google_login"),
+    path("activate/<uid>/<token>/", ActivateEmailView.as_view(), name="activate_email"),
 ]
