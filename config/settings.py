@@ -140,6 +140,16 @@ TEMPLATES = [
 WSGI_APPLICATION = "config.wsgi.application"
 ASGI_APPLICATION = "config.asgi.application"
 
+# Gmail SMTP서버 관련 설정
+EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
+EMAIL_HOST = "smtp.gmail.com"
+EMAIL_PORT = env("EMAIL_PORT")
+EMAIL_HOST_USER = env("EMAIL_ID")
+EMAIL_HOST_PASSWORD = env("EMAIL_APP_PW")
+EMAIL_USE_TLS = True
+DEFAULT_FROM_EMAIL = f"AInfo <{EMAIL_HOST_USER}>"
+EMAIL_TIMEOUT = 10
+
 # Database
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
 
