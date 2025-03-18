@@ -38,13 +38,25 @@ class LoginView(APIView):
         password = request.data.get("password")
 
         user = User.objects.filter(email=email).first()
+        
+        if not user:
+            return Response(
+                {"error": "이메일 또는 비밀번호가 올바르지 않습니다."},
+                status=status.HTTP_401_UNAUTHORIZED,
+            )
 
-        if user and user.check_password(password):
+        if not user.email_verified:
+            return Response(
+                {"error": "이메일 본인인증을 완료해주세요"},
+                status=status.HTTP_403_FORBIDDEN,
+            )
+
+        if user.check_password(password):
             refresh = RefreshToken.for_user(user)
             return Response(
                 {
-                    "access_token": str(refresh.access_token),
-                    "refresh_token": str(refresh),
+                    "access": str(refresh.access_token),
+                    "refresh": str(refresh),
                     "user": UserSerializer(user).data,
                 },
                 status=status.HTTP_200_OK,
