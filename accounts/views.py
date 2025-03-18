@@ -7,6 +7,12 @@ from rest_framework import generics, permissions, status
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework_simplejwt.tokens import RefreshToken
+from django.core.mail import send_mail
+from django.utils.http import urlsafe_base64_encode
+from django.contrib.sites.shortcuts import get_current_site
+from .tokens import token_for_verify_mail
+from django.template.loader import render_to_string
+from django.utils.encoding import force_bytes
 
 from .models import CurrentStatus, EducationLevel, Interest, SubRegion
 from .serializers import (
@@ -26,6 +32,36 @@ class SignupView(generics.CreateAPIView):
     queryset = User.objects.all()
     serializer_class = SignupSerializer
     permission_classes = [permissions.AllowAny]  # 누구나 회원가입 가능
+
+    def perform_create(self, serializer):
+        """
+        Description: 회원가입후 이메일 인증 메일 발송을 위한 함수
+        
+        - perform_create 메서드를 오버라이딩
+        - uid와 tokens.py 에서 작성한 CreateToken 을 통해 만든 token 을 인증메일에 포함
+        """
+        user = serializer.save()
+
+        # 이메일 인증을 위한 토큰 생성
+        token = token_for_verify_mail.make_token(user)
+        uid = urlsafe_base64_encode(force_bytes(user.pk))
+
+        # 인증 URL 생성
+        current_site = get_current_site(self.request)   # 현재 사이트 도메인 가져오기
+        mail_subject = '이메일 인증을 완료해주세요.'
+        message = render_to_string('account/activate_email.html', {
+            'user': user,
+            'domain': current_site.domain,
+            'uid': uid,
+            'token': token,
+        })
+        
+        send_mail(mail_subject, message, 'ainfo.ai.kr@gmail.com', [user.email])
+
+        return Response(
+            {"message": "회원가입 완료, 이메일 인증을 확인해주세요."},
+            status=status.HTTP_201_CREATED,
+        )
 
 
 # 로그인 (POST /api/v1/accounts/login/)
