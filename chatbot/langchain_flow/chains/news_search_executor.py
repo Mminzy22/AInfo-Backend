@@ -2,7 +2,7 @@ from langchain.agents import AgentExecutor, create_openai_functions_agent
 from langchain.tools.render import render_text_description
 from langchain_openai import ChatOpenAI
 
-from ..memory import get_summary_memory
+from ..memory import ChatHistoryManager
 from ..prompts.search_prompt import get_news_search_prompt
 from ..tools.tavily_news_tool import news_search_tool
 
@@ -17,18 +17,22 @@ LangChain 뉴스 검색 에이전트를 구성하는 실행 모듈입니다.
 - 실행기: AgentExecutor
 """
 
-tools = [news_search_tool]
+def get_news_search_executor(user_id: str) -> AgentExecutor:
+    tools = [news_search_tool]
 
-prompt = get_news_search_prompt(tools).partial(
-    tools_description=render_text_description(tools)
-)
+    prompt = get_news_search_prompt(tools).partial(
+        tools_description=render_text_description(tools)
+    )
 
-llm = ChatOpenAI(model="gpt-4o-mini", temperature=0)
+    llm = ChatOpenAI(model="gpt-4o-mini", temperature=0)
 
-memory = get_summary_memory(llm)
+    memory = ChatHistoryManager(user_id=user_id, model=llm).get_memory_manager()
 
-agent = create_openai_functions_agent(llm=llm, tools=tools, prompt=prompt)
+    agent = create_openai_functions_agent(llm=llm, tools=tools, prompt=prompt)
 
-news_search_executor = AgentExecutor(
-    agent=agent, tools=tools, memory=memory, verbose=True
-)
+    return AgentExecutor(
+        agent=agent,
+        tools=tools,
+        memory=memory,
+        verbose=True
+    )
