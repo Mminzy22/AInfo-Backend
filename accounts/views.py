@@ -330,3 +330,49 @@ class ResetPasswordView(APIView):
             status=status.HTTP_404_NOT_FOUND,
         )
 
+
+class ResetPasswordRenderView(APIView):
+    permission_classes = [permissions.AllowAny]
+
+    def get(self, request, uid, token):
+        try:
+            # uid 디코딩
+            uid_decoded = urlsafe_base64_decode(uid).decode()
+            user = User.objects.get(pk=uid_decoded)
+        except (TypeError, ValueError, OverflowError, User.DoesNotExist):
+            user = None
+
+        if user and token_for_verify_mail.check_token(user, token):
+            return render(
+                request, "account/password_reset.html", {"uid": uid, "token": token}
+            )
+
+    def post(self, request, uid, token):
+        try:
+            # uid 디코딩
+            uid_decoded = urlsafe_base64_decode(uid).decode()
+            user = User.objects.get(pk=uid_decoded)
+        except (TypeError, ValueError, OverflowError, User.DoesNotExist):
+            user = None
+
+        if user and token_for_verify_mail.check_token(user, token):
+            new_password = request.data.get("new_password")
+            confirm_password = request.data.get("confirm_password")
+
+            if new_password != confirm_password:
+                return Response(
+                    {"message": "비밀번호와 비밀번호 확인이 일치하지 않습니다."},
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
+
+            user.set_password(new_password)
+            user.save()
+            return Response(
+                {"message": "비밀번호가 성공적으로 변경되었습니다."},
+                status=status.HTTP_200_OK,
+            )
+        else:
+            return Response(
+                {"message": "유효하지 않은 토큰입니다."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
