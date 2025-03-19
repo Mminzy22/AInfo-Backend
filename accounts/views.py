@@ -208,6 +208,8 @@ class KakaoLoginView(APIView):
         # 4. JWT 발급
         refresh = RefreshToken.for_user(user)
 
+        agree_check = user.is_social and (not user.terms_agree)
+
         return Response(
             {
                 "refresh": str(refresh),
@@ -217,6 +219,7 @@ class KakaoLoginView(APIView):
                     "name": user.name,
                     "is_social": user.is_social,
                     "social_type": user.social_type,
+                    "agree_check": agree_check,
                 },
             },
             status=200,
@@ -261,6 +264,8 @@ class GoogleLoginView(APIView):
         # 4. JWT 발급
         refresh = RefreshToken.for_user(user)
 
+        agree_check = user.is_social and (not user.terms_agree)
+
         return Response(
             {
                 "refresh": str(refresh),
@@ -270,6 +275,7 @@ class GoogleLoginView(APIView):
                     "name": user.name,
                     "is_social": user.is_social,
                     "social_type": user.social_type,
+                    "agree_check": agree_check,
                 },
             },
             status=200,
