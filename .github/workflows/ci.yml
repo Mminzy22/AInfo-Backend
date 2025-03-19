@@ -90,6 +90,7 @@ jobs:
           echo "EMAIL_PORT=${{ secrets.EMAIL_PORT }}" >> $GITHUB_ENV
           echo "EMAIL_ID=${{ secrets.EMAIL_ID }}" >> $GITHUB_ENV
           echo "EMAIL_APP_PW=${{ secrets.EMAIL_APP_PW }}" >> $GITHUB_ENV
+          echo "TAVILY_API_KEY=${{ secrets.TAVILY_API_KEY }}" >> $GITHUB_ENV
 
       - name: Set up Django test database
         env:
