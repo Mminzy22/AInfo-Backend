@@ -145,3 +145,7 @@ class SignupSerializer(serializers.ModelSerializer):
             marketing_agree=validated_data.get("marketing_agree", False),
         )
         return user
+
+
+class ResetPasswordSerializer(serializers.Serializer):
+    email = serializers.EmailField()

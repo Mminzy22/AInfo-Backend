@@ -22,6 +22,8 @@ class AccountsTests(APITestCase):
 
         self.refresh = RefreshToken.for_user(self.user)
         self.access_token = str(self.refresh.access_token)
+        self.user.email_verified = True
+        self.user.save()
 
     def test_signup(self):
         """회원가입 테스트"""

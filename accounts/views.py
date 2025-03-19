@@ -1,6 +1,9 @@
 import requests
 from django.conf import settings
 from django.contrib.auth import get_user_model
+from django.contrib.sites.shortcuts import get_current_site
+from django.shortcuts import render
+from django.utils.http import urlsafe_base64_decode
 from google.auth.transport import requests as google_requests
 from google.oauth2 import id_token as google_id_token
 from rest_framework import generics, permissions, status
@@ -13,10 +16,13 @@ from .serializers import (
     CurrentStatusSerializer,
     EducationLevelSerializer,
     InterestSerializer,
+    ResetPasswordSerializer,
     SignupSerializer,
     SubRegionSerializer,
     UserSerializer,
 )
+from .tasks import send_reset_pw_email, send_verify_email
+from .tokens import token_for_verify_mail
 
 User = get_user_model()
 
@@ -26,6 +32,25 @@ class SignupView(generics.CreateAPIView):
     queryset = User.objects.all()
     serializer_class = SignupSerializer
     permission_classes = [permissions.AllowAny]  # 누구나 회원가입 가능
+
+    def perform_create(self, serializer):
+        """
+        Description: 회원가입후 이메일 인증 메일 발송을 위한 함수
+
+        - perform_create 메서드를 오버라이딩
+        - uid와 tokens.py 에서 작성한 CreateToken 을 통해 만든 token 을 인증메일에 포함
+        - 기존 메일발송 로직 tasks.py 로 이동 -> Celery 로 비동기처리하기 위함
+        """
+        user = serializer.save()
+
+        current_site = get_current_site(self.request)
+        domain = current_site.domain
+        send_verify_email.delay(user.id, user.email, domain)
+
+        return Response(
+            {"message": "회원가입 완료, 이메일 인증을 확인해주세요."},
+            status=status.HTTP_201_CREATED,
+        )
 
 
 # 로그인 (POST /api/v1/accounts/login/)
@@ -39,12 +64,24 @@ class LoginView(APIView):
 
         user = User.objects.filter(email=email).first()
 
-        if user and user.check_password(password):
+        if not user:
+            return Response(
+                {"error": "이메일 또는 비밀번호가 올바르지 않습니다."},
+                status=status.HTTP_401_UNAUTHORIZED,
+            )
+
+        if not user.email_verified:
+            return Response(
+                {"error": "이메일 본인인증을 완료해주세요"},
+                status=status.HTTP_403_FORBIDDEN,
+            )
+
+        if user.check_password(password):
             refresh = RefreshToken.for_user(user)
             return Response(
                 {
-                    "access_token": str(refresh.access_token),
-                    "refresh_token": str(refresh),
+                    "access": str(refresh.access_token),
+                    "refresh": str(refresh),
                     "user": UserSerializer(user).data,
                 },
                 status=status.HTTP_200_OK,
@@ -237,3 +274,105 @@ class GoogleLoginView(APIView):
             },
             status=200,
         )
+
+
+class ActivateEmailView(APIView):
+    """
+    Description: 메일로보낸 인증링크를 통해 들어온요청 을 처리하는 클래스
+
+    - uid, token 과같이 보낸 인증메일을 통해 판별한후 email_verified 를 True 로 변경
+    """
+
+    permission_classes = [permissions.AllowAny]
+
+    def get(self, request, uid, token):
+        try:
+            # uid 디코딩
+            uid_decoded = urlsafe_base64_decode(uid).decode()
+            user = User.objects.get(pk=uid_decoded)
+        except (TypeError, ValueError, OverflowError, User.DoesNotExist):
+            user = None
+
+        # 토큰 확인
+        if user and token_for_verify_mail.check_token(user, token):
+            user.email_verified = True
+            user.save()
+            return Response(
+                {"message": "이메일 인증이 완료되었습니다."}, status=status.HTTP_200_OK
+            )
+        else:
+            return Response(
+                {"error": "잘못된 인증 링크입니다."}, status=status.HTTP_400_BAD_REQUEST
+            )
+
+
+class ResetPasswordView(APIView):
+    permission_classes = [permissions.AllowAny]
+
+    def post(self, request):
+        serializer = ResetPasswordSerializer(data=request.data)
+        if serializer.is_valid():
+            email = serializer.validated_data["email"]
+            user = User.objects.filter(email=email).first()
+
+            current_site = get_current_site(request)
+            domain = current_site.domain
+
+            if user:
+                send_reset_pw_email.delay(user.id, email, domain)
+                return Response(
+                    {"message": "인증링크를 전송했습니다. 이메일을 확인해주세요"},
+                    status=status.HTTP_200_OK,
+                )
+
+        return Response(
+            {"message": "해당 계정은 존재하지 않습니다"},
+            status=status.HTTP_404_NOT_FOUND,
+        )
+
+
+class ResetPasswordRenderView(APIView):
+    permission_classes = [permissions.AllowAny]
+
+    def get(self, request, uid, token):
+        try:
+            # uid 디코딩
+            uid_decoded = urlsafe_base64_decode(uid).decode()
+            user = User.objects.get(pk=uid_decoded)
+        except (TypeError, ValueError, OverflowError, User.DoesNotExist):
+            user = None
+
+        if user and token_for_verify_mail.check_token(user, token):
+            return render(
+                request, "account/password_reset.html", {"uid": uid, "token": token}
+            )
+
+    def post(self, request, uid, token):
+        try:
+            # uid 디코딩
+            uid_decoded = urlsafe_base64_decode(uid).decode()
+            user = User.objects.get(pk=uid_decoded)
+        except (TypeError, ValueError, OverflowError, User.DoesNotExist):
+            user = None
+
+        if user and token_for_verify_mail.check_token(user, token):
+            new_password = request.data.get("new_password")
+            confirm_password = request.data.get("confirm_password")
+
+            if new_password != confirm_password:
+                return Response(
+                    {"message": "비밀번호와 비밀번호 확인이 일치하지 않습니다."},
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
+
+            user.set_password(new_password)
+            user.save()
+            return Response(
+                {"message": "비밀번호가 성공적으로 변경되었습니다."},
+                status=status.HTTP_200_OK,
+            )
+        else:
+            return Response(
+                {"message": "유효하지 않은 토큰입니다."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
