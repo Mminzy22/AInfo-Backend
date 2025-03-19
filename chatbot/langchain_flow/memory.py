@@ -1,0 +1,2 @@
+class ChatHistoryManager:
+    pass
