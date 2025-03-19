@@ -2,6 +2,7 @@ import requests
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.contrib.sites.shortcuts import get_current_site
+from django.shortcuts import render
 from django.utils.http import urlsafe_base64_decode
 from google.auth.transport import requests as google_requests
 from google.oauth2 import id_token as google_id_token
@@ -15,11 +16,12 @@ from .serializers import (
     CurrentStatusSerializer,
     EducationLevelSerializer,
     InterestSerializer,
+    ResetPasswordSerializer,
     SignupSerializer,
     SubRegionSerializer,
     UserSerializer,
 )
-from .tasks import send_verify_email
+from .tasks import send_reset_pw_email, send_verify_email
 from .tokens import token_for_verify_mail
 
 User = get_user_model()
@@ -302,3 +304,29 @@ class ActivateEmailView(APIView):
             return Response(
                 {"error": "잘못된 인증 링크입니다."}, status=status.HTTP_400_BAD_REQUEST
             )
+
+
+class ResetPasswordView(APIView):
+    permission_classes = [permissions.AllowAny]
+
+    def post(self, request):
+        serializer = ResetPasswordSerializer(data=request.data)
+        if serializer.is_valid():
+            email = serializer.validated_data["email"]
+            user = User.objects.filter(email=email).first()
+
+            current_site = get_current_site(request)
+            domain = current_site.domain
+
+            if user:
+                send_reset_pw_email.delay(user.id, email, domain)
+                return Response(
+                    {"message": "인증링크를 전송했습니다. 이메일을 확인해주세요"},
+                    status=status.HTTP_200_OK,
+                )
+
+        return Response(
+            {"message": "해당 계정은 존재하지 않습니다"},
+            status=status.HTTP_404_NOT_FOUND,
+        )
+
