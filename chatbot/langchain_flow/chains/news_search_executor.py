@@ -17,6 +17,7 @@ LangChain 뉴스 검색 에이전트를 구성하는 실행 모듈입니다.
 - 실행기: AgentExecutor
 """
 
+
 def get_news_search_executor(user_id: str) -> AgentExecutor:
     tools = [news_search_tool]
 
@@ -30,9 +31,4 @@ def get_news_search_executor(user_id: str) -> AgentExecutor:
 
     agent = create_openai_functions_agent(llm=llm, tools=tools, prompt=prompt)
 
-    return AgentExecutor(
-        agent=agent,
-        tools=tools,
-        memory=memory,
-        verbose=True
-    )
+    return AgentExecutor(agent=agent, tools=tools, memory=memory, verbose=True)
