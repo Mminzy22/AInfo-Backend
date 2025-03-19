@@ -4,6 +4,7 @@ from langchain.prompts import (
     ChatPromptTemplate,
     FewShotPromptTemplate,
     HumanMessagePromptTemplate,
+    MessagesPlaceholder,
     PromptTemplate,
     SystemMessagePromptTemplate,
 )
@@ -100,6 +101,7 @@ CHATBOT_PROMPT = ChatPromptTemplate.from_messages(
     [
         system_message,
         HumanMessagePromptTemplate.from_template(few_shot_prompt_text),
+        MessagesPlaceholder(variable_name="chat_history"),
         user_prompt,
     ]
 )
