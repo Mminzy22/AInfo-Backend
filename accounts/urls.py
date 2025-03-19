@@ -12,6 +12,8 @@ from .views import (
     LoginView,
     LogoutView,
     ProfileView,
+    ResetPasswordRenderView,
+    ResetPasswordView,
     SignupView,
     SubRegionListView,
 )
@@ -46,4 +48,10 @@ urlpatterns = [
     path("kakao-login/", KakaoLoginView.as_view(), name="kakao_login"),
     path("google-login/", GoogleLoginView.as_view(), name="google_login"),
     path("activate/<uid>/<token>/", ActivateEmailView.as_view(), name="activate_email"),
+    path("reset-password/", ResetPasswordView.as_view(), name="reset_password"),
+    path(
+        "pw-reset/<uid>/<token>/",
+        ResetPasswordRenderView.as_view(),
+        name="reset_password_render",
+    ),
 ]
