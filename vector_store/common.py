@@ -25,3 +25,10 @@ OPENAI_API_KEY = env("OPENAI_API_KEY")
 
 # ChromaDB 로깅 레벨 설정
 logging.getLogger("chromadb").setLevel(logging.ERROR)
+
+
+def get_embeddings():
+    """
+    OpenAI 임베딩 반환 함수
+    """
+    return OpenAIEmbeddings(model="text-embedding-3-small", api_key=OPENAI_API_KEY)
