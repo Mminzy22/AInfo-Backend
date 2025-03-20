@@ -45,3 +45,18 @@ def clear_collection_for_employment(embeddings):
     collection = get_chroma_collection(collection_name, embeddings)
     clear_collection(collection, collection_name)
     return collection
+
+
+def fetch_employment_programs(start_page=1, display=PAGE_SIZE):
+    """
+    API에서 고용24 프로그램 목록 조회
+    """
+    params = {
+        "authKey": EMPLOYMENT_API_KEY,
+        "returnType": "XML",
+        "startPage": start_page,
+        "display": display,
+    }
+    response = requests.get(EMPLOYMENT_API_URL, params=params, timeout=10)
+    response.raise_for_status()
+    return ET.fromstring(response.text)
