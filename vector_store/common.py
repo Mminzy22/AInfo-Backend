@@ -55,3 +55,19 @@ def clear_collection(collection, collection_name):
         tqdm.write(f"'{collection_name}' 컬렉션의 모든 문서를 삭제했습니다.")
     else:
         tqdm.write(f"'{collection_name}' 컬렉션에 삭제할 문서가 없습니다.")
+
+
+def save_documents_with_progress(collection, documents, batch_size=64):
+    """
+    문서를 배치로 저장하며 tqdm로 진행률 표시
+    """
+    total = len(documents)
+    if total == 0:
+        tqdm.write("저장할 문서가 없습니다.")
+        return
+
+    tqdm.write(f"총 {total}개 문서 저장 시작")
+    for i in tqdm(range(0, total, batch_size), desc="Saving documents"):
+        batch = documents[i : i + batch_size]
+        collection.add_documents(batch)
+    tqdm.write("모든 문서 저장 완료.")
