@@ -82,3 +82,7 @@ def main():
 
     if args.pdf or args.all:
         run_loader(process_and_store_pdf_data, "PDF 데이터")
+
+
+if __name__ == "__main__":
+    main()
