@@ -46,3 +46,18 @@ def fetch_api(params, url=YOUTH_API_BASE_URL):
             tqdm.write(f"API 요청 오류: {e}")
         time.sleep(2)
     return None
+
+
+def clear_collection():
+    """
+    기존 youth_policy_list 컬렉션 데이터 삭제
+    """
+    embeddings = get_embeddings()
+    collection_name = "youth_policy_list"
+    list_db = get_chroma_collection(collection_name, embeddings)
+
+    result = list_db.get()
+    if result and "ids" in result and result["ids"]:
+        list_db.delete(ids=result["ids"])
+        tqdm.write(f"'{collection_name}' 컬렉션의 모든 문서를 삭제했습니다.")
+    return list_db
