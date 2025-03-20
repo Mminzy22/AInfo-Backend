@@ -50,3 +50,22 @@ def fetch_from_api(endpoint, params):
     except requests.exceptions.RequestException as e:
         tqdm.write(f"API 요청 오류: {endpoint}, {e}")
         return None
+
+
+def fetch_service_list(page=1, per_page=PAGE_SIZE):
+    """
+    서비스 목록 API 호출
+    """
+    return fetch_from_api(
+        "serviceList", {"page": page, "perPage": per_page, "returnType": "json"}
+    )
+
+
+def fetch_service_detail(service_id):
+    """
+    서비스 상세정보 API 호출
+    """
+    time.sleep(API_RATE_LIMIT_DELAY)
+    return fetch_from_api(
+        "serviceDetail", {"cond[서비스ID::EQ]": service_id, "returnType": "json"}
+    )
