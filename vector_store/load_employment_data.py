@@ -118,3 +118,53 @@ def prepare_employment_program_document(program):
     )
 
     return Document(page_content=page_content, metadata=metadata)
+
+
+def process_and_store_employment_data():
+    """
+    고용24 데이터를 수집 후 ChromaDB에 저장
+    """
+    try:
+        tqdm.write("=== 고용24 데이터 로딩 시작 ===")
+        start_time = time.time()
+
+        embeddings = get_embeddings()
+        db = clear_collection_for_employment(embeddings)
+
+        all_programs = []
+        root = fetch_employment_programs(start_page=1)
+        _, total_count = parse_employment_programs(root)
+        total_pages = min(MAX_PAGES, (total_count + PAGE_SIZE - 1) // PAGE_SIZE)
+        tqdm.write(f"총 프로그램 수: {total_count}, 페이지 수: {total_pages}")
+
+        with tqdm(
+            total=total_count, desc="데이터 수집", unit="건", dynamic_ncols=True
+        ) as pbar:
+            for page in range(1, total_pages + 1):
+                try:
+                    root = fetch_employment_programs(start_page=page)
+                    page_programs, _ = parse_employment_programs(root)
+                    all_programs.extend(page_programs)
+                    pbar.update(len(page_programs))
+                except Exception as e:
+                    tqdm.write(f"[WARNING] 페이지 {page} 수집 실패: {e}")
+                time.sleep(API_RATE_LIMIT_DELAY)
+
+        program_documents = []
+        for program in tqdm(
+            all_programs, desc="문서 변환", unit="건", dynamic_ncols=True
+        ):
+            doc = prepare_employment_program_document(program)
+            if doc:
+                program_documents.append(doc)
+
+        program_documents = prepare_metadata_for_chroma(program_documents)
+        save_documents_with_progress(db, program_documents)
+
+        elapsed = time.time() - start_time
+        tqdm.write(
+            f"\n총 {len(program_documents)}건 저장 완료. 소요 시간: {elapsed:.2f}초"
+        )
+    except Exception as e:
+        tqdm.write(f"[ERROR] 데이터 로딩 실패: {e}")
+        traceback.print_exc()
