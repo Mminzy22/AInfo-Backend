@@ -137,3 +137,7 @@ def process_and_store_pdf_data():
 
     save_documents_with_progress(collection, docs)
     tqdm.write(f"총 {len(docs)}건 저장 완료.")
+
+
+if __name__ == "__main__":
+    process_and_store_pdf_data()
