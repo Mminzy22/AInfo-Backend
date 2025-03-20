@@ -4,8 +4,9 @@ from channels.db import database_sync_to_async
 from channels.generic.websocket import AsyncWebsocketConsumer
 
 from accounts.models import User
-from .models import ChatRoom
+
 from .memory import ChatHistoryManager
+from .models import ChatLog, ChatRoom
 from .serializers import ChatbotSerializer
 from .utils import get_chatbot_response
 
@@ -25,6 +26,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
     - 인증되지 않은 사용자는 메시지를 전송할 수 없으며, 에러 메시지를 반환
     **변동사항(3/20)**
     - WebSocket 연결 시 chatroom_id를 확인하고, 인증된 사용자가 만든 chatroom만 사용 가능
+    - user, bot 메시지를 DB에 저장
 
     매서드(Method)
     - connect(): WebSocket 연결을 초기화하고 사용자 인증을 수행함.
@@ -100,8 +102,13 @@ class ChatConsumer(AsyncWebsocketConsumer):
             )
             return
 
+        await self.save_message(self.chatroom, "user", user_message)
+
+        bot_message = []  # 청크 저장 할 곳
+
         # 생성되고 있는 답변의 chunk과 스트리밍 중임을 알림
         async for chunk in get_chatbot_response(user_message, self.user_id):
+            bot_message.append(chunk)
             await self.send(
                 text_data=json.dumps(
                     {"response": chunk, "is_streaming": True},
@@ -109,10 +116,13 @@ class ChatConsumer(AsyncWebsocketConsumer):
                 )
             )
 
+        bot_message_total = "".join(bot_message)
+        await self.save_message(self.chatroom, "bot", bot_message_total)
+
         # 완전히 답변 생성이 끝나면 최종 답변과 스트리밍이 끝남을 알림
         await self.send(
             text_data=json.dumps(
-                {"response": chunk, "is_streaming": False},
+                {"response": bot_message_total, "is_streaming": False},
                 ensure_ascii=False,
             )
         )
@@ -130,3 +140,8 @@ class ChatConsumer(AsyncWebsocketConsumer):
             return ChatRoom.objects.get(id=room_id)
         except ChatRoom.DoesNotExist:
             return None
+
+    @database_sync_to_async
+    def save_message(self, chatroom, role, message):
+        """채팅 메시지를 DB에 저장"""
+        return ChatLog.objects.create(chatroom=chatroom, role=role, message=message)
