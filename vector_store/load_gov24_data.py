@@ -94,3 +94,28 @@ def build_service_list_doc(service):
     )
 
     return Document(page_content=page_content, metadata=metadata)
+
+
+def build_service_detail_doc(service):
+    """
+    서비스 상세정보 Document 객체 생성
+    """
+    page_content = f"""
+    서비스명: {service.get('서비스명', '정보 없음')}
+    서비스목적: {service.get('서비스목적', '정보 없음')}
+    서비스분야: {service.get('서비스분야', '정보 없음')}
+    지원대상: {service.get('지원대상', '정보 없음')}
+    지원내용: {service.get('지원내용', '정보 없음')}
+    """.strip()
+
+    metadata = sanitize_metadata(
+        {
+            "서비스ID": service.get("서비스ID", ""),
+            "서비스명": service.get("서비스명", ""),
+            "신청기한": service.get("신청기한", ""),
+            "선정기준": service.get("선정기준", ""),
+            "온라인신청사이트URL": service.get("온라인신청사이트URL", ""),
+        }
+    )
+
+    return Document(page_content=page_content, metadata=metadata)
