@@ -28,3 +28,26 @@ class VectorRetriever:
         """
         self.DB_DIR = settings.CHROMA_DB_DIR
         self.embedding_model = OpenAIEmbeddings(model="text-embedding-3-small")
+
+    def _register_collections(self):
+        """
+        프로젝트에서 사용하는 주요 컬렉션을 사전 등록.
+
+        Returns:
+            dict: 컬렉션 이름을 key로, Chroma 컬렉션 인스턴스를 value로 하는 딕셔너리.
+        """
+        collection_names = [
+            "gov24_service_list",
+            "gov24_service_detail",
+            "youth_policy_list",
+            "employment_programs",
+            "pdf_sections",
+        ]
+        return {
+            name: Chroma(
+                collection_name=name,
+                embedding_function=self.embedding_model,
+                persist_directory=self.DB_DIR,
+            )
+            for name in collection_names
+        }
