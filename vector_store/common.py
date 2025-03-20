@@ -71,3 +71,18 @@ def save_documents_with_progress(collection, documents, batch_size=64):
         batch = documents[i : i + batch_size]
         collection.add_documents(batch)
     tqdm.write("모든 문서 저장 완료.")
+
+
+def sanitize_metadata(metadata):
+    """
+    메타데이터 전처리 (None 값 및 복합형 항목 문자열화)
+    """
+    sanitized = {}
+    for k, v in metadata.items():
+        if v is None:
+            sanitized[k] = "정보 없음"
+        elif isinstance(v, (str, int, float, bool)):
+            sanitized[k] = v
+        else:
+            sanitized[k] = str(v)
+    return sanitized
