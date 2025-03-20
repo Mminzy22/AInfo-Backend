@@ -35,3 +35,13 @@ EMPLOYMENT_API_KEY = settings.EMPLOYMENT_API_KEY
 MAX_PAGES = 10000
 PAGE_SIZE = 10
 API_RATE_LIMIT_DELAY = 1
+
+
+def clear_collection_for_employment(embeddings):
+    """
+    고용24 컬렉션 초기화
+    """
+    collection_name = "employment_programs"
+    collection = get_chroma_collection(collection_name, embeddings)
+    clear_collection(collection, collection_name)
+    return collection
