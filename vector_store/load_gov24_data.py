@@ -119,3 +119,48 @@ def build_service_detail_doc(service):
     )
 
     return Document(page_content=page_content, metadata=metadata)
+
+
+def process_and_store_gov24_data():
+    """
+    전체 데이터 수집 및 저장 파이프라인
+    """
+    try:
+        tqdm.write("=== 정부24 데이터 로딩 시작 ===")
+
+        embeddings = get_embeddings()
+        service_list_db = get_chroma_collection("gov24_service_list", embeddings)
+        service_detail_db = get_chroma_collection("gov24_service_detail", embeddings)
+        clear_collection(service_list_db, "gov24_service_list")
+        clear_collection(service_detail_db, "gov24_service_detail")
+
+        list_documents = []
+        page = 1
+        with tqdm(desc="서비스 목록 수집 진행", unit="건", dynamic_ncols=True) as pbar:
+            while True:
+                page_data = fetch_service_list(page=page, per_page=PAGE_SIZE)
+                if not page_data or "data" not in page_data or not page_data["data"]:
+                    break
+                for service in page_data["data"]:
+                    list_documents.append(build_service_list_doc(service))
+                pbar.update(len(page_data["data"]))
+                page += 1
+                time.sleep(API_RATE_LIMIT_DELAY)
+
+        detail_documents = []
+        for doc in tqdm(
+            list_documents, desc="상세 정보 수집 진행", unit="건", dynamic_ncols=True
+        ):
+            service_id = doc.metadata.get("서비스ID", "")
+            detail_data = fetch_service_detail(service_id)
+            if detail_data and "data" in detail_data and detail_data["data"]:
+                service_detail = detail_data["data"][0]
+                detail_documents.append(build_service_detail_doc(service_detail))
+
+        save_documents_with_progress(service_list_db, list_documents)
+        save_documents_with_progress(service_detail_db, detail_documents)
+
+        tqdm.write("총 데이터 저장 완료")
+    except Exception as e:
+        tqdm.write(f"데이터 로딩 실패: {e}")
+        traceback.print_exc()
