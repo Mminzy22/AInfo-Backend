@@ -1,10 +1,16 @@
 from django.conf import settings
-from langchain.retrievers.multi_query import MultiQueryRetriever
 from langchain_chroma import Chroma
-from langchain_openai import ChatOpenAI, OpenAIEmbeddings
+from langchain_openai import OpenAIEmbeddings
 
 
 class VectorRetriever:
+    """
+    멀티 컬렉션 벡터 검색을 위한 싱글톤 클래스.
+
+    - 여러 Chroma 컬렉션을 사전에 등록하고,
+      멀티 컬렉션 유사도 검색 및 메타데이터 필터링을 지원.
+    """
+
     _instance = None
 
     def __new__(cls):
@@ -14,35 +20,99 @@ class VectorRetriever:
         return cls._instance
 
     def _initialize(self):
-        """실제 초기화 로직 (한 번만 실행)"""
-        self.chroma_db_dir = settings.CHROMA_DB_DIR
+        """
+        인스턴스 초기화 메서드.
+
+        - OpenAI 임베딩 모델 로드
+        - 자주 사용하는 Chroma 컬렉션들을 등록
+        """
+        self.DB_DIR = settings.CHROMA_DB_DIR
         self.embedding_model = OpenAIEmbeddings(model="text-embedding-3-small")
-        self.vector_store = Chroma(
-            persist_directory=self.chroma_db_dir,
-            embedding_function=self.embedding_model,
-            collection_name="startup_support_policies",
+        self.collections = self._register_collections()
+
+    def _register_collections(self):
+        """
+        프로젝트에서 사용하는 주요 컬렉션을 사전 등록.
+
+        Returns:
+            dict: 컬렉션 이름을 key로, Chroma 컬렉션 인스턴스를 value로 하는 딕셔너리.
+        """
+        collection_names = [
+            "gov24_service_list",
+            "gov24_service_detail",
+            "youth_policy_list",
+            "employment_programs",
+            "pdf_sections",
+        ]
+        return {
+            name: Chroma(
+                collection_name=name,
+                embedding_function=self.embedding_model,
+                persist_directory=self.DB_DIR,
+            )
+            for name in collection_names
+        }
+
+    def search(self, query, k=5, filters=None, collection_names=None):
+        """
+        멀티 컬렉션 대상 유사도 검색 수행.
+
+        Args:
+            query (str): 검색 쿼리 문자열.
+            k (int): 각 컬렉션별 검색 결과 수 (기본값 5).
+            filters (dict, optional): 메타데이터 필터링 조건. 예: {"title": "청년"}.
+            collection_names (list, optional): 검색 대상 컬렉션 이름 리스트. None이면 모든 컬렉션 사용.
+
+        Returns:
+            list: [(컬렉션 이름, Document)] 형태의 튜플 리스트. score 기준 내림차순 정렬됨.
+        """
+        filters = filters or {}
+
+        if collection_names is None:
+            collection_names = list(self.collections.keys())
+
+        results = []
+        for name in collection_names:
+            if name not in self.collections:
+                continue  # 등록되지 않은 컬렉션은 스킵
+            collection = self.collections[name]
+            docs = collection.similarity_search(query, k=k)
+            for doc in docs:
+                if self._metadata_match(doc.metadata, filters):
+                    results.append((name, doc))
+
+        return sorted(
+            results, key=lambda x: x[1].metadata.get("score", 0), reverse=True
         )
 
-        self.retriever = self.vector_store.as_retriever()
+    def _metadata_match(self, metadata, filters):
+        """
+        주어진 메타데이터가 필터 조건을 충족하는지 검사.
 
-        # MultiQueryRetriever 생성 (재사용)
-        self.llm = ChatOpenAI(model_name="gpt-4o-mini")
-        self.multi_query_retriever = MultiQueryRetriever.from_llm(
-            retriever=self.retriever, llm=self.llm
-        )
+        Args:
+            metadata (dict): 문서의 메타데이터.
+            filters (dict): {"key": "value"} 형태의 조건.
 
-    def get_multi_query_retriever(self):
-        """MultiQueryRetriever 객체 반환 (한 번만 생성 후 재사용)"""
-        return self.multi_query_retriever
-
-    def get_retriever(self, limit=1000):
-        """ChromaDB의 retriever 객체 반환"""
-        return self.retriever
-
-    def get_vectorstore_count(self):
-        """저장된 벡터 개수 확인"""
-        return self.vector_store._collection.count()
+        Returns:
+            bool: 조건을 만족하면 True, 그렇지 않으면 False.
+        """
+        if not filters:
+            return True
+        for key, value in filters.items():
+            if key not in metadata:
+                return False
+            if value not in str(metadata[key]):
+                return False
+        return True
 
     def format_docs(self, docs):
-        """검색된 문서를 하나의 문자열로 변환"""
-        return "\n\n".join(getattr(doc, "page_content", "") for doc in docs)
+        """
+        검색된 문서 리스트를 하나의 문자열로 변환.
+
+        Args:
+            docs (list): [(컬렉션 이름, Document)] 튜플 리스트.
+
+        Returns:
+            str: 문서들의 page_content를 '\n\n'로 연결한 문자열.
+        """
+        return "\n\n".join(getattr(doc, "page_content", "") for _, doc in docs)

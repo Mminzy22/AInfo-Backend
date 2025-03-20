@@ -9,7 +9,7 @@ from .retriever import VectorRetriever
 # 리트리버 인스턴스 생성 (싱글톤으로 구현된 리트리버에 맞춰 전역 변수로 생성)
 vector_retriever = VectorRetriever()
 # 멀티쿼리리트리버로 변경함.
-retriever = vector_retriever.get_multi_query_retriever()
+retriever = vector_retriever
 
 
 async def get_chatbot_response(user_message, user_id):
@@ -35,7 +35,7 @@ async def get_chatbot_response(user_message, user_id):
     """
 
     # 사용자 질문을 기반으로 문서 검색
-    retrieved_docs = retriever.invoke(user_message)
+    retrieved_docs = retriever.search(user_message)
 
     # 디버깅: 검색된 문서가 있는지 확인
     if not retrieved_docs:
@@ -44,7 +44,7 @@ async def get_chatbot_response(user_message, user_id):
         pass
 
     # 검색된 문서를 문자열로 변환
-    retrieved_context = VectorRetriever().format_docs(retrieved_docs)
+    retrieved_context = retriever.format_docs(retrieved_docs)
 
     # RAG 검색 결과가 없으면 기본 context 사용
     if retrieved_context is None:
