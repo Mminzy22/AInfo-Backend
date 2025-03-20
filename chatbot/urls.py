@@ -1,6 +1,7 @@
 from django.urls import path
 
 from .views import (
+    ChatLogListView,
     ChatRoomDetailDeleteUpdateView,
     ChatRoomListCreateView,
 )
@@ -13,4 +14,5 @@ urlpatterns = [
         ChatRoomDetailDeleteUpdateView.as_view(),
         name="chatroom-detail-delete-patch",
     ),
+    path("room/<int:pk>/logs/", ChatLogListView.as_view(), name="chatlog-list"),
 ]

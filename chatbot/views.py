@@ -1,8 +1,8 @@
 from django.http import Http404
 from rest_framework import generics
 
-from .models import ChatRoom
-from .serializers import ChatRoomSerializer
+from .models import ChatLog, ChatRoom
+from .serializers import ChatLogSerializer, ChatRoomSerializer
 
 
 class BaseChatRoomView(generics.GenericAPIView):
@@ -33,3 +33,14 @@ class ChatRoomDetailDeleteUpdateView(
             return self.get_queryset().get(id=chatroom_id)
         except ChatRoom.DoesNotExist:
             raise Http404("채팅방을 찾을 수 없거나 권한이 없습니다.")
+
+
+class ChatLogListView(generics.ListAPIView):
+    """특정 채팅방의 채팅 로그 조회"""
+
+    serializer_class = ChatLogSerializer
+
+    def get_queryset(self):
+        """로그인한 사용자가 소유한 특정 채팅방의 로그만 조회"""
+        chatroom_id = self.kwargs.get("pk")
+        return ChatLog.objects.filter(chatroom_id=chatroom_id).order_by("timestamp")
