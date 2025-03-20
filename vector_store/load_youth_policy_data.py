@@ -61,3 +61,28 @@ def clear_collection():
         list_db.delete(ids=result["ids"])
         tqdm.write(f"'{collection_name}' 컬렉션의 모든 문서를 삭제했습니다.")
     return list_db
+
+
+def fetch_and_convert(page_num, existing_data=None):
+    """
+    API 데이터 페이지를 Document 객체로 변환
+    """
+    if existing_data is None:
+        params = {
+            "pageType": "1",
+            "rtnType": "json",
+            "apiKeyNm": YOUTH_POLICY_API_KEY,
+            "pageSize": PAGE_SIZE,
+            "pageNum": page_num,
+        }
+        json_data = fetch_api(params)
+        if not json_data:
+            return []
+        page_policies = json_data.get("result", {}).get("youthPolicyList", [])
+    else:
+        page_policies = existing_data.get("result", {}).get("youthPolicyList", [])
+
+    list_docs = []
+    for policy in page_policies:
+        list_docs.append(build_list_doc(policy))
+    return list_docs
