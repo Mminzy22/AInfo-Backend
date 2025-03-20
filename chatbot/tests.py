@@ -1,15 +1,14 @@
-import json
+import asyncio
 import unittest
 from unittest.mock import patch
+
+from channels.db import database_sync_to_async
 from channels.testing import WebsocketCommunicator
 from django.contrib.auth import get_user_model
 from django.test import TransactionTestCase
-from chatbot.models import ChatRoom, ChatLog
-from chatbot.consumers import ChatConsumer
-from chatbot.utils import get_chatbot_response
-from channels.db import database_sync_to_async
-import asyncio
 
+from chatbot.consumers import ChatConsumer
+from chatbot.models import ChatLog, ChatRoom
 
 User = get_user_model()
 
