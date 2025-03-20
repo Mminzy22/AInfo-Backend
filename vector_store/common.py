@@ -95,3 +95,16 @@ def prepare_metadata_for_chroma(documents):
     for doc in documents:
         doc.metadata = sanitize_metadata(doc.metadata)
     return documents
+
+
+def run_loader(loader_function, loader_name):
+    """
+    로더를 실행하고 오류 발생 시 예외를 처리
+    """
+    try:
+        tqdm.write(f"\n=== {loader_name} 데이터 로딩 시작 ===")
+        loader_function()
+        tqdm.write(f"\n=== {loader_name} 데이터 로딩 완료 ===")
+    except Exception as e:
+        tqdm.write(f"{loader_name} 로딩 오류: {e}")
+        traceback.print_exc()
