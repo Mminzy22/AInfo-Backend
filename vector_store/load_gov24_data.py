@@ -164,3 +164,7 @@ def process_and_store_gov24_data():
     except Exception as e:
         tqdm.write(f"데이터 로딩 실패: {e}")
         traceback.print_exc()
+
+
+if __name__ == "__main__":
+    process_and_store_gov24_data()
