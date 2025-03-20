@@ -27,6 +27,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
     **변동사항(3/20)**
     - WebSocket 연결 시 chatroom_id를 확인하고, 인증된 사용자가 만든 chatroom만 사용 가능
     - user, bot 메시지를 DB에 저장
+    - 이전 대화 내용 불러오기
 
     매서드(Method)
     - connect(): WebSocket 연결을 초기화하고 사용자 인증을 수행함.
@@ -35,7 +36,9 @@ class ChatConsumer(AsyncWebsocketConsumer):
     - get_user(): user_id를 기반으로 데이터베이스에서 사용자 정보 조회
     **변동사항(3/20)**
     - get_chatroom() : chatroom_id를 기반으로 데이터베이스에서 chatroom 정보 조회
-
+    - send_chat_history() :채팅방의 기존 채팅 내역을 WebSocket을 통해 클라이언트에게 전송
+    - save_message() : DB에 메시지를 저장
+    - get_chatlogs() : chatlog 불러오기
     """
 
     async def connect(self):
@@ -63,6 +66,22 @@ class ChatConsumer(AsyncWebsocketConsumer):
         # WebSocket 그룹 추가
         await self.channel_layer.group_add(self.room_group_name, self.channel_name)
         await self.accept()
+
+        await self.send_chat_history()
+
+    async def send_chat_history(self):
+        chatlogs = await self.get_chatlogs(self.chatroom)
+
+        for log in chatlogs:
+            await self.send(
+                text_data=json.dumps(
+                    {
+                        "role": log.role,
+                        "message": log.message,
+                        "timestamp": log.timestamp.isoformat(),
+                    }
+                )
+            )
 
     async def disconnect(self, close_code):
         if self.is_authenticated:
@@ -135,7 +154,6 @@ class ChatConsumer(AsyncWebsocketConsumer):
 
     @database_sync_to_async
     def get_chatroom(self, room_id):
-        """DB에서 room_id에 해당하는 채팅방 가져오기"""
         try:
             return ChatRoom.objects.get(id=room_id)
         except ChatRoom.DoesNotExist:
@@ -143,5 +161,8 @@ class ChatConsumer(AsyncWebsocketConsumer):
 
     @database_sync_to_async
     def save_message(self, chatroom, role, message):
-        """채팅 메시지를 DB에 저장"""
         return ChatLog.objects.create(chatroom=chatroom, role=role, message=message)
+
+    @database_sync_to_async
+    def get_chatlogs(self, chatroom):
+        return list(ChatLog.objects.filter(chatroom=chatroom).order_by("timestamp"))
