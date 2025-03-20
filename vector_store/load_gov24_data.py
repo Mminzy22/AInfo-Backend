@@ -32,3 +32,21 @@ PAGE_SIZE = 10
 API_RATE_LIMIT_DELAY = 0.5
 TIMEOUT_SECONDS = 30
 session = requests.Session()
+
+
+def fetch_from_api(endpoint, params):
+    """
+    API에서 데이터를 가져오는 함수
+    """
+    url = f"{GOV24_BASE_URL}/{endpoint}"
+    params["serviceKey"] = GOV24_API_KEY
+    try:
+        response = session.get(url, params=params, timeout=TIMEOUT_SECONDS)
+        if response.status_code == 200:
+            return response.json()
+        else:
+            tqdm.write(f"API 요청 실패: {endpoint}, 상태 코드 {response.status_code}")
+            return None
+    except requests.exceptions.RequestException as e:
+        tqdm.write(f"API 요청 오류: {endpoint}, {e}")
+        return None
