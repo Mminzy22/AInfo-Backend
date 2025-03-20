@@ -103,3 +103,15 @@ class VectorRetriever:
             if value not in str(metadata[key]):
                 return False
         return True
+
+    def format_docs(self, docs):
+        """
+        검색된 문서 리스트를 하나의 문자열로 변환.
+
+        Args:
+            docs (list): [(컬렉션 이름, Document)] 튜플 리스트.
+
+        Returns:
+            str: 문서들의 page_content를 '\n\n'로 연결한 문자열.
+        """
+        return "\n\n".join(getattr(doc, "page_content", "") for _, doc in docs)
