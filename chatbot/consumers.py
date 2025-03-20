@@ -5,6 +5,7 @@ from channels.generic.websocket import AsyncWebsocketConsumer
 
 from accounts.models import User
 
+from .memory import ChatHistoryManager
 from .serializers import ChatbotSerializer
 from .utils import get_chatbot_response
 
@@ -41,7 +42,9 @@ class ChatConsumer(AsyncWebsocketConsumer):
         await self.accept()
 
     async def disconnect(self, close_code):
-        pass
+        if self.is_authenticated:
+            chat_history_manager = ChatHistoryManager(self.user_id, model=None)
+            chat_history_manager.clear_history()
 
     async def receive(self, text_data):
         if not self.is_authenticated:
@@ -52,8 +55,17 @@ class ChatConsumer(AsyncWebsocketConsumer):
                 )
             )
 
-        data = json.loads(text_data)
-        user_message = data["message"]
+        try:
+            data = json.loads(text_data)
+            user_message = data["message"]
+        except json.JSONDecodeError:
+            await self.send(
+                text_data=json.dumps(
+                    {"error": "잘못된 JSON 형식입니다."},
+                    ensure_ascii=False,
+                )
+            )
+            return
 
         serializer = ChatbotSerializer(data={"message": user_message})
         if not serializer.is_valid():
@@ -66,7 +78,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
             return
 
         # 생성되고 있는 답변의 chunk과 스트리밍 중임을 알림
-        async for chunk in get_chatbot_response(user_message):
+        async for chunk in get_chatbot_response(user_message, self.user_id):
             await self.send(
                 text_data=json.dumps(
                     {"response": chunk, "is_streaming": True},
