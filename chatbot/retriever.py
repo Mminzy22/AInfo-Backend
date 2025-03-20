@@ -28,6 +28,7 @@ class VectorRetriever:
         """
         self.DB_DIR = settings.CHROMA_DB_DIR
         self.embedding_model = OpenAIEmbeddings(model="text-embedding-3-small")
+        self.collections = self._register_collections()
 
     def _register_collections(self):
         """
