@@ -51,3 +51,35 @@ class VectorRetriever:
             )
             for name in collection_names
         }
+
+    def search(self, query, k=5, filters=None, collection_names=None):
+        """
+        멀티 컬렉션 대상 유사도 검색 수행.
+
+        Args:
+            query (str): 검색 쿼리 문자열.
+            k (int): 각 컬렉션별 검색 결과 수 (기본값 5).
+            filters (dict, optional): 메타데이터 필터링 조건. 예: {"title": "청년"}.
+            collection_names (list, optional): 검색 대상 컬렉션 이름 리스트. None이면 모든 컬렉션 사용.
+
+        Returns:
+            list: [(컬렉션 이름, Document)] 형태의 튜플 리스트. score 기준 내림차순 정렬됨.
+        """
+        filters = filters or {}
+
+        if collection_names is None:
+            collection_names = list(self.collections.keys())
+
+        results = []
+        for name in collection_names:
+            if name not in self.collections:
+                continue  # 등록되지 않은 컬렉션은 스킵
+            collection = self.collections[name]
+            docs = collection.similarity_search(query, k=k)
+            for doc in docs:
+                if self._metadata_match(doc.metadata, filters):
+                    results.append((name, doc))
+
+        return sorted(
+            results, key=lambda x: x[1].metadata.get("score", 0), reverse=True
+        )
