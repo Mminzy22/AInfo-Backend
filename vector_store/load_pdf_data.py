@@ -82,3 +82,35 @@ def find_pdf_page_offset(file_path, policies):
             best_offset = offset
 
     return best_offset
+
+
+def build_documents_with_offset(policies, pages_text, offset=0):
+    """
+    페이지 오프셋을 적용하여 Document 객체 생성
+    """
+    docs = []
+    skipped = []
+
+    for policy in policies:
+        page_idx = policy["page_num"] - 1 - offset
+        if 0 <= page_idx < len(pages_text):
+            text = pages_text[page_idx].strip()
+            doc_obj = Document(
+                page_content=text,
+                metadata={
+                    "title": policy["title"],
+                    "page_num": policy["page_num"],
+                },
+            )
+            docs.append(doc_obj)
+        else:
+            skipped.append(
+                f"{policy['title']} (페이지 {policy['page_num']}, 인덱스 {page_idx})"
+            )
+
+    if skipped:
+        tqdm.write(f"[WARN] 다음 {len(skipped)}개 정책의 페이지를 찾을 수 없어 건너뜀:")
+        for item in skipped[:5]:
+            tqdm.write(f"  - {item}")
+
+    return docs
