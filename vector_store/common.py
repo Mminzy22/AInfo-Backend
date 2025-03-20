@@ -43,3 +43,15 @@ def get_chroma_collection(collection_name, embeddings):
         embedding_function=embeddings,
         persist_directory=CHROMA_DB_DIR,
     )
+
+
+def clear_collection(collection, collection_name):
+    """
+    지정된 컬렉션 내 모든 문서 삭제
+    """
+    result = collection.get()
+    if result and "ids" in result and result["ids"]:
+        collection.delete(ids=result["ids"])
+        tqdm.write(f"'{collection_name}' 컬렉션의 모든 문서를 삭제했습니다.")
+    else:
+        tqdm.write(f"'{collection_name}' 컬렉션에 삭제할 문서가 없습니다.")
