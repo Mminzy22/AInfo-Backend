@@ -208,6 +208,8 @@ class KakaoLoginView(APIView):
         # 4. JWT 발급
         refresh = RefreshToken.for_user(user)
 
+        agree_check = user.is_social and (not user.terms_agree)
+
         return Response(
             {
                 "refresh": str(refresh),
@@ -217,6 +219,7 @@ class KakaoLoginView(APIView):
                     "name": user.name,
                     "is_social": user.is_social,
                     "social_type": user.social_type,
+                    "agree_check": agree_check,
                 },
             },
             status=200,
@@ -261,6 +264,8 @@ class GoogleLoginView(APIView):
         # 4. JWT 발급
         refresh = RefreshToken.for_user(user)
 
+        agree_check = user.is_social and (not user.terms_agree)
+
         return Response(
             {
                 "refresh": str(refresh),
@@ -270,6 +275,7 @@ class GoogleLoginView(APIView):
                     "name": user.name,
                     "is_social": user.is_social,
                     "social_type": user.social_type,
+                    "agree_check": agree_check,
                 },
             },
             status=200,
@@ -376,3 +382,15 @@ class ResetPasswordRenderView(APIView):
                 {"message": "유효하지 않은 토큰입니다."},
                 status=status.HTTP_400_BAD_REQUEST,
             )
+
+
+class AgreeTermsView(APIView):
+    def post(self, request):
+        user = request.user
+        if user.is_authenticated:
+            user.terms_agree = True
+            user.save()
+        return Response(
+            {"message": "수신동의 변경 완료"},
+            status=status.HTTP_200_OK,
+        )
