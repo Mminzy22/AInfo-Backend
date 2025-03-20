@@ -32,3 +32,23 @@ def extract_pdf_pages(file_path):
     """
     doc = fitz.open(file_path)
     return [page.get_text() for page in doc]
+
+
+def parse_toc_improved(pages_text):
+    """
+    목차 페이지에서 정책 정보(코드, 제목, 페이지번호) 추출
+    """
+    toc_text = "\n".join(pages_text[1:15])
+
+    pattern = re.compile(r"(\d{3})\s*\u25b6\u25b6\s*(.+?)\s+(\d{1,3})(?:\D|$)")
+    toc_items = pattern.findall(toc_text)
+
+    policies = []
+    for match in toc_items:
+        code, title, page = match
+        page_num = int(page)
+        if page_num > 483:
+            continue
+        policies.append({"code": code, "title": title.strip(), "page_num": page_num})
+
+    return policies
