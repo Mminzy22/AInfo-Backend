@@ -86,3 +86,12 @@ def sanitize_metadata(metadata):
         else:
             sanitized[k] = str(v)
     return sanitized
+
+
+def prepare_metadata_for_chroma(documents):
+    """
+    문서 리스트의 메타데이터를 ChromaDB에 맞게 일괄 전처리
+    """
+    for doc in documents:
+        doc.metadata = sanitize_metadata(doc.metadata)
+    return documents
