@@ -86,3 +86,32 @@ def fetch_and_convert(page_num, existing_data=None):
     for policy in page_policies:
         list_docs.append(build_list_doc(policy))
     return list_docs
+
+
+def build_list_doc(policy):
+    """
+    단일 정책 데이터를 Document로 변환
+    """
+    page_content = f"""
+    정책명: {policy.get('plcyNm', '정보 없음')}
+    정책번호: {policy.get('plcyNo', '정보 없음')}
+    신청기간: {policy.get('aplyYmd', '정보 없음')}
+    정책지원내용: {policy.get('plcySprtCn', '정보 없음')}
+    심사방법내용: {policy.get('srngMthdCn', '정보 없음')}
+    신청URL주소: {policy.get('aplyUrlAddr', '정보 없음')}
+    상세설명URL주소: {policy.get('refUrlAddr1', '정보 없음')}
+    """.strip()
+
+    metadata = sanitize_metadata(
+        {
+            "plcyNm": policy.get("plcyNm", ""),
+            "plcyNo": policy.get("plcyNo", ""),
+            "aplyYmd": policy.get("aplyYmd", ""),
+            "plcySprtCn": policy.get("plcySprtCn", ""),
+            "srngMthdCn": policy.get("srngMthdCn", ""),
+            "aplyUrlAddr": policy.get("aplyUrlAddr", ""),
+            "refUrlAddr1": policy.get("refUrlAddr1", ""),
+        }
+    )
+
+    return Document(page_content=page_content, metadata=metadata)
