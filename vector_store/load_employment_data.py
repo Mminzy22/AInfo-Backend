@@ -60,3 +60,24 @@ def fetch_employment_programs(start_page=1, display=PAGE_SIZE):
     response = requests.get(EMPLOYMENT_API_URL, params=params, timeout=10)
     response.raise_for_status()
     return ET.fromstring(response.text)
+
+
+def parse_employment_programs(root):
+    """
+    XML에서 프로그램 데이터 및 총 개수 파싱
+    """
+    programs = []
+    total_count = 0
+
+    total_element = root.find("./total")
+    if total_element is not None:
+        total_count = int(total_element.text.strip())
+
+    items = root.findall(".//empPgmSchdInvite")
+    for item in items:
+        program = {
+            child.tag: child.text.strip() if child.text else "" for child in item
+        }
+        programs.append(program)
+
+    return programs, total_count
