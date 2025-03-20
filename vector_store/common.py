@@ -32,3 +32,14 @@ def get_embeddings():
     OpenAI 임베딩 반환 함수
     """
     return OpenAIEmbeddings(model="text-embedding-3-small", api_key=OPENAI_API_KEY)
+
+
+def get_chroma_collection(collection_name, embeddings):
+    """
+    Chroma 컬렉션 객체 반환 함수
+    """
+    return Chroma(
+        collection_name=collection_name,
+        embedding_function=embeddings,
+        persist_directory=CHROMA_DB_DIR,
+    )
