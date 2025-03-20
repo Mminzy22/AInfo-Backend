@@ -81,3 +81,40 @@ def parse_employment_programs(root):
         programs.append(program)
 
     return programs, total_count
+
+
+def prepare_employment_program_document(program):
+    """
+    프로그램 dict를 Document로 변환
+    """
+    pgm_nm = program.get("pgmNm", "")
+    if not pgm_nm:
+        return None
+
+    page_content = f"""
+    프로그램명: {program.get('pgmNm', '정보 없음')}
+    과정명: {program.get('pgmSubNm', '정보 없음')}
+    대상자: {program.get('pgmTarget', '정보 없음')}
+    교육기간: {program.get('pgmStdt', '정보 없음')} ~ {program.get('pgmEndt', '정보 없음')}
+    운영시간: {program.get('operationTime', '정보 없음')}
+    시작시간: {program.get('openTimeClcd', '정보 없음')} {program.get('openTime', '정보 없음')}
+    개최장소: {program.get('openPlcCont', '정보 없음')}
+    고용센터명: {program.get('orgNm', '정보 없음')}
+    """.strip()
+
+    metadata = sanitize_metadata(
+        {
+            "pgmNm": program.get("pgmNm", ""),
+            "pgmSubNm": program.get("pgmSubNm", ""),
+            "pgmTarget": program.get("pgmTarget", ""),
+            "pgmStdt": program.get("pgmStdt", ""),
+            "pgmEndt": program.get("pgmEndt", ""),
+            "operationTime": program.get("operationTime", ""),
+            "openTimeClcd": program.get("openTimeClcd", ""),
+            "openTime": program.get("openTime", ""),
+            "openPlcCont": program.get("openPlcCont", ""),
+            "orgNm": program.get("orgNm", ""),
+        }
+    )
+
+    return Document(page_content=page_content, metadata=metadata)
