@@ -3,15 +3,16 @@
 - ChromaDB 및 임베딩 관련 공통 함수 제공
 """
 
+import logging
 import os
 import traceback
+
 import django
 import environ
 from django.conf import settings
 from langchain_chroma import Chroma
 from langchain_openai import OpenAIEmbeddings
 from tqdm import tqdm
-import logging
 
 # 환경 변수 및 Django 설정
 env = environ.Env()

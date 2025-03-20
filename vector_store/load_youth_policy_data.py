@@ -18,8 +18,8 @@ from .common import (
     get_chroma_collection,
     get_embeddings,
     prepare_metadata_for_chroma,
-    save_documents_with_progress,
     sanitize_metadata,
+    save_documents_with_progress,
 )
 
 # Django 환경설정
