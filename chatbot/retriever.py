@@ -83,3 +83,23 @@ class VectorRetriever:
         return sorted(
             results, key=lambda x: x[1].metadata.get("score", 0), reverse=True
         )
+
+    def _metadata_match(self, metadata, filters):
+        """
+        주어진 메타데이터가 필터 조건을 충족하는지 검사.
+
+        Args:
+            metadata (dict): 문서의 메타데이터.
+            filters (dict): {"key": "value"} 형태의 조건.
+
+        Returns:
+            bool: 조건을 만족하면 True, 그렇지 않으면 False.
+        """
+        if not filters:
+            return True
+        for key, value in filters.items():
+            if key not in metadata:
+                return False
+            if value not in str(metadata[key]):
+                return False
+        return True
