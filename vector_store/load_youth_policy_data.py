@@ -115,3 +115,54 @@ def build_list_doc(policy):
     )
 
     return Document(page_content=page_content, metadata=metadata)
+
+
+def process_and_store_youth_policy_data():
+    """
+    청년정책 데이터 전체 수집 및 저장 파이프라인
+    """
+    try:
+        tqdm.write("=== 청년정책 데이터 로딩 시작 ===")
+        start_time = time.time()
+
+        list_db = clear_collection()
+        all_list_docs = []
+
+        params = {
+            "pageType": "1",
+            "rtnType": "json",
+            "apiKeyNm": YOUTH_POLICY_API_KEY,
+            "pageSize": PAGE_SIZE,
+            "pageNum": 1,
+        }
+        first_page_data = fetch_api(params)
+        if not first_page_data:
+            tqdm.write("첫 페이지 API 호출 실패")
+            return
+
+        pagging = first_page_data.get("result", {}).get("pagging", {})
+        total_count = pagging.get("totCount", 0)
+        if total_count == 0:
+            tqdm.write("수집할 데이터가 없습니다.")
+            return
+        total_pages = math.ceil(total_count / PAGE_SIZE)
+        tqdm.write(f"총 {total_count}건 / {total_pages}페이지 데이터 수집 예정")
+
+        for page in tqdm(range(1, total_pages + 1), desc="수집 진행중"):
+            if page == 1:
+                list_docs = fetch_and_convert(page, existing_data=first_page_data)
+            else:
+                list_docs = fetch_and_convert(page)
+            all_list_docs.extend(list_docs)
+            time.sleep(API_RATE_LIMIT_DELAY)
+
+        save_documents_with_progress(
+            list_db, prepare_metadata_for_chroma(all_list_docs)
+        )
+
+        elapsed = time.time() - start_time
+        tqdm.write(f"\n총 {len(all_list_docs)}건 저장 완료. 소요 시간: {elapsed:.2f}초")
+
+    except Exception as e:
+        tqdm.write(f"[ERROR] 데이터 로딩 실패: {e}")
+        traceback.print_exc()
