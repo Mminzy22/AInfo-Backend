@@ -52,3 +52,33 @@ def parse_toc_improved(pages_text):
         policies.append({"code": code, "title": title.strip(), "page_num": page_num})
 
     return policies
+
+
+def find_pdf_page_offset(file_path, policies):
+    """
+    페이지 내용과 정책 제목을 비교하여 최적의 오프셋 자동 계산
+    """
+    doc = fitz.open(file_path)
+    possible_offsets = list(range(-5, 6))
+
+    test_policies = policies[:10] if len(policies) > 10 else policies
+
+    best_offset = 0
+    best_match_score = -1
+
+    for offset in possible_offsets:
+        match_score = 0
+        for policy in test_policies:
+            page_num = policy["page_num"]
+            page_idx = page_num - 1 - offset
+            if 0 <= page_idx < len(doc):
+                page_text = doc[page_idx].get_text()
+                keywords = [kw for kw in policy["title"].split() if len(kw) > 1]
+                keyword_matches = sum(1 for kw in keywords if kw in page_text)
+                if keyword_matches > len(keywords) // 2:
+                    match_score += keyword_matches
+        if match_score > best_match_score:
+            best_match_score = match_score
+            best_offset = offset
+
+    return best_offset
