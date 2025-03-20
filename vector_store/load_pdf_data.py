@@ -114,3 +114,26 @@ def build_documents_with_offset(policies, pages_text, offset=0):
             tqdm.write(f"  - {item}")
 
     return docs
+
+
+def process_and_store_pdf_data():
+    """
+    PDF 데이터 처리 및 ChromaDB 저장 메인 함수
+    """
+    tqdm.write("=== PDF → ChromaDB 파이프라인 시작 ===")
+    embeddings = get_embeddings()
+    collection = get_chroma_collection("pdf_sections", embeddings)
+    clear_collection(collection, "pdf_sections")
+
+    pages_text = extract_pdf_pages(PDF_PATH)
+    tqdm.write(f"PDF 총 페이지 수: {len(pages_text)}")
+
+    policies = parse_toc_improved(pages_text)
+    tqdm.write(f"목차에서 추출된 정책 개수: {len(policies)}개")
+
+    offset = find_pdf_page_offset(PDF_PATH, policies)
+
+    docs = build_documents_with_offset(policies, pages_text, offset)
+
+    save_documents_with_progress(collection, docs)
+    tqdm.write(f"총 {len(docs)}건 저장 완료.")
