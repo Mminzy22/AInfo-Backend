@@ -24,3 +24,11 @@ os.environ.setdefault("DJANGO_SETTINGS_MODULE", "config.settings")
 django.setup()
 
 PDF_PATH = settings.PDF_PATH
+
+
+def extract_pdf_pages(file_path):
+    """
+    PDF 페이지를 개별적으로 추출하여 텍스트 리스트로 반환
+    """
+    doc = fitz.open(file_path)
+    return [page.get_text() for page in doc]
