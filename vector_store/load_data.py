@@ -39,3 +39,46 @@ def delete_all_collections():
         tqdm.write("=== 모든 컬렉션 삭제 완료 ===\n")
     else:
         tqdm.write("삭제할 컬렉션 폴더가 없습니다.")
+
+
+def main():
+    """
+    명령어 인자를 받아 개별/전체 데이터 로더를 실행
+    """
+    parser = argparse.ArgumentParser(description="데이터 로더 실행 스크립트")
+    parser.add_argument(
+        "--gov24", action="store_true", help="정부24 API 데이터 로더 실행"
+    )
+    parser.add_argument(
+        "--youth", action="store_true", help="청년정책 API 데이터 로더 실행"
+    )
+    parser.add_argument(
+        "--employment", action="store_true", help="고용정보 API 데이터 로더 실행"
+    )
+    parser.add_argument("--pdf", action="store_true", help="PDF 데이터 로더 실행")
+    parser.add_argument("--all", action="store_true", help="모든 데이터 로더 실행")
+    parser.add_argument(
+        "--wipe", action="store_true", help="모든 컬렉션 삭제 후 로딩 실행"
+    )
+
+    args = parser.parse_args()
+
+    # --wipe 사용 시 컬렉션 삭제
+    if args.wipe:
+        delete_all_collections()
+
+    # 인자가 없을 경우 전체 실행으로 처리
+    if not (args.gov24 or args.youth or args.employment or args.pdf or args.all):
+        args.all = True
+
+    if args.gov24 or args.all:
+        run_loader(process_and_store_gov24_data, "정부24 API")
+
+    if args.youth or args.all:
+        run_loader(process_and_store_youth_policy_data, "청년정책 API")
+
+    if args.employment or args.all:
+        run_loader(process_and_store_employment_data, "고용정보 API")
+
+    if args.pdf or args.all:
+        run_loader(process_and_store_pdf_data, "PDF 데이터")
