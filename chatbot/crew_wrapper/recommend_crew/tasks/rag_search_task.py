@@ -1,5 +1,6 @@
-from crewai import Task
 from textwrap import dedent
+
+from crewai import Task
 
 from chatbot.crew_wrapper.recommend_crew.tools.rag_search_tool import RAGSearchTool
 
@@ -15,12 +16,13 @@ def create_rag_search_task(agent, user_input: dict) -> Task:
     Returns:
         Task: 검색 Task 객체. 검색 결과는 다음 Task로 context로 전달될 수 있습니다.
     """
-    
+
     question = user_input["question"]
     filters = user_input.get("filters", {})
 
     return Task(
-        description=dedent(f"""
+        description=dedent(
+            f"""
             다음 사용자 질문에 대해 공공서비스 문서 중,
             사용자의 조건(프로필)에 맞는 정보를 검색해 주세요.
 
@@ -37,14 +39,17 @@ def create_rag_search_task(agent, user_input: dict) -> Task:
             - 서비스의 신청 자격이나 지원 내용이 명확히 나와 있는지
 
             배경 설명 없이 핵심 정보만 정리해 주세요.
-        """),
-        expected_output=dedent("""
+        """
+        ),
+        expected_output=dedent(
+            """
             - 관련 공공서비스명
             - 간단한 서비스 요약
             - 신청 자격 요약 (있을 경우)
 
             위 내용을 리스트 형태 또는 짧은 단락 형식으로 정리해 주세요.
-        """),
+        """
+        ),
         agent=agent,
-        tools=[RAGSearchTool()]
+        tools=[RAGSearchTool()],
     )
