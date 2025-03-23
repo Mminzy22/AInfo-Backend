@@ -107,12 +107,42 @@ class VectorRetriever:
 
     def format_docs(self, docs):
         """
-        검색된 문서 리스트를 하나의 문자열로 변환.
+        검색된 문서 리스트를 사용자에게 제공할 수 있는 포맷으로 변환.
+
+        - 각 문서에서 제목, 본문 내용, URL을 추출하여 마크다운 형식으로 가공.
+        - URL이 없을 경우 안내 문구로 대체.
 
         Args:
             docs (list): [(컬렉션 이름, Document)] 튜플 리스트.
+                        Document는 langchain.schema.Document 객체.
 
         Returns:
-            str: 문서들의 page_content를 '\n\n'로 연결한 문자열.
+            str: 문서들의 제목, 내용, URL을 포함한 마크다운 문자열.
+                각 문서는 '\n\n---\n\n' 구분선으로 구분됨.
         """
-        return "\n\n".join(getattr(doc, "page_content", "") for _, doc in docs)
+        formatted = []
+        for name, doc in docs:
+            meta = doc.metadata
+            content = doc.page_content.strip()
+            title = (
+                meta.get("서비스명")
+                or meta.get("plcyNm")
+                or meta.get("pgmNm")
+                or meta.get("title")
+                or "제목 없음"
+            )
+            link = (
+                meta.get("온라인신청사이트URL")
+                or meta.get("상세조회URL")
+                or meta.get("aplyUrlAddr")
+                or meta.get("refUrlAddr1")
+            )
+
+            if link:
+                link_md = f"[바로가기]({link}) "
+            else:
+                link_md = "해당 서비스는 URL이 제공되지 않습니다. "
+
+            formatted.append(f"**[{title}]**\n- 내용: {content}\n- 링크: {link_md} ")
+
+        return "\n\n---\n\n".join(formatted)
