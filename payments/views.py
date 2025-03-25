@@ -7,27 +7,31 @@ from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from .models import Payment
-import hashlib
-import hmac
-from django.conf import settings
 
 
 class PayVerify(APIView):
+    """
+    Description: 결제 검증요청을 처리하는 함수
+    
+    - 요청과 함께받은 결제id 를 이용해 기존 webhook으로 인해 저장된 DB 에서 맞는 결제건을 찾음
+    - 해당 결제건의 상태가 완료(Paid) 상태라면 해당 유저 크레딧 100 증가 후 저장
+    """
 
     def post(self, request):
         user = request.user
         payment_id = request.data.get("payment_id")
-
+        
         payment = Payment.objects.filter(payment_id=payment_id).first()
         
         if not payment:
             return Response({"error": "Invalid payment_id"}, status=status.HTTP_400_BAD_REQUEST)
         
-        payment.user = user
-        payment.save()
+        if payment.status == "Paid":
+            payment.user = user
+            payment.save()
+            user.credit += 100
+            user.save()
         
-        # 유저 DB 에서 크레딧 증가시키는 로직 추가예정
-
         return Response(
             {"message": "결제 상태 업데이트 완료"}, status=status.HTTP_200_OK
         )
