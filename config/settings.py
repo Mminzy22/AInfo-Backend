@@ -84,6 +84,7 @@ INSTALLED_APPS = [
     "accounts",
     "chatbot",
     "notifications",
+    "payments",
 ]
 
 
