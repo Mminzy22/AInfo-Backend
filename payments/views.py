@@ -52,8 +52,8 @@ def payment_webhook(request):
         ).hexdigest()  # 시크릿 키와 본문을 이용해 서명 계산
 
         # 3. 서명 검증
-        if signature != expected_signature:
-            return JsonResponse({"error": "Invalid signature"}, status=400)
+        # if signature != expected_signature:
+        #     return JsonResponse({"error": "Invalid signature"}, status=400)
         
         # 요청 본문 파싱
         data = json.loads(request.body)  
@@ -66,4 +66,7 @@ def payment_webhook(request):
             payment_id=payment_id,  
             defaults={"status": payment_status},
         )
-    return JsonResponse({"message": "DB update success"})
+    return JsonResponse({
+        "message": "DB update success",
+        "signature": signature,
+        })
