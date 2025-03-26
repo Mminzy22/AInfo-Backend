@@ -143,7 +143,8 @@ class ChatConsumerTestCase(TransactionTestCase):
             await communicator.send_json_to(message_data)
 
             with patch(
-                "chatbot.utils.get_chatbot_response", return_value=["안녕하세요!"]
+                "chatbot.langchain_flow.run.get_chatbot_response",
+                return_value=["안녕하세요!"],
             ):
                 # 여러 개의 응답을 받을 수 있도록 루프 사용
                 while True:
