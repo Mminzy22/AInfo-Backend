@@ -4,11 +4,10 @@ from channels.db import database_sync_to_async
 from channels.generic.websocket import AsyncWebsocketConsumer
 
 from accounts.models import User
-
-from .memory import ChatHistoryManager
-from .models import ChatLog, ChatRoom
-from .serializers import ChatbotSerializer
-from .utils import get_chatbot_response
+from chatbot.langchain_flow.memory import ChatHistoryManager
+from chatbot.models import ChatLog, ChatRoom
+from chatbot.serializers import ChatbotSerializer
+from chatbot.langchain_flow.run import get_chatbot_response
 
 
 class ChatConsumer(AsyncWebsocketConsumer):
@@ -85,7 +84,9 @@ class ChatConsumer(AsyncWebsocketConsumer):
 
     async def disconnect(self, close_code):
         if self.is_authenticated:
-            chat_history_manager = ChatHistoryManager(self.user_id, model=None)
+            chat_history_manager = ChatHistoryManager(
+                self.user_id, self.room_id, model=None
+            )
             chat_history_manager.clear_history()
 
         await self.channel_layer.group_discard(self.room_group_name, self.channel_name)
@@ -126,7 +127,9 @@ class ChatConsumer(AsyncWebsocketConsumer):
         bot_message = []  # 청크 저장 할 곳
 
         # 생성되고 있는 답변의 chunk과 스트리밍 중임을 알림
-        async for chunk in get_chatbot_response(user_message, self.user_id):
+        async for chunk in get_chatbot_response(
+            user_message, self.user_id, self.room_id
+        ):
             bot_message.append(chunk)
             await self.send(
                 text_data=json.dumps(
