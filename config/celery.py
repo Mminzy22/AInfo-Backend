@@ -18,9 +18,18 @@ app.autodiscover_tasks()
 
 # 주기적인 작업 스케줄 설정
 app.conf.beat_schedule = {
-    "load-employment-data-every-wednesday-2am": {
+    "load-employment-data-every-wednesday-1am": {
         "task": "dataload.tasks.load_employment_data_task",
-        # 'schedule': crontab(hour=20, minute=37, day_of_week=3),  # 테스트용 시간
+        "schedule": crontab(hour=1, minute=0, day_of_week=3),  # 매주 수요일 오전 1시
+    },
+    "load-youth_policy-data-every-wednesday-1.5am": {
+        "task": "dataload.tasks.load_youth_policy_data_task",
+        "schedule": crontab(
+            hour=1, minute=30, day_of_week=3
+        ),  # 매주 수요일 오전 1시 30분
+    },
+    "load-gov24-data-every-wednesday-2am": {
+        "task": "dataload.tasks.load_gov24_data_task",
         "schedule": crontab(hour=2, minute=0, day_of_week=3),  # 매주 수요일 오전 2시
     },
 }
