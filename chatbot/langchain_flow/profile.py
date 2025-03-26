@@ -62,3 +62,14 @@ def get_profile_data(user_id: int) -> dict:
         profile["region"] = region.name
 
     return {"keywords": keywords, "profile": profile}
+
+
+async def fortato(trigger: str):
+    if trigger == "4테이토":
+        yield "🥔 *Team 4테이토*\n"
+        yield "4테이토는 유쾌함과 전문성을 겸비한 다섯 명의 팀원으로 구성된 개발 팀입니다.\n"
+        yield "우리는 각자의 개성을 바탕으로 창의적인 해법을 제시하고, 협업을 통해 최고의 결과를 만듭니다.\n"
+        yield "\n👤 *팀원 소개:*\n"
+        yield "[위스키제로, 먼지만지, 채소채, 요리졸히, 스탑웅]\n"
+        yield "\n우리는 감자처럼 소박하지만, 그 안엔 놀라운 가능성이 있습니다.\n"
+        yield "**We are 4테이토. 🌱**"

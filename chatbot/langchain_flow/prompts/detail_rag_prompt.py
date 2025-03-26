@@ -27,7 +27,7 @@ system_message = SystemMessagePromptTemplate.from_template(
     **신청 방법**: [절차]
     **필요 서류**: [필요 서류]
     **기간**: [신청 가능 기간]
-    **자세히 보기**: [관련 링크]
+    **자세히 보기**: [관련 링크] 
     ---
     """
 )
