@@ -10,6 +10,7 @@ def create_compare_task(
     RAG 또는 웹 검색을 바탕으로 후보 공공정책들을 비교하고, 사용자에게 가장 적합한 정책을 추천 Task 생성 함수
     """
     original_input = user_input["original_input"]
+    summary = user_input["summary"]
     profile = user_input["user_profile"]
 
     profile_str = "\n".join([f"- {k}: {v}" for k, v in profile.items()])
@@ -17,10 +18,14 @@ def create_compare_task(
     return Task(
         description=dedent(
             f"""
-        다음은 사용자의 질문과 프로필 정보입니다.
+        다음은 이전 대화를 요약한 내용과 사용자의 질문, 프로필 정보입니다.
         이 정보를 바탕으로 사용자가 고려 중인 공공정책들 간의 차이를 비교 분석해 주세요.
+        반드시 **사용자 질문을 우선적으로 고려**해 주세요.
 
         -------------------------
+        이전 대화 요약 내용:
+        {summary}
+
         사용자 질문:
         {original_input}
 
@@ -74,5 +79,4 @@ def create_compare_task(
         """
         ),
         agent=agent,
-        output_key="comparison",
     )
