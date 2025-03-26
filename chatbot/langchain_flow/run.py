@@ -4,14 +4,13 @@ from concurrent.futures import ThreadPoolExecutor
 from langchain_core.output_parsers import JsonOutputParser
 from langchain_openai import ChatOpenAI
 
+from chatbot.crew_wrapper.flows.policy_flow import PolicyFlow
 from chatbot.langchain_flow.chains.detail_rag_chain import DETAIL_CHAIN
 from chatbot.langchain_flow.chains.overview_rag_chain import OVERVIEW_CHAIN
 from chatbot.langchain_flow.classifier import Category, manual_classifier
 from chatbot.langchain_flow.memory import ChatHistoryManager
-
-from chatbot.langchain_flow.profile import get_profile_data, fortato
+from chatbot.langchain_flow.profile import fortato, get_profile_data
 from chatbot.langchain_flow.prompt import CLASSIFICATION_PROMPT
-from chatbot.crew_wrapper.flows.policy_flow import PolicyFlow
 
 
 async def run_policy_flow_async(user_input: dict):
