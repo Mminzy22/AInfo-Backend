@@ -27,7 +27,6 @@ system_message = SystemMessagePromptTemplate.from_template(
     **신청 방법**: [절차]
     **기간**: [신청 가능 기간]
     ---
-    
     📝 특정 정책에 대한 신청 자격, 절차, 필요 서류 등 자세한 정보가 궁금하다면 이어서 질문해 주세요.
     """
 )
@@ -40,8 +39,6 @@ user_prompt = HumanMessagePromptTemplate.from_template(
     ## User Question:
     {question}
 
-
-    
     🔹 Understand the user's intent and context to provide a broad and helpful response.
     🔹 Based on the provided documents, deliver accurate and relevant information.
     🔹 If the retrieved documents are missing or insufficient, provide similar information or guide the user on how to find more details.

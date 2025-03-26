@@ -5,9 +5,9 @@ from channels.generic.websocket import AsyncWebsocketConsumer
 
 from accounts.models import User
 from chatbot.langchain_flow.memory import ChatHistoryManager
+from chatbot.langchain_flow.run import get_chatbot_response
 from chatbot.models import ChatLog, ChatRoom
 from chatbot.serializers import ChatbotSerializer
-from chatbot.langchain_flow.run import get_chatbot_response
 
 
 class ChatConsumer(AsyncWebsocketConsumer):

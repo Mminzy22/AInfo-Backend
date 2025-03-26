@@ -1,10 +1,12 @@
-from langchain_core.runnables import RunnableMap
+from datetime import datetime
+
 from langchain_core.output_parsers import StrOutputParser
+from langchain_core.runnables import RunnableMap
 from langchain_openai import ChatOpenAI
+
 from chatbot.langchain_flow.prompts.detail_rag_prompt import DETAIL_RAG_PROMPT
 from chatbot.langchain_flow.tools.detail_rag_tool import detail_rag_tool
 from chatbot.langchain_flow.tools.tavily_web_tool import tavily_web_search_tool
-from datetime import datetime
 
 llm = ChatOpenAI(model="gpt-4o-mini", temperature=0.5, streaming=True)
 current_date = datetime.now()

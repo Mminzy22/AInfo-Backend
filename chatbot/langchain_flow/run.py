@@ -1,11 +1,13 @@
-from langchain_openai import ChatOpenAI
-from chatbot.langchain_flow.memory import ChatHistoryManager
-from chatbot.langchain_flow.prompt import CLASSIFICATION_PROMPT
 from langchain_core.output_parsers import JsonOutputParser
-from chatbot.langchain_flow.classifier import manual_classifier, Category
-from chatbot.langchain_flow.profile import get_profile_data
-from chatbot.langchain_flow.chains.overview_rag_chain import OVERVIEW_CHAIN
+from langchain_openai import ChatOpenAI
+
 from chatbot.langchain_flow.chains.detail_rag_chain import DETAIL_CHAIN
+from chatbot.langchain_flow.chains.overview_rag_chain import OVERVIEW_CHAIN
+from chatbot.langchain_flow.classifier import Category, manual_classifier
+from chatbot.langchain_flow.memory import ChatHistoryManager
+
+# from chatbot.langchain_flow.profile import get_profile_data
+from chatbot.langchain_flow.prompt import CLASSIFICATION_PROMPT
 
 
 async def get_chatbot_response(user_message: str, user_id: str, room_id: str):
@@ -70,10 +72,10 @@ async def get_chatbot_response(user_message: str, user_id: str, room_id: str):
     category = classification_result["category"]
 
     # 유저 프로필 정보 및 키워드 추출
-    profile_data = await get_profile_data(int(user_id))
+    # profile_data = await get_profile_data(int(user_id))
 
-    profile_keywords = profile_data["keywords"]
-    profile = profile_data["profile"]
+    # profile_keywords = profile_data["keywords"]
+    # profile = profile_data["profile"]
 
     llm_keywords = classification_result.get("keywords", [])
 

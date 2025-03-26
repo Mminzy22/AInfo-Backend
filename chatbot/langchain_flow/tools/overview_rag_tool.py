@@ -1,6 +1,8 @@
+from typing import Optional
+
 from langchain.tools import tool
 from pydantic import BaseModel, Field
-from typing import Optional
+
 from chatbot.retriever import VectorRetriever
 
 

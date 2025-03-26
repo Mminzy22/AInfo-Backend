@@ -25,7 +25,7 @@ system_message = SystemMessagePromptTemplate.from_template(
     ---
 
     ## Special Condition
-    - If the application period is before {{current_year_month}}, respond with:  
+    - If the application period is before {{current_year_month}}, respond with:
     "해당 정책의 신청 기간이 종료되었습니다."
     """
 )

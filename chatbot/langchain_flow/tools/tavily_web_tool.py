@@ -1,7 +1,8 @@
-from langchain.tools import tool
-from pydantic import BaseModel, Field
-from langchain_community.tools.tavily_search import TavilySearchResults
 from typing import Optional
+
+from langchain.tools import tool
+from langchain_community.tools.tavily_search import TavilySearchResults
+from pydantic import BaseModel, Field
 
 tavily = TavilySearchResults(k=4)
 

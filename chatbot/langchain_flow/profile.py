@@ -1,5 +1,6 @@
-from accounts.models import User
 from channels.db import database_sync_to_async
+
+from accounts.models import User
 
 
 @database_sync_to_async

@@ -35,7 +35,6 @@ CLASSIFICATION_PROMPT = ChatPromptTemplate.from_messages(
                 "original_input": "<사용자의 원본 입력>",
                 "is_followup": <true | false>,
                 "keywords": ["<keyword1>", "<keyword2>", ...]
-            
 
             🔍 예시:
             - "요즘 집 구하기 너무 힘드네" → <"category": "gov_policy", "original_input": "요즘 집 구하기 너무 힘드네", "is_followup": false, "keywords": ["집", "주거", "청년"]>
