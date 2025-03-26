@@ -478,3 +478,8 @@ chroma.sqlite3
 chroma_db/
 
 # End of https://www.toptal.com/developers/gitignore/api/python,visualstudiocode,django,pycharm,venv,windows,macos,redis
+
+# Celery Beat 스케줄 파일 제외
+celerybeat-schedule.dat
+celerybeat-schedule.bak
+celerybeat-schedule.dir
