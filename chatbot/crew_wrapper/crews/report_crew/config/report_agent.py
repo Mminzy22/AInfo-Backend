@@ -14,6 +14,6 @@ def get_report_agent():
         ),
         verbose=True,
         allow_delegation=False,
-        llm=ChatOpenAI(model="gpt-4o-mini", temperature=0.7, max_tokens=2048),
+        llm=ChatOpenAI(model="gpt-4o-mini", temperature=0.7, max_tokens=3000),
         system_prompt=REPORT_AGENT_PROMPT,
     )

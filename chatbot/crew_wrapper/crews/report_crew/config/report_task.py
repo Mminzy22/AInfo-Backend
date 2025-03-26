@@ -16,6 +16,7 @@ def create_report_task(
     이전 Task들의 output을 받아 종합 보고서를 생성.
     """
     original_input = user_input["original_input"]
+    summary = user_input["summary"]
     profile = user_input["user_profile"]
 
     profile_str = "\n".join([f"- {k}: {v}" for k, v in profile.items()])
@@ -23,10 +24,15 @@ def create_report_task(
     return Task(
         description=dedent(
             f"""
-        사용자의 질문과 조건을 바탕으로 추천된 정책들을 비교 및 전략적으로 분석한 결과를 종합하여
+        이전 대화를 요약한 내용과 사용자의 질문, 사용자 프로필을 바탕으로 추천된 정책들을 비교 및 전략적으로 분석한 결과를 종합하여
         최종 보고서를 생성하세요.
 
+        반드시 **사용자 질문을 우선적으로 고려**해 주세요.
+
         -------------------------
+        이전 대화 요약 내용:
+        {summary}
+
         사용자 질문:
         {original_input}
 
@@ -64,7 +70,7 @@ def create_report_task(
         """
         ),
         expected_output=dedent(
-            """
+            f"""
         아래 형식을 참고하여 사용자 맞춤형 공공정책 전략 보고서를 작성해 주세요.
 
         요구사항:
@@ -81,12 +87,11 @@ def create_report_task(
         # 📄 사용자 맞춤형 공공정책 전략 보고서
 
         ## 1. 👤 사용자 질문 및 프로필
-        - **질문:** 서울 거주 청년이 받을 수 있는 취업 지원이 있을까요?
+        - **질문:** {original_input}
         - **프로필 요약:**
-        - 나이: **29세**
-        - 지역: **서울**
-        - 관심 분야: **취업**
-        - 소득 수준: 중위소득 120%
+        - 나이:
+        - 지역:
+        - 관심 분야:
 
         ## 2. 🔍 추천된 정책 리스트 상세 내용
         1. **청년 면접수당 지원사업**
@@ -115,10 +120,10 @@ def create_report_task(
         ### 추천 정책: **서울 청년수당**
         **추천 이유:** 정기적인 지원금으로 안정적인 구직 준비에 도움이 됩니다.
 
-         ## 4. 🧭 실행 전략 (신청 순서 및 이유)
+        ## 4. 🧭 실행 전략 (신청 순서 및 이유)
         **1단계. 청년 면접수당 신청**
         - 먼저 서울청년포털에 회원가입하세요.
-        - 이후 [서비스 신청 페이지](https://example.com/1)에 접속해 쿠폰을 신청합니다.
+        - 이후 [서비스 신청 페이지](https://example.com/1) 에 접속해 쿠폰을 신청합니다.
         - 문자를 받은 후 제휴 미용실에 예약하여 정장을 대여할 수 있어요.
 
         ...
@@ -138,6 +143,5 @@ def create_report_task(
         """
         ),
         agent=agent,
-        output_key="final_report",
         result_as_dict=True,
     )

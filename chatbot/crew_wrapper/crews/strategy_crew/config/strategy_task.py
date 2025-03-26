@@ -14,6 +14,7 @@ def create_strategy_task(
     비교 분석 결과를 바탕으로 사용자에게 정책 수강/신청 전략을 제시하는 Task 생성 함수
     """
     original_input = user_input["original_input"]
+    summary = user_input["summary"]
     profile = user_input["user_profile"]
 
     profile_str = "\n".join([f"- {k}: {v}" for k, v in profile.items()])
@@ -21,10 +22,14 @@ def create_strategy_task(
     return Task(
         description=dedent(
             f"""
-        다음은 사용자의 질문, 프로필 정보, 그리고 관련 정책 문서입니다.
+        다음은 이전 대화를 요약한 내용과 사용자의 질문, 프로필 정보, 그리고 관련 정책 문서입니다.
         이 정보를 바탕으로 사용자가 어떤 순서로 어떤 정책을 신청하거나 수강해야 가장 효율적인지 전략을 짜 주세요.
+        반드시 **사용자 질문을 우선적으로 고려**해 주세요.
 
         -------------------------
+        이전 대화 요약 내용:
+        {summary}
+
         사용자 질문:
         {original_input}
 
@@ -87,5 +92,4 @@ def create_strategy_task(
         """
         ),
         agent=agent,
-        output_key="strategy",
     )

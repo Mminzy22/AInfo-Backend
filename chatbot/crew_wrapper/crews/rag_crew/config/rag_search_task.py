@@ -10,7 +10,7 @@ def create_rag_search_task(agent, user_input: dict) -> Task:
     사용자 질문과 필터를 바탕으로 RAG 검색을 수행하는 Task 생성 함수
     """
     original_input = user_input["original_input"]
-    keywords = user_input["keywords"]
+    summary = user_input["summary"]
     profile = user_input["user_profile"]
 
     profile_str = "\n".join([f"- {k}: {v}" for k, v in profile.items()])
@@ -23,10 +23,13 @@ def create_rag_search_task(agent, user_input: dict) -> Task:
 
         반드시 아래 절차를 따르세요:
 
-        1. 먼저 `rag_search_tool`을 사용하여 사용자 질문과 프로필에 맞는 정책 문서를 검색하세요.
-        2. 검색 결과를 바탕으로만 정책을 추천하세요.
+        1. 사용자와의 이전 대화 요약 내용을 먼저 확인하고, 사용자 질문과 프로필에 맞는 정책 문서를 검색하세요.
+        2. 검색 결과 바탕으로만 정책을 추천하세요.
         3. 절대로 툴 없이 개인적 판단이나 외부 지식을 사용하지 마세요.
-        4. 사용자 질문을 우선적으로 고려하고, 정책의 혜택과 신청 방법을 명확히 설명하세요.
+        4. **사용자 질문을 우선적으로 고려**하고, 정책의 혜택과 신청 방법을 명확히 설명하세요.
+
+        이전 대화 요약 내용:
+        {summary}
 
         사용자 질문:
         {original_input}
@@ -39,12 +42,7 @@ def create_rag_search_task(agent, user_input: dict) -> Task:
         """
         ),
         expected_output="정책 이름, 설명, 추천 이유, 링크가 포함된 3개 이상의 공공서비스 정보",
+        used_tools=True,
         agent=agent,
         tools=[RagSearchTool()],
-        tool_input={
-            "question": original_input,
-            "keywords": keywords,
-            "filters": profile,
-        },
-        output_key="recommendation",
     )
