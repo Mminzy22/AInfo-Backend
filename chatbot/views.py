@@ -1,9 +1,10 @@
 from django.http import Http404
 from rest_framework import generics
 
+from chatbot.langchain_flow.memory import ChatHistoryManager
+
 from .models import ChatLog, ChatRoom
 from .serializers import ChatLogSerializer, ChatRoomSerializer
-from chatbot.langchain_flow.memory import ChatHistoryManager
 
 
 class BaseChatRoomView(generics.GenericAPIView):
