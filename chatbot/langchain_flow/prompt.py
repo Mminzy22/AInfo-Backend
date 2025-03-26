@@ -25,7 +25,7 @@ CLASSIFICATION_PROMPT = ChatPromptTemplate.from_messages(
                 - If the question clearly builds on a prior context or refers back to something mentioned before, set "is_followup" to true.
                 - Otherwise, set it to false.
 
-            3. **Summarize the context including all important keywords** from the input.
+            3. **Summarize the context including all important keywords** from the input and chat history.
                 - Return can be used for document search or web queries.
                 - Do not translate to English.
 

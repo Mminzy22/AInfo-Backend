@@ -93,7 +93,7 @@ async def get_chatbot_response(user_message: str, user_id: str, room_id: str):
     # 유저 프로필 정보 및 키워드 추출
     profile_data = await get_profile_data(int(user_id))
 
-    profile_keywords = profile_data["keywords"]
+    # profile_keywords = profile_data["keywords"]
     profile = profile_data["profile"]
 
     llm_keywords = classification_result.get("keywords")
@@ -138,7 +138,7 @@ async def get_chatbot_response(user_message: str, user_id: str, room_id: str):
             "question": classification_result["original_input"],
             "keywords": llm_keywords,
             "chat_history": chat_history,
-            # "profile": profile,
+            "profile": profile,
         }
     ):
         output_response += chunk
