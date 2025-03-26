@@ -2,7 +2,7 @@ from datetime import datetime
 from typing import Dict, List, Optional, Type
 
 from crewai.tools import BaseTool
-from langchain.tools.tavily_search import TavilySearchResults
+from langchain_community.tools.tavily_search import TavilySearchResults
 from pydantic import BaseModel
 
 from chatbot.crew_wrapper.crews.web_crew.config.web_search_input import WebSearchInput
