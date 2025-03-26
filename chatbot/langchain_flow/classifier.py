@@ -130,11 +130,13 @@ DETAIL_PATTERNS = [
     "신청 주소",
     "신청 링크",
     "필요한 서류",
+    "자세하",
+    "상세",
 ]
 
 # 키워드 매칭 시 가중치 점수 1, 패턴 매칭 시 가중치 점수 1.5
 KEYWORD_SCORE = 1
-PATTERN_SCORE = 1.5
+PATTERN_SCORE = 2
 
 
 def manual_classifier(user_message: str) -> str | None:
@@ -152,6 +154,9 @@ def manual_classifier(user_message: str) -> str | None:
     Returns:
         str | None: 분류된 카테고리 문자열 ('gov_policy' 또는 'detail_policy') 또는 None.
     """
+    if "보고서" in user_message:
+        return Category.REPORT_REQUEST.value
+
     scores = {Category.GOV_POLICY.value: 0, Category.DETAIL_POLICY.value: 0}
 
     for category, keywords in KEYWORD_CATEGORY_MAP.items():

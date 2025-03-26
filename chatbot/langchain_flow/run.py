@@ -1,13 +1,30 @@
+import asyncio
+from concurrent.futures import ThreadPoolExecutor
+
 from langchain_core.output_parsers import JsonOutputParser
 from langchain_openai import ChatOpenAI
 
+from chatbot.crew_wrapper.flows.policy_flow import PolicyFlow
 from chatbot.langchain_flow.chains.detail_rag_chain import DETAIL_CHAIN
 from chatbot.langchain_flow.chains.overview_rag_chain import OVERVIEW_CHAIN
 from chatbot.langchain_flow.classifier import Category, manual_classifier
 from chatbot.langchain_flow.memory import ChatHistoryManager
-
-# from chatbot.langchain_flow.profile import get_profile_data
+from chatbot.langchain_flow.profile import fortato, get_profile_data
 from chatbot.langchain_flow.prompt import CLASSIFICATION_PROMPT
+
+
+async def run_policy_flow_async(user_input: dict):
+    """
+    동기 함수인 정책 보고서 생성 플로우(PolicyFlow)를 비동기적으로 실행하는 함수
+
+    동기(sync) 함수는 await할 수 없기 떄문에, 이 함수에서는 ThreadPoolExecutor를 사용해 동기 코드를 백그라운드 스레드에서 실행하고,
+    asyncio의 run_in_executor를 통해 마치 비동기 함수처럼 동작하도록 만들어줍니다.
+    """
+    loop = asyncio.get_event_loop()
+    with ThreadPoolExecutor() as executor:
+        return await loop.run_in_executor(
+            executor, lambda: PolicyFlow(user_input).kickoff()
+        )
 
 
 async def get_chatbot_response(user_message: str, user_id: str, room_id: str):
@@ -57,6 +74,7 @@ async def get_chatbot_response(user_message: str, user_id: str, room_id: str):
     classification_result = await classification_chain.ainvoke(
         {"question": user_message, "chat_history": chat_history}
     )
+    print(f"classification_result >>> {classification_result}")
 
     # 2차적으로 LLM이 한국말의 문맥을 판단 못하는 경우를 대비해서 특정 키워드가 있으면 분류 결과 재조정
     manual_category = manual_classifier(user_message)
@@ -70,15 +88,19 @@ async def get_chatbot_response(user_message: str, user_id: str, room_id: str):
         classification_result["category"] = manual_category
 
     category = classification_result["category"]
-
+    print(f"category >>>> {category}")
     # 유저 프로필 정보 및 키워드 추출
-    # profile_data = await get_profile_data(int(user_id))
+    profile_data = await get_profile_data(int(user_id))
 
     # profile_keywords = profile_data["keywords"]
-    # profile = profile_data["profile"]
+    profile = profile_data["profile"]
 
-    llm_keywords = classification_result.get("keywords", [])
+    llm_keywords = classification_result.get("keywords")
 
+    if user_message == "4테이토":
+        async for chunk in fortato(user_message):
+            yield chunk
+        return
     # 사용자 입력에 따른 분기 처리
     if category == Category.OFF_TOPIC.value:
         yield "정책 및 지원에 관한 내용을 물어봐주시면 친절하게 답변해드릴 수 있습니다."
@@ -91,7 +113,18 @@ async def get_chatbot_response(user_message: str, user_id: str, room_id: str):
         chain = DETAIL_CHAIN
 
     elif category == Category.REPORT_REQUEST.value:
-        yield "보고서 작성 서비스는 곧 만나보실 수 있습니다."
+        user_input = {
+            "original_input": llm_keywords + "의 키워드를 중심으로 보고서 만들어줘",
+            "keywords": llm_keywords,
+            "user_profile": profile,
+        }
+        flow_result = await run_policy_flow_async(user_input)
+
+        # report_result 내용만 추출해서 전송
+        report_result = (
+            flow_result.raw if hasattr(flow_result, "raw") else str(flow_result)
+        )
+        yield report_result
         return
 
     else:
@@ -104,7 +137,7 @@ async def get_chatbot_response(user_message: str, user_id: str, room_id: str):
             "question": classification_result["original_input"],
             "keywords": llm_keywords,
             "chat_history": chat_history,
-            # "profile": profile,
+            "profile": profile,
         }
     ):
         output_response += chunk
