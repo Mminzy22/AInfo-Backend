@@ -4,7 +4,6 @@ from channels.db import database_sync_to_async
 from channels.generic.websocket import AsyncWebsocketConsumer
 
 from accounts.models import User
-from chatbot.langchain_flow.memory import ChatHistoryManager
 from chatbot.langchain_flow.run import get_chatbot_response
 from chatbot.models import ChatLog, ChatRoom
 from chatbot.serializers import ChatbotSerializer
@@ -83,12 +82,6 @@ class ChatConsumer(AsyncWebsocketConsumer):
             )
 
     async def disconnect(self, close_code):
-        if self.is_authenticated:
-            chat_history_manager = ChatHistoryManager(
-                self.user_id, self.room_id, model=None
-            )
-            chat_history_manager.clear_history()
-
         await self.channel_layer.group_discard(self.room_group_name, self.channel_name)
 
     async def receive(self, text_data):
