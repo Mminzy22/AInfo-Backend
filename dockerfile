@@ -16,5 +16,5 @@ ENV PYTHONUNBUFFERED 1
 # 프로젝트 복사
 COPY . .
 
-# 서버 실행
-CMD ["python", "manage.py", "runserver", "0.0.0.0:8000"]
+
+CMD ["bash"]
