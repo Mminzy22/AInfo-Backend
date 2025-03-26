@@ -83,12 +83,6 @@ class ChatConsumer(AsyncWebsocketConsumer):
             )
 
     async def disconnect(self, close_code):
-        if self.is_authenticated:
-            chat_history_manager = ChatHistoryManager(
-                self.user_id, self.room_id, model=None
-            )
-            chat_history_manager.clear_history()
-
         await self.channel_layer.group_discard(self.room_group_name, self.channel_name)
 
     async def receive(self, text_data):

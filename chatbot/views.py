@@ -3,6 +3,7 @@ from rest_framework import generics
 
 from .models import ChatLog, ChatRoom
 from .serializers import ChatLogSerializer, ChatRoomSerializer
+from chatbot.langchain_flow.memory import ChatHistoryManager
 
 
 class BaseChatRoomView(generics.GenericAPIView):
@@ -33,6 +34,17 @@ class ChatRoomDetailDeleteUpdateView(
             return self.get_queryset().get(id=chatroom_id)
         except ChatRoom.DoesNotExist:
             raise Http404("채팅방을 찾을 수 없거나 권한이 없습니다.")
+
+    def perform_destroy(self, instance):
+        """
+        채팅방 삭제 시 Redis의 해당 채팅방 기록도 함께 삭제
+        """
+        chat_history_manager = ChatHistoryManager(
+            user_id=str(self.request.user.id), room_id=str(instance.id), model=None
+        )
+        chat_history_manager.clear_history()
+
+        instance.delete()
 
 
 class ChatLogListView(generics.ListAPIView):
