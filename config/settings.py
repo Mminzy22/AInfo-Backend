@@ -80,11 +80,13 @@ INSTALLED_APPS = [
     "rest_framework_simplejwt.token_blacklist",  # 로그아웃 시 토큰 블랙리스트 사용
     "corsheaders",
     "celery",
+    "django_celery_beat",
     # Local apps
     "accounts",
     "chatbot",
     "notifications",
     "payments",
+    "dataload",
 ]
 
 
