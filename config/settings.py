@@ -79,9 +79,14 @@ INSTALLED_APPS = [
     "rest_framework_simplejwt",
     "rest_framework_simplejwt.token_blacklist",  # 로그아웃 시 토큰 블랙리스트 사용
     "corsheaders",
+    "celery",
+    "django_celery_beat",
     # Local apps
     "accounts",
     "chatbot",
+    "notifications",
+    "payments",
+    "dataload",
 ]
 
 
@@ -124,7 +129,7 @@ ROOT_URLCONF = "config.urls"
 TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
-        "DIRS": [],
+        "DIRS": [BASE_DIR, "templates"],
         "APP_DIRS": True,
         "OPTIONS": {
             "context_processors": [
@@ -139,6 +144,16 @@ TEMPLATES = [
 
 WSGI_APPLICATION = "config.wsgi.application"
 ASGI_APPLICATION = "config.asgi.application"
+
+# Gmail SMTP서버 관련 설정
+EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
+EMAIL_HOST = "smtp.gmail.com"
+EMAIL_PORT = env("EMAIL_PORT")
+EMAIL_HOST_USER = env("EMAIL_ID")
+EMAIL_HOST_PASSWORD = env("EMAIL_APP_PW")
+EMAIL_USE_TLS = True
+DEFAULT_FROM_EMAIL = f"AInfo <{EMAIL_HOST_USER}>"
+EMAIL_TIMEOUT = 10
 
 # Database
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
@@ -165,6 +180,14 @@ CHANNEL_LAYERS = {
         },
     },
 }
+
+# CELERY 관련설정 --> Redis 를 브로커로 설정
+CELERY_BROKER_URL = f"redis://{REDIS_HOST}:{REDIS_PORT}/0"
+CELERY_RESULT_BACKEND = f"redis://{REDIS_HOST}:{REDIS_PORT}/0"
+# 메시지 직렬화 방식 설정
+CELERY_ACCEPT_CONTENT = ["json"]
+CELERY_TASK_SERIALIZER = "json"
+
 
 # 사용자 모델 설정
 AUTH_USER_MODEL = "accounts.User"

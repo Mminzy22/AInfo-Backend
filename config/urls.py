@@ -23,4 +23,6 @@ urlpatterns = [
     # API v1
     path("api/v1/accounts/", include("accounts.urls", namespace="accounts")),
     path("api/v1/chatbot/", include("chatbot.urls", namespace="chatbot")),
+    path("api/v1/notifications/", include("notifications.urls")),
+    path("api/v1/payments/", include("payments.urls", namespace="payments")),
 ]

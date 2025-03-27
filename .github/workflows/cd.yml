@@ -1,0 +1,39 @@
+name: Deploy to EC2 - AInfo Backend
+
+# 메인으로 푸시할 때 자동 액션
+on:
+  push:
+    branches:
+      - main
+
+# 없어도 자동으로 read하나, 명확한 권한 부여를 위해 작성
+permissions:
+  contents: read
+
+jobs:
+    deploy:
+      runs-on: ubuntu-latest
+
+      steps:
+      
+      # 서버에 배포 (AWS EC2에 SSH 접속하여 배포 스크립트 실행)
+      - name: Deploy to Server
+        uses: appleboy/ssh-action@v1.2.2
+        with:
+          host: ${{ secrets.SERVER_HOST }} 
+          username: ${{ secrets.SERVER_USER }} 
+          key: ${{ secrets.SSH_PRIVATE_KEY }}  
+          command_timeout: 5m  # timeout 시간설정
+          script: |
+
+            cd /home/ubuntu/AInfo-Backend
+            git pull origin main || { echo "Git pull failed"; exit 1; } 
+            source venv/bin/activate
+            pip install -r requirements.txt
+            python manage.py migrate
+            sudo ./restart_server.sh
+            GUNICORN_STATUS=$(systemctl is-active gunicorn)
+            DAPHNE_STATUS=$(systemctl is-active daphne)
+            echo "Gunicorn status: ${GUNICORN_STATUS}"
+            echo "Daphne status: ${DAPHNE_STATUS}"
+            echo "Deploy Completed!!!"

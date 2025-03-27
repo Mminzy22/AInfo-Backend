@@ -1,15 +1,21 @@
 from django.urls import path
-from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
+from rest_framework_simplejwt.views import TokenRefreshView
 
 from .views import (
+    ActivateEmailView,
+    AgreeTermsView,
+    CreditView,
     CurrentStatusListView,
     DeleteAccountView,
     EducationLevelListView,
     GoogleLoginView,
     InterestListView,
     KakaoLoginView,
+    LoginView,
     LogoutView,
     ProfileView,
+    ResetPasswordRenderView,
+    ResetPasswordView,
     SignupView,
     SubRegionListView,
 )
@@ -20,7 +26,7 @@ urlpatterns = [
     path("signup/", SignupView.as_view(), name="signup"),
     path(
         "login/",
-        TokenObtainPairView.as_view(),
+        LoginView.as_view(),
         name="token_obtain_pair",
     ),
     path(
@@ -43,4 +49,13 @@ urlpatterns = [
     path("delete/", DeleteAccountView.as_view(), name="delete_account"),
     path("kakao-login/", KakaoLoginView.as_view(), name="kakao_login"),
     path("google-login/", GoogleLoginView.as_view(), name="google_login"),
+    path("activate/<uid>/<token>/", ActivateEmailView.as_view(), name="activate_email"),
+    path("reset-password/", ResetPasswordView.as_view(), name="reset_password"),
+    path(
+        "pw-reset/<uid>/<token>/",
+        ResetPasswordRenderView.as_view(),
+        name="reset_password_render",
+    ),
+    path("agree-terms/", AgreeTermsView.as_view(), name="agree_terms"),
+    path("credit/", CreditView.as_view(), name="user-credit"),
 ]
