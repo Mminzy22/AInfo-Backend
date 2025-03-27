@@ -113,16 +113,32 @@ async def get_chatbot_response(
             return
 
         elif category in [Category.GOV_POLICY.value, Category.SUPPORT_RELATED.value]:
+            try:
+                await check_and_deduct_credit(int(user_id), cost=1)
+            except User.DoesNotExist:
+                yield "사용자 정보를 찾을 수 없습니다. 다시 로그인해주세요."
+                return
+            except ValueError as e:
+                yield str(e)
+                return
             chain = OVERVIEW_CHAIN
 
         elif category == Category.DETAIL_POLICY.value:
+            try:
+                await check_and_deduct_credit(int(user_id), cost=1)
+            except User.DoesNotExist:
+                yield "사용자 정보를 찾을 수 없습니다. 다시 로그인해주세요."
+                return
+            except ValueError as e:
+                yield str(e)
+                return
             chain = DETAIL_CHAIN
         else:
             yield "죄송합니다. 질문을 절확히 이해하지 못했습니다. 다시 한번 질문해주실 수 있을까요?"
     else:
         if category != Category.OFF_TOPIC.value:
             try:
-                await check_and_deduct_credit(int(user_id))
+                await check_and_deduct_credit(int(user_id), cost=50)
             except User.DoesNotExist:
                 yield "사용자 정보를 찾을 수 없습니다. 다시 로그인해주세요."
                 return
@@ -166,12 +182,14 @@ async def get_chatbot_response(
 
 
 @database_sync_to_async
-def check_and_deduct_credit(user_id: int, cost: int = 50) -> User:
+def check_and_deduct_credit(user_id: int, cost: int = 1) -> User:
     with transaction.atomic():
         user = User.objects.select_for_update().get(id=user_id)
 
         if user.credit < cost:
-            raise ValueError("보고서를 생성하려면 최소 50 크레딧이 필요합니다.")
+            raise ValueError(
+                f"AInfo를 이용하기 위해서는 최소 {cost} 크레딧이 필요합니다."
+            )
 
         user.credit -= cost
         user.save()
