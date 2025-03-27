@@ -93,9 +93,6 @@ async def get_chatbot_response(
 
     category = classification_result["category"]
 
-    if is_report:
-        category = Category.REPORT_REQUEST.value
-
     # 유저 프로필 정보 및 키워드 추출
     profile_data = await get_profile_data(int(user_id))
 
@@ -110,43 +107,46 @@ async def get_chatbot_response(
         return
 
     # 사용자 입력에 따른 분기 처리
-    if category == Category.OFF_TOPIC.value:
-        yield "정책 및 지원에 관한 내용을 물어봐주시면 친절하게 답변해드릴 수 있습니다."
-        return
-
-    elif category in [Category.GOV_POLICY.value, Category.SUPPORT_RELATED.value]:
-        chain = OVERVIEW_CHAIN
-
-    elif category == Category.DETAIL_POLICY.value:
-        chain = DETAIL_CHAIN
-
-    elif category == Category.REPORT_REQUEST.value:
-        try:
-            await check_and_deduct_credit(int(user_id))
-        except User.DoesNotExist:
-            yield "사용자 정보를 찾을 수 없습니다. 다시 로그인해주세요."
-            return
-        except ValueError as e:
-            yield str(e)
+    if not is_report:
+        if category == Category.OFF_TOPIC.value:
+            yield "정책 및 지원에 관한 내용을 물어봐주시면 친절하게 답변해드릴 수 있습니다."
             return
 
-        user_input = {
-            "original_input": user_message,
-            "summary": llm_keywords + "의 키워드를 중심으로 보고서 만들어줘",
-            "keywords": llm_keywords,
-            "user_profile": profile,
-        }
-        flow_result = await run_policy_flow_async(user_input)
+        elif category in [Category.GOV_POLICY.value, Category.SUPPORT_RELATED.value]:
+            chain = OVERVIEW_CHAIN
 
-        # report_result 내용만 추출해서 전송
-        report_result = (
-            flow_result.raw if hasattr(flow_result, "raw") else str(flow_result)
-        )
-        yield report_result
-        return
-
+        elif category == Category.DETAIL_POLICY.value:
+            chain = DETAIL_CHAIN
+        else:
+            yield "죄송합니다. 질문을 절확히 이해하지 못했습니다. 다시 한번 질문해주실 수 있을까요?"
     else:
-        yield "죄송합니다. 질문을 절확히 이해하지 못했습니다. 다시 한번 질문해주실 수 있을까요?"
+        if category != Category.OFF_TOPIC.value:
+            try:
+                await check_and_deduct_credit(int(user_id))
+            except User.DoesNotExist:
+                yield "사용자 정보를 찾을 수 없습니다. 다시 로그인해주세요."
+                return
+            except ValueError as e:
+                yield str(e)
+                return
+
+            user_input = {
+                "original_input": user_message,
+                "summary": llm_keywords + "의 키워드를 중심으로 보고서 만들어줘",
+                "keywords": llm_keywords,
+                "user_profile": profile,
+            }
+            flow_result = await run_policy_flow_async(user_input)
+
+            # report_result 내용만 추출해서 전송
+            report_result = (
+                flow_result.raw if hasattr(flow_result, "raw") else str(flow_result)
+            )
+            yield report_result
+            return
+        else:
+            yield "정책 및 지원에 관한 내용을 물어봐주시면 친절하게 답변해드릴 수 있습니다."
+            return
 
     # 스트리밍 실행
     output_response = ""
