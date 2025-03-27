@@ -9,7 +9,7 @@ def create_rag_search_task(agent, user_input: dict) -> Task:
     """
     사용자 질문과 필터를 바탕으로 RAG 검색을 수행하는 Task 생성 함수
     """
-    original_input = user_input["original_input"]
+    question = user_input["original_input"]
     summary = user_input["summary"]
     profile = user_input["user_profile"]
 
@@ -20,6 +20,7 @@ def create_rag_search_task(agent, user_input: dict) -> Task:
             f"""
         당신은 공공서비스 추천을 도와주는 AI입니다.
         사용자의 질문과 프로필 정보를 기반으로 가장 적합한 공공정책을 추천해주세요.
+        만약 관련 정책 정보가 없다면 **관련 정보가 없습니다**라고 안내해 주세요.
 
         반드시 아래 절차를 따르세요:
 
@@ -32,7 +33,7 @@ def create_rag_search_task(agent, user_input: dict) -> Task:
         {summary}
 
         사용자 질문:
-        {original_input}
+        {question}
 
         사용자 프로필:
         {profile_str}
@@ -41,7 +42,7 @@ def create_rag_search_task(agent, user_input: dict) -> Task:
         정책 명칭, 설명, 신청 링크를 포함해 주세요.
         """
         ),
-        expected_output="정책 이름, 설명, 추천 이유, 링크가 포함된 3개 이상의 공공서비스 정보",
+        expected_output="정책 이름, 설명, 추천 이유, 링크가 포함된 3개 이상의 공공서비스 정보, 만약 관련 정책 정보가 없다면 **관련 정보가 없습니다**라고 안내.",
         used_tools=True,
         agent=agent,
         tools=[RagSearchTool()],
