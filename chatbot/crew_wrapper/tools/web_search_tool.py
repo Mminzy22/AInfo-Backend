@@ -49,14 +49,15 @@ class SearchWebTool(BaseTool):
                 "gg.go.kr",
             ]
 
-            query += " " + " OR ".join(f"site:{site}" for site in TRUSTED_SITES)
+            site_filter = " OR ".join(f"site:{site}" for site in TRUSTED_SITES)
+            query += f" {site_filter} 한국어로 된 공공기관 정보"
 
             # 4. Tavily 실행
             tavily = TavilySearchResults(k=k)
             results = tavily.run(query)
 
             if not results:
-                return "검색 결과가 없습니다."
+                raise ValueError("검색 결과가 없습니다. 검색 실패로 간주합니다.")
 
             # 5. 요약 정리
             summaries = []
