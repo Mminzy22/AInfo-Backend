@@ -90,7 +90,7 @@ class User(AbstractBaseUser, PermissionsMixin):
     # 소셜 로그인 관련
     is_social = models.BooleanField(default=False)
     social_type = models.CharField(max_length=20, blank=True, null=True)  # ex) 'kakao'
-    credit = models.IntegerField(default=0)
+    credit = models.IntegerField(default=150)
 
     # 추가 정보
     interests = models.ManyToManyField(Interest, blank=True)
