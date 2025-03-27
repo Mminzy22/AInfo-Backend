@@ -73,3 +73,6 @@ class PolicyFlow(Flow):
         )
         self.state["report_result"] = report_result.raw
         return report_result
+
+    def run(self):
+        return self.kickoff()
