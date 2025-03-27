@@ -18,14 +18,14 @@ class RagSearchTool(BaseTool):
         keywords: str,
         collection_names: Optional[List[str]] = None,
         k: Optional[int] = 5,
-        filters: Optional[Dict[str, str]] = None,
+        user_profile: Optional[Dict[str, str]] = None,
     ) -> str:
 
         try:
             query = "".join(keywords)
 
             # Chroma 필터로 변환 (이거 지웅님이 할 꺼)
-            # chroma_filter = convert_chroma_filters(filters)
+            # chroma_filter = convert_chroma_filters(user_profile)
 
             chroma_filter = {}
 
