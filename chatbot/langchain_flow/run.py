@@ -10,6 +10,7 @@ from accounts.models import User
 from chatbot.crew_wrapper.flows.policy_flow import PolicyFlow
 from chatbot.langchain_flow.chains.detail_rag_chain import DETAIL_CHAIN
 from chatbot.langchain_flow.chains.overview_rag_chain import OVERVIEW_CHAIN
+from chatbot.langchain_flow.chains.personalized_rag_chain import PERSONALIZED_CHAIN
 from chatbot.langchain_flow.classifier import Category, manual_classifier
 from chatbot.langchain_flow.memory import ChatHistoryManager
 from chatbot.langchain_flow.profile import fortato, get_profile_data
@@ -82,7 +83,7 @@ async def get_chatbot_response(
 
     category = classification_result["category"]
     # 2차적으로 LLM이 한국말의 문맥을 판단 못하는 경우를 대비해서 특정 키워드가 있으면 분류 결과 재조정
-    if category != Category.OFF_TOPIC.value:
+    if category not in [Category.OFF_TOPIC.value, Category.PERSONALIZED.value]:
         manual_category = manual_classifier(user_message)
 
         if (
@@ -96,11 +97,10 @@ async def get_chatbot_response(
     # 유저 프로필 정보 및 키워드 추출
     profile_data = await get_profile_data(int(user_id))
 
-    # profile_keywords = profile_data["keywords"]
     profile = profile_data["profile"]
+    profile_keywords = profile_data["keywords"]
 
     llm_keywords = classification_result.get("keywords")
-
     if user_message == "4테이토":
         async for chunk in fortato(user_message):
             yield chunk
@@ -133,6 +133,22 @@ async def get_chatbot_response(
                 yield str(e)
                 return
             chain = DETAIL_CHAIN
+
+        elif category == Category.PERSONALIZED.value:
+            if not profile_keywords:
+                yield "프로필 정보를 입력 후에 이용하실 수 있습니다."
+                return
+
+            try:
+                await check_and_deduct_credit(int(user_id), cost=1)
+            except User.DoesNotExist:
+                yield "사용자 정보를 찾을 수 없습니다. 다시 로그인해주세요."
+                return
+            except ValueError as e:
+                yield str(e)
+                return
+
+            chain = PERSONALIZED_CHAIN
         else:
             yield "죄송합니다. 질문을 절확히 이해하지 못했습니다. 다시 한번 질문해주실 수 있을까요?"
     else:
@@ -171,7 +187,7 @@ async def get_chatbot_response(
             "question": classification_result["original_input"],
             "keywords": llm_keywords,
             "chat_history": chat_history,
-            "profile": profile,
+            "profile": profile_keywords,
         }
     ):
         output_response += chunk
