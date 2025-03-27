@@ -4,6 +4,7 @@ from rest_framework_simplejwt.views import TokenRefreshView
 from .views import (
     ActivateEmailView,
     AgreeTermsView,
+    CreditView,
     CurrentStatusListView,
     DeleteAccountView,
     EducationLevelListView,
@@ -56,4 +57,5 @@ urlpatterns = [
         name="reset_password_render",
     ),
     path("agree-terms/", AgreeTermsView.as_view(), name="agree_terms"),
+    path("credit/", CreditView.as_view(), name="user-credit"),
 ]

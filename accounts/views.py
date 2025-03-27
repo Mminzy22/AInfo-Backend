@@ -394,3 +394,9 @@ class AgreeTermsView(APIView):
             {"message": "수신동의 변경 완료"},
             status=status.HTTP_200_OK,
         )
+
+
+class CreditView(APIView):
+    def get(self, request):
+        user = request.user
+        return Response({"credit": user.credit}, status=status.HTTP_200_OK)
