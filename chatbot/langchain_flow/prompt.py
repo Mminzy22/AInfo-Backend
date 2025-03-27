@@ -32,7 +32,7 @@ CLASSIFICATION_PROMPT = ChatPromptTemplate.from_messages(
                 "original_input": "<사용자의 원본 입력>",
                 "is_followup": <true | false>,
                 "keywords": <요약 키워드>
-                
+
             ※ 참고: 사용자는 '산대특'(산업구조변화대응 등 특화훈련)이나 'K디지털 트레이닝'(디지털 핵심 실무인재 양성사업) 등 정책 프로그램을 줄여 말하는 경우가 많습니다. 줄임말이더라도 실제 정책이나 정부 지원 프로그램으로 판단되면 적절히 분류하십시오.
 
             🔍 예시:
