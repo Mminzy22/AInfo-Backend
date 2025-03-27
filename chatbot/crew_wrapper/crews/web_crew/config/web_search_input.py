@@ -8,7 +8,7 @@ class WebSearchInput(BaseModel):
     keywords: str = Field(..., description="검색 키워드")
     user_profile: Optional[Dict[str, str]] = Field(
         default=None,
-        description="메타데이터 필터링 조건 (나이, 지역, 관심분야 등). 없으면 필터 없이 전체 검색",
+        description="사용자 프로필 정보(나이, 지역, 관심분야 등).",
     )
     collection_names: Optional[List[str]] = Field(
         default=None, description="검색할 컬렉션 이름 목록"
