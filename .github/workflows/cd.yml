@@ -25,18 +25,15 @@ jobs:
           key: ${{ secrets.SSH_PRIVATE_KEY }}  
           command_timeout: 5m  # timeout 시간설정
           script: |
-            set -e
+
             cd /home/ubuntu/AInfo-Backend
             git pull origin main || { echo "Git pull failed"; exit 1; } 
             source venv/bin/activate
             pip install -r requirements.txt
-            sudo systemctl daemon-reload
-            sudo systemctl restart gunicorn || { echo "Failed to restart gunicorn"; exit 1; }
-            sudo systemctl restart daphne || { echo "Failed to restart daphne"; exit 1; }
-            sudo systemctl restart nginx || { echo "Failed to restart nginx"; exit 1; }
+            python manage.py migrate
+            sudo ./restart_server.sh
             GUNICORN_STATUS=$(systemctl is-active gunicorn)
             DAPHNE_STATUS=$(systemctl is-active daphne)
             echo "Gunicorn status: ${GUNICORN_STATUS}"
             echo "Daphne status: ${DAPHNE_STATUS}"
             echo "Deploy Completed!!!"
-      
