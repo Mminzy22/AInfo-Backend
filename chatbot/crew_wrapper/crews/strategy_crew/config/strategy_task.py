@@ -2,6 +2,8 @@ from textwrap import dedent
 
 from crewai import Task
 
+from chatbot.crew_wrapper.tools.strategy_web_tool import StrategyWebTool
+
 
 def create_strategy_task(
     agent,
@@ -92,5 +94,7 @@ def create_strategy_task(
         이와 같은 형식으로 사용자가 지금 바로 실천 가능한 전략을 구성해 주세요.
         """
         ),
+        used_tools=True,
         agent=agent,
+        tools=[StrategyWebTool()],
     )

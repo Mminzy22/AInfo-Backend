@@ -3,7 +3,7 @@ from typing import Dict, List, Optional
 from pydantic import BaseModel, Field
 
 
-class WebSearchInput(BaseModel):
+class StrategyWebInput(BaseModel):
     question: str = Field(..., description="사용자 질문(원본 질문)")
     keywords: str = Field(..., description="검색 키워드")
     user_profile: Optional[Dict[str, str]] = Field(
