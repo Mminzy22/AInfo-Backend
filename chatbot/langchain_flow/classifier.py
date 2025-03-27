@@ -154,8 +154,6 @@ def manual_classifier(user_message: str) -> str | None:
     Returns:
         str | None: 분류된 카테고리 문자열 ('gov_policy' 또는 'detail_policy') 또는 None.
     """
-    if "보고서" in user_message:
-        return Category.REPORT_REQUEST.value
 
     scores = {Category.GOV_POLICY.value: 0, Category.DETAIL_POLICY.value: 0}
 

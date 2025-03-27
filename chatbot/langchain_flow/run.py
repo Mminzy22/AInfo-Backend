@@ -1,9 +1,12 @@
 import asyncio
 from concurrent.futures import ThreadPoolExecutor
 
+from channels.db import database_sync_to_async
+from django.db import transaction
 from langchain_core.output_parsers import JsonOutputParser
 from langchain_openai import ChatOpenAI
 
+from accounts.models import User
 from chatbot.crew_wrapper.flows.policy_flow import PolicyFlow
 from chatbot.langchain_flow.chains.detail_rag_chain import DETAIL_CHAIN
 from chatbot.langchain_flow.chains.overview_rag_chain import OVERVIEW_CHAIN
@@ -27,7 +30,9 @@ async def run_policy_flow_async(user_input: dict):
         )
 
 
-async def get_chatbot_response(user_message: str, user_id: str, room_id: str):
+async def get_chatbot_response(
+    user_message: str, user_id: str, room_id: str, is_report: bool
+):
     """
     사용자 메시지를 기반으로 검색 증강 생성(RAG) 방식의 응답을 스트리밍 방식으로 생성하는 함수.
 
@@ -74,7 +79,6 @@ async def get_chatbot_response(user_message: str, user_id: str, room_id: str):
     classification_result = await classification_chain.ainvoke(
         {"question": user_message, "chat_history": chat_history}
     )
-    print(f"classification_result >>> {classification_result}")
 
     # 2차적으로 LLM이 한국말의 문맥을 판단 못하는 경우를 대비해서 특정 키워드가 있으면 분류 결과 재조정
     manual_category = manual_classifier(user_message)
@@ -88,7 +92,10 @@ async def get_chatbot_response(user_message: str, user_id: str, room_id: str):
         classification_result["category"] = manual_category
 
     category = classification_result["category"]
-    print(f"category >>>> {category}")
+
+    if is_report:
+        category = Category.REPORT_REQUEST.value
+
     # 유저 프로필 정보 및 키워드 추출
     profile_data = await get_profile_data(int(user_id))
 
@@ -101,6 +108,7 @@ async def get_chatbot_response(user_message: str, user_id: str, room_id: str):
         async for chunk in fortato(user_message):
             yield chunk
         return
+
     # 사용자 입력에 따른 분기 처리
     if category == Category.OFF_TOPIC.value:
         yield "정책 및 지원에 관한 내용을 물어봐주시면 친절하게 답변해드릴 수 있습니다."
@@ -113,8 +121,18 @@ async def get_chatbot_response(user_message: str, user_id: str, room_id: str):
         chain = DETAIL_CHAIN
 
     elif category == Category.REPORT_REQUEST.value:
+        try:
+            await check_and_deduct_credit(int(user_id))
+        except User.DoesNotExist:
+            yield "사용자 정보를 찾을 수 없습니다. 다시 로그인해주세요."
+            return
+        except ValueError as e:
+            yield str(e)
+            return
+
         user_input = {
-            "original_input": llm_keywords + "의 키워드를 중심으로 보고서 만들어줘",
+            "original_input": user_message,
+            "summary": llm_keywords + "의 키워드를 중심으로 보고서 만들어줘",
             "keywords": llm_keywords,
             "user_profile": profile,
         }
@@ -145,3 +163,16 @@ async def get_chatbot_response(user_message: str, user_id: str, room_id: str):
 
     # 멀티턴 메모리에 저장
     memory.save_context({"human": user_message}, {"ai": output_response})
+
+
+@database_sync_to_async
+def check_and_deduct_credit(user_id: int, cost: int = 50) -> User:
+    with transaction.atomic():
+        user = User.objects.select_for_update().get(id=user_id)
+
+        if user.credit < cost:
+            raise ValueError("보고서를 생성하려면 최소 50 크레딧이 필요합니다.")
+
+        user.credit -= cost
+        user.save()
+        return user

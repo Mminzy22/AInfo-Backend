@@ -96,6 +96,8 @@ class ChatConsumer(AsyncWebsocketConsumer):
         try:
             data = json.loads(text_data)
             user_message = data["message"]
+            is_report = data.get("is_report", False)
+
         except json.JSONDecodeError:
             await self.send(
                 text_data=json.dumps(
@@ -121,7 +123,10 @@ class ChatConsumer(AsyncWebsocketConsumer):
 
         # 생성되고 있는 답변의 chunk과 스트리밍 중임을 알림
         async for chunk in get_chatbot_response(
-            user_message, self.user_id, self.room_id
+            user_message,
+            self.user_id,
+            self.room_id,
+            is_report,
         ):
             bot_message.append(chunk)
             await self.send(

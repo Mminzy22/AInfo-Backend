@@ -18,8 +18,6 @@ CLASSIFICATION_PROMPT = ChatPromptTemplate.from_messages(
                 - "gov_policy": Asking about general government or local government policies, programs, or support types.
                 - "detail_policy": Asking about specific conditions, eligibility, application process, or requirements for a particular policy or support.
                 - "support_related": Indirect or figurative expressions that imply a desire or need for financial aid, housing, employment, or social support.
-                - "trend_ask": Asking about recent news, policy changes, or trends relevant to youth, employment, housing, etc.
-                - "report_request": Explicitly requesting a written summary, report, or analysis based on search results, chatbot conversation, or retrieved policy data.
 
             2. **Determine if the input is a follow-up** to a previous conversation.
                 - If the question clearly builds on a prior context or refers back to something mentioned before, set "is_followup" to true.
@@ -30,7 +28,7 @@ CLASSIFICATION_PROMPT = ChatPromptTemplate.from_messages(
                 - Do not translate to English.
 
             Return the result in the following JSON format:
-                "category": "<category (off_topic | gov_policy | policy_detail | support_related | report_request>",
+                "category": "<category (off_topic | gov_policy | policy_detail | support_related>",
                 "original_input": "<사용자의 원본 입력>",
                 "is_followup": <true | false>,
                 "keywords": <summary>
