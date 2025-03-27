@@ -31,11 +31,12 @@ jobs:
             source venv/bin/activate
             pip install -r requirements.txt
             python manage.py migrate
-            sudo ./restart_server.sh
+            sudo ./shutdown_server.sh
+            sleep 2
+            sudo ./restart_server.sh&&
 
             # 기존 Celery 프로세스 종료
-            pkill -f "celery worker" || echo "No celery worker process found"
-            pkill -f "celery beat" || echo "No celery beat process found"
+            pkill -f "celery"
             sleep 3
 
             # Celery Worker & Beat 실행
