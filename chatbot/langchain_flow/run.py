@@ -81,7 +81,6 @@ async def get_chatbot_response(
     )
 
     category = classification_result["category"]
-    print(f"1차 분류 >>>> {category}")
     # 2차적으로 LLM이 한국말의 문맥을 판단 못하는 경우를 대비해서 특정 키워드가 있으면 분류 결과 재조정
     if category != Category.OFF_TOPIC.value:
         manual_category = manual_classifier(user_message)
@@ -94,7 +93,6 @@ async def get_chatbot_response(
         elif manual_category and manual_category != category:
             category = manual_category
 
-    print(f"2차 분류 >>>> {category}")
     # 유저 프로필 정보 및 키워드 추출
     profile_data = await get_profile_data(int(user_id))
 
