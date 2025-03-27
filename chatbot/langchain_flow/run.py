@@ -1,9 +1,12 @@
 import asyncio
 from concurrent.futures import ThreadPoolExecutor
 
+from channels.db import database_sync_to_async
+from django.db import transaction
 from langchain_core.output_parsers import JsonOutputParser
 from langchain_openai import ChatOpenAI
 
+from accounts.models import User
 from chatbot.crew_wrapper.flows.policy_flow import PolicyFlow
 from chatbot.langchain_flow.chains.detail_rag_chain import DETAIL_CHAIN
 from chatbot.langchain_flow.chains.overview_rag_chain import OVERVIEW_CHAIN
@@ -11,10 +14,6 @@ from chatbot.langchain_flow.classifier import Category, manual_classifier
 from chatbot.langchain_flow.memory import ChatHistoryManager
 from chatbot.langchain_flow.profile import fortato, get_profile_data
 from chatbot.langchain_flow.prompt import CLASSIFICATION_PROMPT
-
-from channels.db import database_sync_to_async
-from django.db import transaction
-from accounts.models import User
 
 
 async def run_policy_flow_async(user_input: dict):
@@ -123,7 +122,7 @@ async def get_chatbot_response(
 
     elif category == Category.REPORT_REQUEST.value:
         try:
-            user = await check_and_deduct_credit(int(user_id))
+            await check_and_deduct_credit(int(user_id))
         except User.DoesNotExist:
             yield "사용자 정보를 찾을 수 없습니다. 다시 로그인해주세요."
             return
