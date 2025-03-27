@@ -2,7 +2,7 @@ import requests
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.contrib.sites.shortcuts import get_current_site
-from django.shortcuts import render
+from django.shortcuts import redirect, render
 from django.utils.http import urlsafe_base64_decode
 from google.auth.transport import requests as google_requests
 from google.oauth2 import id_token as google_id_token
@@ -303,9 +303,7 @@ class ActivateEmailView(APIView):
         if user and token_for_verify_mail.check_token(user, token):
             user.email_verified = True
             user.save()
-            return Response(
-                {"message": "이메일 인증이 완료되었습니다."}, status=status.HTTP_200_OK
-            )
+            return redirect("https://www.ainfo.ai.kr/pages/login.html")
         else:
             return Response(
                 {"error": "잘못된 인증 링크입니다."}, status=status.HTTP_400_BAD_REQUEST
@@ -373,10 +371,7 @@ class ResetPasswordRenderView(APIView):
 
             user.set_password(new_password)
             user.save()
-            return Response(
-                {"message": "비밀번호가 성공적으로 변경되었습니다."},
-                status=status.HTTP_200_OK,
-            )
+            return redirect("https://www.ainfo.ai.kr/pages/login.html")
         else:
             return Response(
                 {"message": "유효하지 않은 토큰입니다."},
