@@ -66,13 +66,13 @@ async def get_chatbot_response(
     """
 
     # 멀티턴을 위한 레디스 메모리 매니저 인스턴스 생성 & 대화내용 요약을 위한 LLM 로드
-    llm = ChatOpenAI(model="gpt-4o-mini", temperature=0.3, streaming=True)
+    llm = ChatOpenAI(model="gpt-4o", temperature=0.3, streaming=True)
     chat_manager = ChatHistoryManager(user_id, room_id, llm)
     memory = chat_manager.get_memory_manager()
     chat_history = memory.load_memory_variables({}).get("chat_history", [])
 
     # 1차적으로 LLM이 사용자 입력을 분류하고 중요 키워드 추출
-    classification_llm = ChatOpenAI(model="gpt-4o-mini", temperature=0.7)
+    classification_llm = ChatOpenAI(model="gpt-4o", temperature=0.7)
     classification_chain = (
         CLASSIFICATION_PROMPT | classification_llm | JsonOutputParser()
     )
