@@ -11,6 +11,6 @@ def get_compare_agent():
         backstory="정책 간 장단점, 대상 적합성, 혜택 효율성 등을 비교하여 사용자의 상황에 맞는 최적의 선택을 도출한다.",
         verbose=True,
         allow_delegation=False,
-        llm=ChatOpenAI(model="gpt-4o-mini", temperature=0.4, max_tokens=1024),
+        llm=ChatOpenAI(model="gpt-4o", temperature=0.4, max_tokens=1024),
         system_prompt=COMPARE_AGENT_PROMPT,
     )

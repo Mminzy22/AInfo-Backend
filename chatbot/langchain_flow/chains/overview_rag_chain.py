@@ -5,7 +5,7 @@ from langchain_openai import ChatOpenAI
 from chatbot.langchain_flow.prompts.overview_rag_prompt import OVERVIEW_RAG_PROMPT
 from chatbot.langchain_flow.tools.overview_rag_tool import overview_rag_tool
 
-llm = ChatOpenAI(model="gpt-4o-mini", temperature=0.5, streaming=True)
+llm = ChatOpenAI(model="gpt-4o", temperature=0.5, streaming=True)
 
 OVERVIEW_CHAIN = (
     RunnableMap(
