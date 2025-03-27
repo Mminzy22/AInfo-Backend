@@ -21,18 +21,44 @@ class SearchWebTool(BaseTool):
     def _run(
         self,
         question: str,
-        keywords: List[str],
+        keywords: str,
+        user_profile: Optional[Dict[str, str]] = None,
         collection_names: Optional[List[str]] = None,
-        k: Optional[int] = 5,
-        filters: Optional[Dict[str, str]] = None,
+        k: Optional[int] = 3,
     ) -> str:
         try:
-            tool = TavilySearchResults(k=k)
-            results = tool.run(question)
+            # 1. 쿼리 = 기본 질문만 사용
+            query = question
+
+            # 2. 사용자 프로필 붙이기
+            if user_profile:
+                profile_str = " ".join(f"{k}:{v}" for k, v in user_profile.items())
+                query += f" 관련 공공서비스 {profile_str}"
+
+            # 3. 기관 필터 붙이기
+            TRUSTED_SITES = [
+                "gov.kr",
+                "moel.go.kr",
+                "work.go.kr",
+                "k-startup.go.kr",
+                "youthcenter.go.kr",
+                "mohw.go.kr",
+                "bokjiro.go.kr",
+                "mbc.go.kr",
+                "seoul.go.kr",
+                "gg.go.kr",
+            ]
+
+            query += " " + " OR ".join(f"site:{site}" for site in TRUSTED_SITES)
+
+            # 4. Tavily 실행
+            tavily = TavilySearchResults(k=k)
+            results = tavily.run(query)
 
             if not results:
                 return "검색 결과가 없습니다."
 
+            # 5. 요약 정리
             summaries = []
             for item in results:
                 url = item.get("url", "")

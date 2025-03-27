@@ -6,7 +6,7 @@ from pydantic import BaseModel, Field
 class PolicyQueryInput(BaseModel):
     question: str = Field(..., description="사용자 질문(원본 질문)")
     keywords: str = Field(..., description="검색 키워드")
-    filters: Optional[Dict[str, str]] = Field(
+    user_profile: Optional[Dict[str, str]] = Field(
         default=None,
         description="메타데이터 필터링 조건 (나이, 지역, 관심분야 등). 없으면 필터 없이 전체 검색",
     )
