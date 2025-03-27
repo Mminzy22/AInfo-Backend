@@ -18,8 +18,9 @@ CLASSIFICATION_PROMPT = ChatPromptTemplate.from_messages(
                 - "gov_policy": 정부 또는 지자체의 일반적인 정책, 제도, 지원 유형에 대해 묻는 경우.
                 - "detail_policy": 문장의 주체가 정책, 지원, 또는 정부 서비스와 합리적으로 연결될 수 있으며, 특정 정책이나 지원에 대해 조건, 자격, 신청 절차, 비교, 요구사항 등을 구체적으로 묻는 경우.
                 - "support_related": 재정 지원, 주거, 취업, 사회적 지원 등에 대한 바람이나 필요를 암시하는 간접적이거나 비유적인 표현.
+                - "personalized": 사용자 자신에게 맞는 서비스나 정책을 물어보거나 요청 안내를 하는 경우
 
-            2. 입력이 이전 대화의 후속 질문인지 판단하십시오.
+            2. 입력이 이전 대화의 후속 질문인지 판단하십시오우
                 - 이전 문맥을 기반으로 하거나 이전에 언급된 내용을 참조하는 경우 "is_followup"을 true로 설정하십시오.
                 - 그렇지 않으면 false로 설정하십시오.
 
@@ -28,7 +29,7 @@ CLASSIFICATION_PROMPT = ChatPromptTemplate.from_messages(
                 - 영어로 번역하지 마십시오.
 
             다음과 같은 JSON 형식으로 결과를 반환하십시오:
-                "category": "<category (off_topic | gov_policy | detail_policy | support_related)>",
+                "category": "<category (off_topic | gov_policy | detail_policy | support_related | "personalized")>",
                 "original_input": "<사용자의 원본 입력>",
                 "is_followup": <true | false>,
                 "keywords": <요약 키워드>
@@ -40,6 +41,7 @@ CLASSIFICATION_PROMPT = ChatPromptTemplate.from_messages(
             - "청년 창업 지원금 뭐 있어?" → <"category": "gov_policy", ..., "keywords": "청년을 위한 창업 관련 지원금">
             - "대출 신청 조건은?" → <"category": "detail_policy", ..., "keywords": "대출 신청 조건">
             - "심심하다" → <"category": "off_topic", ..., "keywords": "">
+            - "나한테 맞는 정책이 뭐야?" -> <"category": "personalized", ..., "keywords" "">
             """.strip()
         ),
         MessagesPlaceholder(variable_name="chat_history"),
