@@ -34,7 +34,8 @@ jobs:
             python manage.py migrate
             
             echo "celery 이름 들어간 모든 프로세스 종료"
-            pkill -f celery || echo "Celery 프로세스 어딨음?"
+            pkill -f celery || true
+            echo "Celery 프로세스 어딨음?"
             sleep 3
 
             echo "shutdown 스크립트 실행"
