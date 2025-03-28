@@ -36,7 +36,9 @@ jobs:
             echo "셀러리 종료 테스트"
             if pgrep -f celery > /dev/null; then
               echo "Celery 프로세스 종료 중..."
-              pkill -f celery
+              set +e
+              sudo pkill -f celery
+              set -e
               echo "Celery 종료 완료"
             else
               echo "Celery 프로세스 어딨음?"
