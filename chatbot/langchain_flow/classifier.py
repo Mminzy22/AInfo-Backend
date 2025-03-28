@@ -19,6 +19,7 @@ class Category(Enum):
     DETAIL_POLICY = "detail_policy"
     REPORT_REQUEST = "report_request"
     SUPPORT_RELATED = "support_related"
+    PERSONALIZED = "personalized"
 
 
 # 각 카테고리에 해당하는 키워드 라스트

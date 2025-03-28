@@ -25,6 +25,7 @@ jobs:
           key: ${{ secrets.SSH_PRIVATE_KEY }}  
           command_timeout: 5m  # timeout 시간설정
           script: |
+            set -e
 
             cd /home/ubuntu/AInfo-Backend
             git pull origin main || { echo "Git pull failed"; exit 1; } 
@@ -33,7 +34,10 @@ jobs:
             python manage.py migrate
             sudo ./shutdown_server.sh
             sleep 2
-            sudo ./restart_server.sh&&
+            sudo ./restart_server.sh || {
+              echo "Restart server script failed with error code $?";
+              exit 1;
+            }
 
             # 기존 Celery 프로세스 종료
             pkill -f "celery"
