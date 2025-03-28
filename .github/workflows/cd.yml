@@ -25,7 +25,7 @@ jobs:
           key: ${{ secrets.SSH_PRIVATE_KEY }}  
           command_timeout: 5m  # timeout 시간설정
           script: |
-            set -e
+            set -ex
 
             cd /home/ubuntu/AInfo-Backend
             git pull origin main || { echo "Git pull failed"; exit 1; } 
