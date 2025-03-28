@@ -46,7 +46,12 @@ def create_web_search_task(agent, user_input: dict) -> Task:
         제목, 웹 요약 정보, 링크를 포함해 주세요.
         """
         ),
-        expected_output="정책 이름, 설명, 추천 이유, 링크가 포함된 2개 이상의 공공서비스 정보, 만약 관련 정책 정보가 없다면 **관련 정보가 없습니다**라고 안내.",
+        expected_output=dedent(
+            """정책 이름, 설명, 추천 이유, 링크가 포함된 2~3개의 공공서비스 정보.
+            만약 관련 정책 정보가 없다면 **관련 정보가 없습니다**라고 안내.
+            사용자의 지역과 정책 운영 지역이 다르다면 결과에서 제외.
+            """
+        ),
         used_tools=True,
         agent=agent,
         tools=[SearchWebTool()],
