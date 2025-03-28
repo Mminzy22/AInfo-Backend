@@ -33,6 +33,7 @@ jobs:
             pip install -r requirements.txt
             python manage.py migrate
 
+
             echo "shutdown 스크립트 실행"
             sudo ./shutdown_server.sh
             sleep 2
