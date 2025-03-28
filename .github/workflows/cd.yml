@@ -32,20 +32,23 @@ jobs:
             source venv/bin/activate
             pip install -r requirements.txt
             python manage.py migrate
+            
+            echo "celery 이름 들어간 모든 프로세스 종료"
+            pkill -f celery || true
+            echo "Celery 프로세스 어딨음?"
+            sleep 3
 
             echo "shutdown 스크립트 실행"
             sudo ./shutdown_server.sh
             sleep 2
 
-            echo "celery 이름 들어간 모든 프로세스 종료"
-            pkill -f celery || echo "Celery 프로세스 어딨음?"
-            sleep 3
 
             echo "restart 스크립트 실행"
             sudo ./restart_server.sh || {
               echo "Restart server script failed with error code $?";
               exit 1;
             }
+            sleep 2
 
             echo "celery 워커 nohup 으로 실행"
             nohup celery -A config worker --loglevel=info > celery.log 2>&1 &
