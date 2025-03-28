@@ -32,23 +32,24 @@ jobs:
             source venv/bin/activate
             pip install -r requirements.txt
             python manage.py migrate
+
+            echo "shutdown 스크립트 실행"
             sudo ./shutdown_server.sh
             sleep 2
+
+            echo "celery 이름 들어간 모든 프로세스 종료"
+            pkill -f "celery"
+            sleep 3
+
+            echo "restart 스크립트 실행"
             sudo ./restart_server.sh || {
               echo "Restart server script failed with error code $?";
               exit 1;
             }
 
-            # 기존 Celery 프로세스 종료
-            pkill -f "celery"
-            sleep 3
-
-            # Celery Worker & Beat 실행
+            echo "celery 워커 nohup 으로 실행"
             nohup celery -A config worker --loglevel=info > celery.log 2>&1 &
+            sleep 2
+            
+            echo "celery 비트 nohup 으로 실행"
             nohup celery -A config beat --loglevel=info > celery_beat.log 2>&1 &
-
-            GUNICORN_STATUS=$(systemctl is-active gunicorn)
-            DAPHNE_STATUS=$(systemctl is-active daphne)
-            echo "Gunicorn status: ${GUNICORN_STATUS}"
-            echo "Daphne status: ${DAPHNE_STATUS}"
-            echo "Deploy Completed!!!"
