@@ -20,6 +20,7 @@ PERSONALIZED_CHAIN = (
         {
             "question": lambda x: x["question"],
             "context": lambda x: detail_rag_tool.run({"query": " ".join(x["profile"])}),
+            "profile_text": lambda x: " ".join(x["profile_text"]),
             "web_search": lambda x: tavily_web_search_tool.invoke(
                 {
                     "query": " ".join(x["profile"]),
