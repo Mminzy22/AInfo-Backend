@@ -1,4 +1,4 @@
-## 💡 아이디어, 기획
+![회원가입_로그인](https://github.com/user-attachments/assets/a32da6e0-81e9-42a0-b959-0f29be8da132)## 💡 아이디어, 기획
 
 ### *“정책은 있는데, 정보는 어디 있나요?”*
 
@@ -43,7 +43,7 @@ AInfo는 맞춤형 공공서비스 추천 AI 챗봇입니다. Django Rest Framew
 [영상]
 
 ### 서비스 아키텍처
-
+![서비스 아키텍처](https://file.notion.so/f/f/7b9c678b-2c04-4afd-962f-d60425a4ac46/b89f056f-29f0-40ed-8609-72e21f2c79f6/ainfo.drawio.png?table=block&id=1c3af76d-38e2-8051-94ca-c9a5fbd5c5f7&spaceId=7b9c678b-2c04-4afd-962f-d60425a4ac46&expirationTimestamp=1743379200000&signature=o1NXj-I4sxeWbCuzsZGMzg_TiHR3mBQzc03X3GcQxv4&downloadName=ainfo.drawio.png)
 ---
 
 ### 🍟 팀원:
@@ -278,28 +278,22 @@ AInfo는 맞춤형 공공서비스 추천 AI 챗봇입니다. Django Rest Framew
 ### 유저 기능
 
 - JWT 기반 로그인/회원가입
-    
-    ![회원가입_로그인.gif]()
+    ![회원가입_로그인](https://github.com/user-attachments/assets/bd152c4d-127d-4786-8b40-ab1f570c993f)
     
 - 이메일 인증
-    
-    ![회원가입_로그인.gif]()
+    ![회원가입_로그인](https://github.com/user-attachments/assets/55af71e5-da30-44ed-a4be-b0e81c7bc35d)
     
 - 소셜 로그인
-    
-    ![소셜로그인.gif]()
+    ![소셜로그인](https://github.com/user-attachments/assets/9461275b-60ef-4a3a-8ff3-03748dc0f42b)
     
 - 본인인증 및 비밀번호 재설정
-    
-    ![비밀번호재설정.gif]()
+    ![비밀번호재설정](https://github.com/user-attachments/assets/e363e07c-df26-4d6b-ab50-f04decb89533)
     
 - 회원 탈퇴
-    
-    ![회원탈퇴.gif]()
+    ![회원탈퇴](https://github.com/user-attachments/assets/c8b5a3d9-17fb-4da6-a669-3da3385f8526)
     
 - 프로필 수정
-    
-    ![프로필수정.gif]()
+    ![프로필수정](https://github.com/user-attachments/assets/622e5fe0-3638-4689-8aec-131ad1f2de86)
     
 
 ### AI 챗봇
@@ -307,20 +301,19 @@ AInfo는 맞춤형 공공서비스 추천 AI 챗봇입니다. Django Rest Framew
 - LangChain + ChromaDB 기반 RAG 모델 연동
 - Django Channels, Redis를 이용한 WebSocket 실시간 대화 지원
 - 맞춤형 공공서비스 추천 기능
-    
-    ![챗봇대화일반모드.gif]()
+    ![챗봇대화일반모드](https://github.com/user-attachments/assets/35c07694-402d-46a8-8c65-0424c0834339)
     
 - 대화 흐름 기억
     
-    ![news-31-2025 01-21-00.gif]()
+    ![news-31-2025 01-21-00.gif](https://file.notion.so/f/f/7b9c678b-2c04-4afd-962f-d60425a4ac46/a1fbc60d-265d-4cbf-bb64-b5399fe8bb16/news-31-2025_01-21-00.gif?table=block&id=1c6af76d-38e2-805a-abd5-c149a46ae0f9&spaceId=7b9c678b-2c04-4afd-962f-d60425a4ac46&expirationTimestamp=1743379200000&signature=ChkLMCH9Qne2oRmS-fq9mJc_oITr7ypnJsBcpzLf-us&downloadName=news-31-2025+01-21-00.gif)
     
 - 부족한 정보 → 웹검색
     
-    ![news-31-2025 01-21-00.gif]()
+    ![news-31-2025 01-21-00.gif](https://file.notion.so/f/f/7b9c678b-2c04-4afd-962f-d60425a4ac46/7d0cc1b5-fedb-4cec-8ce4-12ab54e0b084/news-31-2025_01-21-00.gif?table=block&id=1c6af76d-38e2-805e-b0e6-fc56d5157d94&spaceId=7b9c678b-2c04-4afd-962f-d60425a4ac46&expirationTimestamp=1743379200000&signature=DQQLBTMaTKRqPYpBsDeEk5UN0rz3Sp1WAi3VEyQHdcU&downloadName=news-31-2025+01-21-00.gif)
     
 - 보고서 작성 기능
     
-    ![Mar-31-2025 01-17-32.gif]()
+    ![Mar-31-2025 01-17-32.gif](https://file.notion.so/f/f/7b9c678b-2c04-4afd-962f-d60425a4ac46/3e1be973-ee3b-4833-ad51-b7021b0c8e69/Mar-31-2025_01-17-32.gif?table=block&id=1c6af76d-38e2-8001-a863-d334593ba195&spaceId=7b9c678b-2c04-4afd-962f-d60425a4ac46&expirationTimestamp=1743379200000&signature=AQVp4Pv2q2tRadHidqmirQPSGjf6Xc1AxewFJsBfAQI&downloadName=Mar-31-2025+01-17-32.gif)
     
 
 ### 공공 데이터 연동
@@ -328,19 +321,18 @@ AInfo는 맞춤형 공공서비스 추천 AI 챗봇입니다. Django Rest Framew
 - 정부 API(고용24, 정부24, 온통청년) 활용
 - K스타트업 안내책자 pdf 활용
 - 주기적 데이터 로드
-    
-    []()
+    ![주기적데이터로드](https://github.com/user-attachments/assets/6a2e8656-89ff-48f7-b44d-698ed101dac7)
     
 
 ### 메일 기능
 
 - 본인인증을 위한 메일 발송
     
-    ![mail-31-2025 01-11-48.gif]()
+    ![mail-31-2025 01-11-48.gif](https://file.notion.so/f/f/7b9c678b-2c04-4afd-962f-d60425a4ac46/33384dd9-25e7-4f3f-a4d4-ebac64b54957/mail-31-2025_01-11-48.gif?table=block&id=1c6af76d-38e2-8010-a5fb-d151b419369f&spaceId=7b9c678b-2c04-4afd-962f-d60425a4ac46&expirationTimestamp=1743379200000&signature=i1X1Zk8e_nU4Ytyqhe2L-9MfVm26S6QkVzfWXqC8NVw&downloadName=mail-31-2025+01-11-48.gif)
     
 - 전체유저 대상 공지메일 발송
     
-    ![image.png]()
+    ![image.png](https://file.notion.so/f/f/7b9c678b-2c04-4afd-962f-d60425a4ac46/010bc655-ce71-4075-9e66-ddc4ebbc971c/image.png?table=block&id=1c6af76d-38e2-80b5-8057-d7ec7123fd1b&spaceId=7b9c678b-2c04-4afd-962f-d60425a4ac46&expirationTimestamp=1743379200000&signature=Wxz4RtHj_htQuIwQFLFkj6p4JEh8nvDJkKbS-CZlSEM&downloadName=image.png)
     
 
 ### 결제 기능
@@ -348,7 +340,7 @@ AInfo는 맞춤형 공공서비스 추천 AI 챗봇입니다. Django Rest Framew
 - KG 이니시스 PG 사 연동
 - 결제 관련정보 DB 관리
 
-![pay-31-2025 01-04-33.gif]()
+![pay-31-2025 01-04-33.gif](https://file.notion.so/f/f/7b9c678b-2c04-4afd-962f-d60425a4ac46/173efbaf-cb39-4a0d-a47d-1c944ddc8a65/pay-31-2025_01-04-33.gif?table=block&id=1c6af76d-38e2-804b-aa41-f96269bd6566&spaceId=7b9c678b-2c04-4afd-962f-d60425a4ac46&expirationTimestamp=1743379200000&signature=eDkujm-xxl-sKUUdHkHoW1xoaC3St3A9CtlIPp5XGuc&downloadName=pay-31-2025+01-04-33.gif)
 
 ---
 
