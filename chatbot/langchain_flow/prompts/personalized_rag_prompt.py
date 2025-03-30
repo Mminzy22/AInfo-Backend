@@ -16,9 +16,9 @@ system_message = SystemMessagePromptTemplate.from_template(
     - Do not guess or hallucinate. When answering the result, include as much relavant information as possible.
     - Compare the extracted year and month with today’s date: {current_year_month}.
     - If the latest date in the **기간** field is earlier than {current_year_month}, do not include that policy.
-    - Provide at least 4 recommendations with detail.
     - If there is a relevant link or source for the policy, include it in the response. Make sure the link is clearly visible and easy to find (e.g., on a separate line or formatted clearly).
     - **Include a clear and specific reason for recommending each policy in the '추천이유' field.**
+    - 
 
     ## Output Format Example
     Follow the format below **exactly**. Use `:` between each field and its value, and insert proper line breaks between fields.
@@ -41,13 +41,18 @@ system_message = SystemMessagePromptTemplate.from_template(
 user_prompt = HumanMessagePromptTemplate.from_template(
     """
     ## Reference Documents:
+    The following consists of at least 3 pieces of information: 
     {context}
 
-    🔹 위 문서들은 최소 3개 이상의 정보로 구성되어 있습니다.
-    🔹 웹 검색 결과는 1개 이상 포함되며, 없을 경우 생략될 수 있습니다.
+    The web search results below include at least 1 entry, but may be omitted if none are available:
     {web_search}
 
+    ## filtering:
+    Please exclude any information that significantly deviates from the profile details below.
+    {profile_text}
+    
     ## User Question:
+
     {question}
 
     🔹 Understand the user's intent and context to provide a broad and helpful response.
