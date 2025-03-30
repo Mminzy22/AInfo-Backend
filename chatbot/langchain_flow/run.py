@@ -99,8 +99,9 @@ async def get_chatbot_response(
 
     profile = profile_data["profile"]
     profile_keywords = profile_data["keywords"]
-
+    print(f"classification_result >>>> {classification_result}")
     llm_keywords = classification_result.get("keywords")
+    print(f"{type(llm_keywords)}, {llm_keywords}")
     if user_message == "4테이토":
         async for chunk in fortato(user_message):
             yield chunk
@@ -187,7 +188,8 @@ async def get_chatbot_response(
             "question": classification_result["original_input"],
             "keywords": llm_keywords,
             "chat_history": chat_history,
-            "profile": profile_keywords,
+            "profile": profile_keywords + [llm_keywords],
+            "profile_text": profile,
         }
     ):
         output_response += chunk
