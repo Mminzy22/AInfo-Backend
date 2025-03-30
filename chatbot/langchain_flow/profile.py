@@ -43,7 +43,7 @@ def get_profile_data(user_id: int) -> dict:
     profile = {}
 
     keywords += interest_list
-    profile["interests"] = interest_list
+    profile["interests"] = " ".join(interest_list)
 
     if education_level:
         keywords.append(education_level.name)
