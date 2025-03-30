@@ -42,6 +42,10 @@ def get_profile_data(user_id: int) -> dict:
     keywords = []
     profile = {}
 
+    if region:
+        keywords.append(region.name)
+        profile["region"] = region.name
+
     keywords += interest_list
     profile["interests"] = " ".join(interest_list)
 
