@@ -21,7 +21,7 @@ system_message = SystemMessagePromptTemplate.from_template(
 
     ## Filtering (지역 및 학력 중심 필터링):
     - Carefully analyze the user profile keywords provided below.
-    
+
     ## Filtering (지역 중심 정책 필터링):
     - Carefully analyze the user profile keywords provided below.
     - Identify any Korean region, city, district, or county names (예: 서울, 부산, 대구광역시, 경기도, 전주시, 강남구 등).
@@ -37,14 +37,14 @@ system_message = SystemMessagePromptTemplate.from_template(
 
     입력해주신 소중한 프로필 정보를 바탕으로 추천해드립니다.
 
-    **정책명**: [정책 이름]  
-    **대상**: [지원 대상]  
-    **지원 내용**: [혜택 및 지원금]  
-    **신청 방법**: [절차]  
-    **필요 서류**: [필요 서류]  
-    **기간**: [신청 가능 기간]  
-    **자세히 보기**: [관련 링크]  
-    **추천이유**: <추천이유>  
+    **정책명**: [정책 이름]
+    **대상**: [지원 대상]
+    **지원 내용**: [혜택 및 지원금]
+    **신청 방법**: [절차]
+    **필요 서류**: [필요 서류]
+    **기간**: [신청 가능 기간]
+    **자세히 보기**: [관련 링크]
+    **추천이유**: <추천이유>
     ---
     """
 )
