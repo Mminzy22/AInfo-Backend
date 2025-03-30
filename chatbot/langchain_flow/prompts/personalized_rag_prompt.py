@@ -18,7 +18,6 @@ system_message = SystemMessagePromptTemplate.from_template(
     - If the latest date in the **기간** field is earlier than {current_year_month}, do not include that policy.
     - If there is a relevant link or source for the policy, include it in the response. Make sure the link is clearly visible and easy to find (e.g., on a separate line or formatted clearly).
     - **Include a clear and specific reason for recommending each policy in the '추천이유' field.**
-    - 
 
     ## Output Format Example
     Follow the format below **exactly**. Use `:` between each field and its value, and insert proper line breaks between fields.
@@ -41,7 +40,7 @@ system_message = SystemMessagePromptTemplate.from_template(
 user_prompt = HumanMessagePromptTemplate.from_template(
     """
     ## Reference Documents:
-    The following consists of at least 3 pieces of information: 
+    The following consists of at least 3 pieces of information:
     {context}
 
     The web search results below include at least 1 entry, but may be omitted if none are available:
@@ -50,7 +49,7 @@ user_prompt = HumanMessagePromptTemplate.from_template(
     ## filtering:
     Please exclude any information that significantly deviates from the profile details below.
     {profile_text}
-    
+
     ## User Question:
 
     {question}
