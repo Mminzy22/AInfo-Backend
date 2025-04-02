@@ -1,4 +1,9 @@
-![브로셔](https://file.notion.so/f/f/7b9c678b-2c04-4afd-962f-d60425a4ac46/136df966-10bb-44ab-805d-2264cb0075f4/AInfo.gif?table=block&id=1c3af76d-38e2-8055-ba90-de174ca93564&spaceId=7b9c678b-2c04-4afd-962f-d60425a4ac46&expirationTimestamp=1743379200000&signature=MEEC6NcPv55YFJ58FuVZ1y8xylCrxoLs7FWfcjofjp0&downloadName=AInfo.gif)
+
+![아인포](https://github.com/user-attachments/assets/65eacd5e-44cd-46a2-ad71-3b847f16ae82)
+
+---
+
+![상장](https://github.com/user-attachments/assets/b6b242a3-28dc-427b-8540-77349591928d)
 
 ### *“정책은 있는데, 정보는 어디 있나요?”*
 
@@ -42,7 +47,8 @@ AInfo는 맞춤형 공공서비스 추천 AI 챗봇입니다. Django Rest Framew
 [![유튜브 영상 썸네일](https://github.com/user-attachments/assets/909ab6a0-961d-4129-9de3-1bbd30aa6935)](https://www.youtube.com/watch?v=Y2IPx5YfEuc)
 
 ### 서비스 아키텍처
-![서비스 아키텍처](https://file.notion.so/f/f/7b9c678b-2c04-4afd-962f-d60425a4ac46/b89f056f-29f0-40ed-8609-72e21f2c79f6/ainfo.drawio.png?table=block&id=1c3af76d-38e2-8051-94ca-c9a5fbd5c5f7&spaceId=7b9c678b-2c04-4afd-962f-d60425a4ac46&expirationTimestamp=1743379200000&signature=o1NXj-I4sxeWbCuzsZGMzg_TiHR3mBQzc03X3GcQxv4&downloadName=ainfo.drawio.png)
+![아인포_SA](https://github.com/user-attachments/assets/f7156d8c-9866-4263-8fb0-8c6ec41dd780)
+
 ---
 
 ### 🍟 팀원:
@@ -303,16 +309,18 @@ AInfo는 맞춤형 공공서비스 추천 AI 챗봇입니다. Django Rest Framew
     ![챗봇대화일반모드](https://github.com/user-attachments/assets/35c07694-402d-46a8-8c65-0424c0834339)
     
 - 대화 흐름 기억
-    
-    ![news-31-2025 01-21-00.gif](https://file.notion.so/f/f/7b9c678b-2c04-4afd-962f-d60425a4ac46/a1fbc60d-265d-4cbf-bb64-b5399fe8bb16/news-31-2025_01-21-00.gif?table=block&id=1c6af76d-38e2-805a-abd5-c149a46ae0f9&spaceId=7b9c678b-2c04-4afd-962f-d60425a4ac46&expirationTimestamp=1743379200000&signature=ChkLMCH9Qne2oRmS-fq9mJc_oITr7ypnJsBcpzLf-us&downloadName=news-31-2025+01-21-00.gif)
+    ![대화흐름기억](https://github.com/user-attachments/assets/1210fd15-9d29-498e-a302-f52b65326486)
+
+
     
 - 부족한 정보 → 웹검색
-    
-    ![news-31-2025 01-21-00.gif](https://file.notion.so/f/f/7b9c678b-2c04-4afd-962f-d60425a4ac46/7d0cc1b5-fedb-4cec-8ce4-12ab54e0b084/news-31-2025_01-21-00.gif?table=block&id=1c6af76d-38e2-805e-b0e6-fc56d5157d94&spaceId=7b9c678b-2c04-4afd-962f-d60425a4ac46&expirationTimestamp=1743379200000&signature=DQQLBTMaTKRqPYpBsDeEk5UN0rz3Sp1WAi3VEyQHdcU&downloadName=news-31-2025+01-21-00.gif)
+    ![웹검색](https://github.com/user-attachments/assets/abbcec8f-0ce9-4510-8298-fc867ab0dcf8)
+
+
     
 - 보고서 작성 기능
-    
-    ![Mar-31-2025 01-17-32.gif](https://file.notion.so/f/f/7b9c678b-2c04-4afd-962f-d60425a4ac46/3e1be973-ee3b-4833-ad51-b7021b0c8e69/Mar-31-2025_01-17-32.gif?table=block&id=1c6af76d-38e2-8001-a863-d334593ba195&spaceId=7b9c678b-2c04-4afd-962f-d60425a4ac46&expirationTimestamp=1743379200000&signature=AQVp4Pv2q2tRadHidqmirQPSGjf6Xc1AxewFJsBfAQI&downloadName=Mar-31-2025+01-17-32.gif)
+![보고서작성](https://github.com/user-attachments/assets/898ce851-2570-4e33-a750-32e4fc631f3e)
+
     
 
 ### 공공 데이터 연동
@@ -327,19 +335,21 @@ AInfo는 맞춤형 공공서비스 추천 AI 챗봇입니다. Django Rest Framew
 
 - 본인인증을 위한 메일 발송
     
-    ![mail-31-2025 01-11-48.gif](https://file.notion.so/f/f/7b9c678b-2c04-4afd-962f-d60425a4ac46/33384dd9-25e7-4f3f-a4d4-ebac64b54957/mail-31-2025_01-11-48.gif?table=block&id=1c6af76d-38e2-8010-a5fb-d151b419369f&spaceId=7b9c678b-2c04-4afd-962f-d60425a4ac46&expirationTimestamp=1743379200000&signature=i1X1Zk8e_nU4Ytyqhe2L-9MfVm26S6QkVzfWXqC8NVw&downloadName=mail-31-2025+01-11-48.gif)
+![메일](https://github.com/user-attachments/assets/b0daf374-c6b9-44d6-bf02-03e1639328ed)
+
     
 - 전체유저 대상 공지메일 발송
-    
-    ![image.png](https://file.notion.so/f/f/7b9c678b-2c04-4afd-962f-d60425a4ac46/010bc655-ce71-4075-9e66-ddc4ebbc971c/image.png?table=block&id=1c6af76d-38e2-80b5-8057-d7ec7123fd1b&spaceId=7b9c678b-2c04-4afd-962f-d60425a4ac46&expirationTimestamp=1743379200000&signature=Wxz4RtHj_htQuIwQFLFkj6p4JEh8nvDJkKbS-CZlSEM&downloadName=image.png)
-    
+
+![전체유저메일](https://github.com/user-attachments/assets/d2a8aade-bc11-4fdf-9c1c-d3b62f3f0def)
+
+   
 
 ### 결제 기능
 
 - KG 이니시스 PG 사 연동
 - 결제 관련정보 DB 관리
-
-![pay-31-2025 01-04-33.gif](https://file.notion.so/f/f/7b9c678b-2c04-4afd-962f-d60425a4ac46/173efbaf-cb39-4a0d-a47d-1c944ddc8a65/pay-31-2025_01-04-33.gif?table=block&id=1c6af76d-38e2-804b-aa41-f96269bd6566&spaceId=7b9c678b-2c04-4afd-962f-d60425a4ac46&expirationTimestamp=1743379200000&signature=eDkujm-xxl-sKUUdHkHoW1xoaC3St3A9CtlIPp5XGuc&downloadName=pay-31-2025+01-04-33.gif)
+  
+![결제기능gif](https://github.com/user-attachments/assets/1d3eaa52-a6e0-435a-8563-dfec3c6a9169)
 
 ---
 
