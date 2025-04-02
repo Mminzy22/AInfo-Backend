@@ -1,6 +1,10 @@
 
 ![아인포](https://github.com/user-attachments/assets/65eacd5e-44cd-46a2-ad71-3b847f16ae82)
 
+---
+
+![상장](https://github.com/user-attachments/assets/b6b242a3-28dc-427b-8540-77349591928d)
+
 ### *“정책은 있는데, 정보는 어디 있나요?”*
 
 > 1만 개가 넘는 지원 정책, 나에게 맞는 정책은 어디에 있을까요?
