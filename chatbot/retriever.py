@@ -74,16 +74,14 @@ class VectorRetriever:
         results = []
         for name in collection_names:
             if name not in self.collections:
-                continue  # 등록되지 않은 컬렉션은 스킵
+                continue
             collection = self.collections[name]
-            docs = collection.similarity_search(query, k=k)
-            for doc in docs:
+            docs_with_scores = collection.similarity_search_with_score(query, k=k)
+            for doc, score in docs_with_scores:
                 if self._metadata_match(doc.metadata, filters):
-                    results.append((name, doc))
+                    results.append((name, doc, score))
 
-        return sorted(
-            results, key=lambda x: x[1].metadata.get("score", 0), reverse=True
-        )
+        return sorted(results, key=lambda x: x[2])
 
     def _metadata_match(self, metadata, filters):
         """
