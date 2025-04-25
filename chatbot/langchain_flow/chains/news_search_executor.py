@@ -25,7 +25,7 @@ def get_news_search_executor(user_id: str) -> AgentExecutor:
         tools_description=render_text_description(tools)
     )
 
-    llm = ChatOpenAI(model="gpt-4o", temperature=0)
+    llm = ChatOpenAI(model="gpt-4o-mini", temperature=0)
 
     memory = ChatHistoryManager(user_id=user_id, model=llm).get_memory_manager()
 
