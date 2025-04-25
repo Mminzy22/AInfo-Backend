@@ -79,25 +79,27 @@ def fetch_service_detail(service_id):
     )
 
 
-def build_service_list_doc(service):
+def build_combined_doc(service_list_item, service_detail_item):
     """
     서비스 목록 Document 객체 생성
     """
     page_content = f"""
-    서비스명: {service.get('서비스명', '정보 없음')}
-    서비스목적요약: {service.get('서비스목적요약', '정보 없음')}
-    서비스분야: {service.get('서비스분야', '정보 없음')}
-    지원대상: {service.get('지원대상', '정보 없음')}
-    지원내용: {service.get('지원내용', '정보 없음')}
+    서비스명: {service_list_item.get('서비스명', '정보 없음')}
+    서비스목적요약: {service_list_item.get('서비스목적요약', '정보 없음')}
+    서비스분야: {service_list_item.get('서비스분야', '정보 없음')}
+    지원대상: {service_list_item.get('지원대상', '정보 없음')}
+    지원내용: {service_list_item.get('지원내용', '정보 없음')}
+    구비서류: {service_detail_item.get('구비서류', '정보 없음')}
     """.strip()
 
     metadata = sanitize_metadata(
         {
-            "서비스ID": service.get("서비스ID", ""),
-            "서비스명": service.get("서비스명", ""),
-            "서비스목적요약": service.get("서비스목적요약", ""),
-            "상세조회URL": service.get("상세조회URL", ""),
-            "서비스분야": service.get("서비스분야", ""),
+            "name": service_list_item.get("서비스명", ""),
+            "subject": service_list_item.get("지원대상", ""),
+            "detail": service_list_item.get("지원내용", ""),
+            "link": service_list_item.get("상세조회URL", ""),
+            "region": service_list_item.get("서비스분야", ""),
+            "source": "정부24",
         }
     )
 
