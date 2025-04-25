@@ -35,22 +35,25 @@ TIMEOUT_SECONDS = 30
 session = requests.Session()
 
 
-def fetch_from_api(endpoint, params):
+def fetch_from_api(endpoint, params, base_url):
     """
     API에서 데이터를 가져오는 함수
     """
-    url = f"{GOV24_BASE_URL}/{endpoint}"
+    url = f"{base_url}/{endpoint}"
     params["serviceKey"] = GOV24_API_KEY
-    try:
-        response = session.get(url, params=params, timeout=TIMEOUT_SECONDS)
-        if response.status_code == 200:
-            return response.json()
-        else:
-            tqdm.write(f"API 요청 실패: {endpoint}, 상태 코드 {response.status_code}")
-            return None
-    except requests.exceptions.RequestException as e:
-        tqdm.write(f"API 요청 오류: {endpoint}, {e}")
-        return None
+    for attempt in range(2):  # 1회 재시도 포함 (총 2회 시도)
+        try:
+            response = session.get(url, params=params, timeout=TIMEOUT_SECONDS)
+            if response.status_code == 200:
+                return response.json()
+            else:
+                tqdm.write(
+                    f"API 요청 실패: {endpoint}, 상태 코드 {response.status_code}"
+                )
+        except requests.exceptions.RequestException as e:
+            tqdm.write(f"API 요청 오류: {endpoint}, {e}")
+        time.sleep(1)  # 재시도 전 대기
+    return None
 
 
 def fetch_service_list(page=1, per_page=PAGE_SIZE):
