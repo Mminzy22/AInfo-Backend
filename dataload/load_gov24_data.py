@@ -26,7 +26,8 @@ os.environ.setdefault("DJANGO_SETTINGS_MODULE", "config.settings")
 django.setup()
 
 # API 설정
-GOV24_BASE_URL = "https://api.odcloud.kr/api/gov24/v3"
+GOV24_LIST_BASE_URL = "https://api.odcloud.kr/api/gov24/v3"
+GOV24_DETAIL_BASE_URL = "https://api.odcloud.kr/api/gov24/v3"
 GOV24_API_KEY = settings.GOV24_API_KEY
 PAGE_SIZE = 10
 API_RATE_LIMIT_DELAY = 0.5
