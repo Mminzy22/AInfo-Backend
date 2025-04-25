@@ -6,8 +6,8 @@ from tqdm import tqdm
 
 from .load_employment_data import process_and_store_employment_data
 from .load_gov24_data import process_and_store_gov24_data
-from .load_youth_policy_data import process_and_store_youth_policy_data
 from .load_mongddang_data import process_and_store_mongddang_data
+from .load_youth_policy_data import process_and_store_youth_policy_data
 
 
 @shared_task

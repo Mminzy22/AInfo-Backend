@@ -1,6 +1,7 @@
 import os
 import time
 import traceback
+
 import django
 import requests
 from django.conf import settings
@@ -8,12 +9,12 @@ from langchain.schema import Document
 from tqdm import tqdm
 
 from .common import (
+    clear_collection,
     get_chroma_collection,
     get_embeddings,
-    sanitize_metadata,
     prepare_metadata_for_chroma,
+    sanitize_metadata,
     save_documents_with_progress,
-    clear_collection,
 )
 
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "config.settings")
