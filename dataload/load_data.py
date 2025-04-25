@@ -15,6 +15,7 @@ from .load_employment_data import process_and_store_employment_data
 from .load_gov24_data import process_and_store_gov24_data
 from .load_pdf_data import process_and_store_pdf_data
 from .load_youth_policy_data import process_and_store_youth_policy_data
+from .load_mongddang_data import process_and_store_mongddang_data
 
 
 def delete_all_collections():
@@ -57,6 +58,9 @@ def main():
         "--employment", action="store_true", help="고용정보 API 데이터 로더 실행"
     )
     parser.add_argument("--pdf", action="store_true", help="PDF 데이터 로더 실행")
+    parser.add_argument(
+        "--mongddang", action="store_true", help="몽당정보 데이터 로더 실행"
+    )  #  몽땅정보 추가
     parser.add_argument("--all", action="store_true", help="모든 데이터 로더 실행")
     parser.add_argument(
         "--wipe", action="store_true", help="모든 컬렉션 삭제 후 로딩 실행"
@@ -83,6 +87,9 @@ def main():
 
     if args.pdf or args.all:
         run_loader(process_and_store_pdf_data, "PDF 데이터")
+
+    if args.pdf or args.all:
+        run_loader(process_and_store_mongddang_data, "몽땅정보 API")  # 몽땅정보 추가
 
 
 if __name__ == "__main__":
