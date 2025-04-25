@@ -94,23 +94,20 @@ def build_list_doc(policy):
     """
     page_content = f"""
     정책명: {policy.get('plcyNm', '정보 없음')}
-    정책번호: {policy.get('plcyNo', '정보 없음')}
-    신청기간: {policy.get('aplyYmd', '정보 없음')}
     정책지원내용: {policy.get('plcySprtCn', '정보 없음')}
     심사방법내용: {policy.get('srngMthdCn', '정보 없음')}
-    신청URL주소: {policy.get('aplyUrlAddr', '정보 없음')}
     상세설명URL주소: {policy.get('refUrlAddr1', '정보 없음')}
+    등록기관명: {policy.get('rgtrInstCdNm', '정보 없음')}
     """.strip()
 
     metadata = sanitize_metadata(
         {
-            "plcyNm": policy.get("plcyNm", ""),
-            "plcyNo": policy.get("plcyNo", ""),
-            "aplyYmd": policy.get("aplyYmd", ""),
-            "plcySprtCn": policy.get("plcySprtCn", ""),
-            "srngMthdCn": policy.get("srngMthdCn", ""),
-            "aplyUrlAddr": policy.get("aplyUrlAddr", ""),
-            "refUrlAddr1": policy.get("refUrlAddr1", ""),
+            "name": policy.get("plcyNm", ""),
+            "subject": policy.get("srngMthdCn", ""),
+            "detail": policy.get("plcySprtCn", ""),
+            "link": policy.get("refUrlAddr1", ""),
+            "region": policy.get("rgtrInstCdNm", ""),
+            "source": "청년정책",
         }
     )
 
