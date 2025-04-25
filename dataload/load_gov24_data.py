@@ -61,7 +61,9 @@ def fetch_service_list(page=1, per_page=PAGE_SIZE):
     서비스 목록 API 호출
     """
     return fetch_from_api(
-        "serviceList", {"page": page, "perPage": per_page, "returnType": "json"}
+        "serviceList",
+        {"page": page, "perPage": per_page, "returnType": "json"},
+        base_url=GOV24_LIST_BASE_URL,
     )
 
 
@@ -71,7 +73,9 @@ def fetch_service_detail(service_id):
     """
     time.sleep(API_RATE_LIMIT_DELAY)
     return fetch_from_api(
-        "serviceDetail", {"cond[서비스ID::EQ]": service_id, "returnType": "json"}
+        "serviceDetail",
+        {"cond[서비스ID::EQ]": service_id, "returnType": "json"},
+        base_url=GOV24_DETAIL_BASE_URL,
     )
 
 
