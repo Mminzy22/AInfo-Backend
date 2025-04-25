@@ -106,75 +106,51 @@ def build_combined_doc(service_list_item, service_detail_item):
     return Document(page_content=page_content, metadata=metadata)
 
 
-def build_service_detail_doc(service):
-    """
-    서비스 상세정보 Document 객체 생성
-    """
-    page_content = f"""
-    서비스명: {service.get('서비스명', '정보 없음')}
-    서비스목적: {service.get('서비스목적', '정보 없음')}
-    서비스분야: {service.get('서비스분야', '정보 없음')}
-    지원대상: {service.get('지원대상', '정보 없음')}
-    지원내용: {service.get('지원내용', '정보 없음')}
-    """.strip()
-
-    metadata = sanitize_metadata(
-        {
-            "서비스ID": service.get("서비스ID", ""),
-            "서비스명": service.get("서비스명", ""),
-            "신청기한": service.get("신청기한", ""),
-            "선정기준": service.get("선정기준", ""),
-            "온라인신청사이트URL": service.get("온라인신청사이트URL", ""),
-        }
-    )
-
-    return Document(page_content=page_content, metadata=metadata)
-
-
-def process_and_store_gov24_data():
-    """
-    전체 데이터 수집 및 저장 파이프라인
-    """
+def process_and_store_combined_gov24():
     try:
-        tqdm.write("=== 정부24 데이터 로딩 시작 ===")
+        tqdm.write("=== 정부24 통합 데이터 로딩 시작 ===")
 
         embeddings = get_embeddings()
-        service_list_db = get_chroma_collection("gov24_service_list", embeddings)
-        service_detail_db = get_chroma_collection("gov24_service_detail", embeddings)
-        clear_collection(service_list_db, "gov24_service_list")
-        clear_collection(service_detail_db, "gov24_service_detail")
+        collection = get_chroma_collection("gov24_services", embeddings)
+        clear_collection(collection, "gov24_services")
 
-        list_documents = []
+        combined_documents = []
         page = 1
-        with tqdm(desc="서비스 목록 수집 진행", unit="건", dynamic_ncols=True) as pbar:
+        with tqdm(desc="서비스 목록 수집", unit="건", dynamic_ncols=True) as pbar:
             while True:
-                page_data = fetch_service_list(page=page, per_page=PAGE_SIZE)
-                if not page_data or "data" not in page_data or not page_data["data"]:
+                list_data = fetch_service_list(page=page, per_page=PAGE_SIZE)
+                if not list_data or "data" not in list_data or not list_data["data"]:
                     break
-                for service in page_data["data"]:
-                    list_documents.append(build_service_list_doc(service))
-                pbar.update(len(page_data["data"]))
+
+                for service in list_data["data"]:
+                    service_id = service.get("서비스ID", "")
+                    if not service_id:
+                        tqdm.write(
+                            f"[SKIP] 서비스ID 없음 → {service.get('서비스명', '알 수 없음')}"
+                        )
+                        continue
+
+                    detail_response = fetch_service_detail(service_id)
+                    if (
+                        detail_response
+                        and "data" in detail_response
+                        and detail_response["data"]
+                    ):
+                        detail = detail_response["data"][0]
+                        combined_doc = build_combined_doc(service, detail)
+                        combined_documents.append(combined_doc)
+
+                pbar.update(len(list_data["data"]))
                 page += 1
                 time.sleep(API_RATE_LIMIT_DELAY)
 
-        detail_documents = []
-        for doc in tqdm(
-            list_documents, desc="상세 정보 수집 진행", unit="건", dynamic_ncols=True
-        ):
-            service_id = doc.metadata.get("서비스ID", "")
-            detail_data = fetch_service_detail(service_id)
-            if detail_data and "data" in detail_data and detail_data["data"]:
-                service_detail = detail_data["data"][0]
-                detail_documents.append(build_service_detail_doc(service_detail))
+        save_documents_with_progress(collection, combined_documents)
+        tqdm.write(f"총 {len(combined_documents)}건 저장 완료")
 
-        save_documents_with_progress(service_list_db, list_documents)
-        save_documents_with_progress(service_detail_db, detail_documents)
-
-        tqdm.write("총 데이터 저장 완료")
     except Exception as e:
         tqdm.write(f"데이터 로딩 실패: {e}")
         traceback.print_exc()
 
 
 if __name__ == "__main__":
-    process_and_store_gov24_data()
+    process_and_store_combined_gov24()
