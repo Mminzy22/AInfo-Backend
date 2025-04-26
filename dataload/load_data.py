@@ -11,9 +11,8 @@ from django.conf import settings
 from tqdm import tqdm
 
 from .common import run_loader
-from .load_employment_data import process_and_store_employment_data
 from .load_fifty_portal_edu_data import process_and_store_fifty_portal_edu_data
-from .load_gov24_data import process_and_store_gov24_data
+from .load_gov24_data import process_and_store_combined_gov24
 from .load_mongddang_data import process_and_store_mongddang_data
 from .load_pdf_data import process_and_store_pdf_data
 from .load_youth_policy_data import process_and_store_youth_policy_data
@@ -55,9 +54,6 @@ def main():
     parser.add_argument(
         "--youth", action="store_true", help="청년정책 API 데이터 로더 실행"
     )
-    parser.add_argument(
-        "--employment", action="store_true", help="고용정보 API 데이터 로더 실행"
-    )
     parser.add_argument("--pdf", action="store_true", help="PDF 데이터 로더 실행")
     parser.add_argument(
         "--mongddang", action="store_true", help="몽당정보 데이터 로더 실행"
@@ -83,13 +79,10 @@ def main():
         args.all = True
 
     if args.gov24 or args.all:
-        run_loader(process_and_store_gov24_data, "정부24 API")
+        run_loader(process_and_store_combined_gov24, "정부24 API")
 
     if args.youth or args.all:
         run_loader(process_and_store_youth_policy_data, "청년정책 API")
-
-    if args.employment or args.all:
-        run_loader(process_and_store_employment_data, "고용정보 API")
 
     if args.pdf or args.all:
         run_loader(process_and_store_pdf_data, "PDF 데이터")
