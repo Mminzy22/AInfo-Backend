@@ -12,6 +12,7 @@ from tqdm import tqdm
 
 from .common import run_loader
 from .load_employment_data import process_and_store_employment_data
+from .load_fifty_portal_edu_data import process_and_store_fifty_portal_edu_data
 from .load_gov24_data import process_and_store_gov24_data
 from .load_mongddang_data import process_and_store_mongddang_data
 from .load_pdf_data import process_and_store_pdf_data
@@ -61,6 +62,11 @@ def main():
     parser.add_argument(
         "--mongddang", action="store_true", help="몽당정보 데이터 로더 실행"
     )  # 몽땅정보 추가
+    parser.add_argument(
+        "--fifty_portal_edu",
+        action="store_true",
+        help="50플러스포털 교육정보 데이터 로더 실행",
+    )  # 50플러스 교육정보 추가
     parser.add_argument("--all", action="store_true", help="모든 데이터 로더 실행")
     parser.add_argument(
         "--wipe", action="store_true", help="모든 컬렉션 삭제 후 로딩 실행"
@@ -90,6 +96,11 @@ def main():
 
     if args.pdf or args.all:
         run_loader(process_and_store_mongddang_data, "몽땅정보 API")  # 몽땅정보 추가
+
+    if args.fifty or args.all:
+        run_loader(
+            process_and_store_fifty_portal_edu_data, "50플러스포털 교육정보 API"
+        )  # 50플러스 교육정보 추가
 
 
 if __name__ == "__main__":
