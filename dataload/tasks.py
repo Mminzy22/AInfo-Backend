@@ -5,7 +5,7 @@ from celery import shared_task
 from tqdm import tqdm
 
 from .load_fifty_portal_edu_data import process_and_store_fifty_portal_edu_data
-from .load_gov24_data import process_and_store_gov24_data
+from .load_gov24_data import process_and_store_combined_gov24
 from .load_mongddang_data import process_and_store_mongddang_data
 from .load_youth_policy_data import process_and_store_youth_policy_data
 
@@ -18,7 +18,7 @@ def load_gov24_data_task():
     try:
         tqdm.write("=== 정부24 데이터 로딩 시작 (Celery) ===")
         start_time = time.time()
-        process_and_store_gov24_data()
+        process_and_store_combined_gov24()
         elapsed = time.time() - start_time
         tqdm.write(f"=== 데이터 로딩 완료. 소요 시간: {elapsed:.2f}초 ===")
     except Exception as e:
