@@ -75,7 +75,14 @@ def main():
         delete_all_collections()
 
     # 인자가 없을 경우 전체 실행으로 처리
-    if not (args.gov24 or args.youth or args.employment or args.pdf or args.all):
+    if not (
+        args.gov24
+        or args.youth
+        or args.mongddang
+        or args.fifty_portal_edu
+        or args.pdf
+        or args.all
+    ):
         args.all = True
 
     if args.gov24 or args.all:
@@ -87,10 +94,10 @@ def main():
     if args.pdf or args.all:
         run_loader(process_and_store_pdf_data, "PDF 데이터")
 
-    if args.pdf or args.all:
+    if args.mongddang or args.all:
         run_loader(process_and_store_mongddang_data, "몽땅정보 API")  # 몽땅정보 추가
 
-    if args.fifty or args.all:
+    if args.fifty_portal_edu or args.all:
         run_loader(
             process_and_store_fifty_portal_edu_data, "50플러스포털 교육정보 API"
         )  # 50플러스 교육정보 추가
