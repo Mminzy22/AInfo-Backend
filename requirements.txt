@@ -10,10 +10,10 @@ black==25.1.0
 numpy==1.26.4
 requests==2.32.3
 cryptography==44.0.2
-langchain==0.3.19
+langchain==0.3.20
 langchain-chroma==0.2.2
 langchain-community==0.3.18
-langchain-core==0.3.39
+langchain-core==0.3.41
 langchain-openai==0.3.7
 langchain-text-splitters==0.3.6
 pymupdf==1.25.3
@@ -26,3 +26,4 @@ psycopg2-binary==2.9.10
 celery==5.4.0
 crewai==0.108.0
 django-celery-beat==2.7.0
+langchain-tavily==0.1.5
