@@ -1,7 +1,8 @@
-from crewai import Crew, Process, Agent, Task
-from crewai.project import CrewBase, agent, task, crew
-from django.conf import settings
 import os
+
+from crewai import Agent, Crew, Process, Task
+from crewai.project import CrewBase, agent, crew, task
+from django.conf import settings
 
 from chatbot.crew_wrapper.tools.vector_meta_search_tool import vector_meta_search_tool
 from chatbot.crew_wrapper.tools.vector_search_tool import vector_search_tool
@@ -27,73 +28,73 @@ class ReportCrew:
     """
 
     agents_config = os.path.join(
-            settings.BASE_DIR, 'chatbot', 'crew_wrapper', 'crews', 'report_crew', 'config', 'agents.yaml'
-        )
+        settings.BASE_DIR,
+        "chatbot",
+        "crew_wrapper",
+        "crews",
+        "report_crew",
+        "config",
+        "agents.yaml",
+    )
     tasks_config = os.path.join(
-        settings.BASE_DIR, 'chatbot', 'crew_wrapper', 'crews', 'report_crew', 'config', 'tasks.yaml'
+        settings.BASE_DIR,
+        "chatbot",
+        "crew_wrapper",
+        "crews",
+        "report_crew",
+        "config",
+        "tasks.yaml",
     )
 
     @agent
     def candidate_searcher(self) -> Agent:
         return Agent(
-            config=self.agents_config['candidate_searcher'],
-            tools=[vector_search_tool, web_search_tool]
+            config=self.agents_config["candidate_searcher"],
+            tools=[vector_search_tool, web_search_tool],
         )
 
     @agent
     def best_service_selector(self) -> Agent:
         return Agent(
-            config=self.agents_config['best_service_selector'],
+            config=self.agents_config["best_service_selector"],
         )
 
     @agent
     def service_detail_fetcher(self) -> Agent:
         return Agent(
-            config=self.agents_config['service_detail_fetcher'],
-            tools=[vector_meta_search_tool, web_search_tool]
+            config=self.agents_config["service_detail_fetcher"],
+            tools=[vector_meta_search_tool, web_search_tool],
         )
 
     @agent
     def related_service_recommender(self) -> Agent:
-        return Agent(
-            config=self.agents_config['related_service_recommender']
-        )
+        return Agent(config=self.agents_config["related_service_recommender"])
 
     @agent
     def report_generator(self) -> Agent:
         return Agent(
-            config=self.agents_config['report_generator'],
+            config=self.agents_config["report_generator"],
         )
 
     @task
     def search_candidates_task(self) -> Task:
-        return Task(
-            config=self.tasks_config['search_candidates_task']
-        )
+        return Task(config=self.tasks_config["search_candidates_task"])
 
     @task
     def select_best_services_task(self) -> Task:
-        return Task(
-            config=self.tasks_config['select_best_services_task']
-        )
+        return Task(config=self.tasks_config["select_best_services_task"])
 
     @task
     def fetch_service_details_task(self) -> Task:
-        return Task(
-            config=self.tasks_config['fetch_service_details_task']
-        )
+        return Task(config=self.tasks_config["fetch_service_details_task"])
 
     @task
     def recommend_or_compare_task(self) -> Task:
-        return Task(
-            config=self.tasks_config['recommend_or_compare_task']
-        )
+        return Task(config=self.tasks_config["recommend_or_compare_task"])
 
     @task
     def generate_report_task(self) -> Task:
-        return Task(
-            config=self.tasks_config['generate_report_task']
-        )
+        return Task(config=self.tasks_config["generate_report_task"])
 
     # 크루 실행 정의
     @crew
@@ -104,16 +105,16 @@ class ReportCrew:
                 self.best_service_selector(),
                 self.service_detail_fetcher(),
                 self.related_service_recommender(),
-                self.report_generator()
+                self.report_generator(),
             ],
             tasks=[
                 self.search_candidates_task(),
                 self.select_best_services_task(),
                 self.fetch_service_details_task(),
                 self.recommend_or_compare_task(),
-                self.generate_report_task()
+                self.generate_report_task(),
             ],
             process=Process.sequential,
             verbose=True,
-            max_rpm=240
+            max_rpm=240,
         )

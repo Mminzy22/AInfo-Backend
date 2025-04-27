@@ -3,11 +3,12 @@
 from crewai.tools import tool
 from langchain_tavily import TavilySearch
 
+
 @tool("web_search_tool")
 def web_search_tool(original_input: str) -> str:
     """
     신뢰도 높은 도메인 (예: gov.kr, moel.go.kr 등)에서 공공서비스 정보를 검색하는 Tavily 검색 도구입니다.
-    
+
     Args:
         original_input (str): 검색에 사용할 쿼리 문자열.
 

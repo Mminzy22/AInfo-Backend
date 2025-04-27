@@ -1,5 +1,7 @@
-from chatbot.retriever import VectorRetriever
 from crewai.tools import tool
+
+from chatbot.retriever import VectorRetriever
+
 
 @tool("vector_meta_search_tool")
 def vector_meta_search_tool(service_name: str) -> str:
@@ -13,11 +15,8 @@ def vector_meta_search_tool(service_name: str) -> str:
         str: 검색된 서비스 정보를 마크다운 형식으로 정리한 문자열.
     """
     retriever = VectorRetriever()
-    
+
     # 'name' 메타데이터 필드를 기준으로 필터링 추가
-    results = retriever.search(
-        query=service_name,
-        filters={"name": service_name}
-    )
+    results = retriever.search(query=service_name, filters={"name": service_name})
 
     return retriever.format_docs(results)

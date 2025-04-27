@@ -1,5 +1,3 @@
-import asyncio
-from concurrent.futures import ThreadPoolExecutor
 import time
 
 from channels.db import database_sync_to_async
@@ -156,7 +154,7 @@ async def get_chatbot_response(
             }
             report_crew = ReportCrew()
             crew_instance = report_crew.crew()
-            
+
             start_time = time.time()
             flow_result = await crew_instance.kickoff_async(inputs=user_input)
             end_time = time.time()
