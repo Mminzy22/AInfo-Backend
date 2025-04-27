@@ -1,5 +1,6 @@
 import asyncio
 from concurrent.futures import ThreadPoolExecutor
+import time
 
 from channels.db import database_sync_to_async
 from django.db import transaction
@@ -7,7 +8,7 @@ from langchain_core.output_parsers import JsonOutputParser
 from langchain_openai import ChatOpenAI
 
 from accounts.models import User
-from chatbot.crew_wrapper.flows.policy_flow import PolicyFlow
+from chatbot.crew_wrapper.crews.report_crew.report_crew import ReportCrew
 from chatbot.langchain_flow.chains.detail_rag_chain import DETAIL_CHAIN
 from chatbot.langchain_flow.chains.overview_rag_chain import OVERVIEW_CHAIN
 from chatbot.langchain_flow.chains.personalized_rag_chain import PERSONALIZED_CHAIN
@@ -15,20 +16,6 @@ from chatbot.langchain_flow.classifier import Category, manual_classifier
 from chatbot.langchain_flow.memory import ChatHistoryManager
 from chatbot.langchain_flow.profile import fortato, get_profile_data
 from chatbot.langchain_flow.prompt import CLASSIFICATION_PROMPT
-
-
-async def run_policy_flow_async(user_input: dict):
-    """
-    동기 함수인 정책 보고서 생성 플로우(PolicyFlow)를 비동기적으로 실행하는 함수
-
-    동기(sync) 함수는 await할 수 없기 떄문에, 이 함수에서는 ThreadPoolExecutor를 사용해 동기 코드를 백그라운드 스레드에서 실행하고,
-    asyncio의 run_in_executor를 통해 마치 비동기 함수처럼 동작하도록 만들어줍니다.
-    """
-    loop = asyncio.get_event_loop()
-    with ThreadPoolExecutor() as executor:
-        return await loop.run_in_executor(
-            executor, lambda: PolicyFlow(user_input).kickoff()
-        )
 
 
 async def get_chatbot_response(
@@ -72,7 +59,6 @@ async def get_chatbot_response(
     memory = chat_manager.get_memory_manager()
     chat_history = memory.load_memory_variables({}).get("chat_history", [])
 
-    # 1차적으로 LLM이 사용자 입력을 분류하고 중요 키워드 추출
     classification_llm = ChatOpenAI(model="gpt-4o-mini", temperature=0.7)
     classification_chain = (
         CLASSIFICATION_PROMPT | classification_llm | JsonOutputParser()
@@ -165,18 +151,24 @@ async def get_chatbot_response(
 
             user_input = {
                 "original_input": user_message,
-                "summary": llm_keywords + "의 키워드를 중심으로 보고서 만들어줘",
                 "keywords": llm_keywords,
                 "user_profile": profile,
             }
-            flow_result = await run_policy_flow_async(user_input)
+            report_crew = ReportCrew()
+            crew_instance = report_crew.crew()
+            
+            start_time = time.time()
+            flow_result = await crew_instance.kickoff_async(inputs=user_input)
+            end_time = time.time()
+            print(f"ReportCrew 실행 시간: {end_time - start_time:.2f}초")
 
-            # report_result 내용만 추출해서 전송
+            # 결과 반환
             report_result = (
                 flow_result.raw if hasattr(flow_result, "raw") else str(flow_result)
             )
             yield report_result
             return
+
         else:
             yield "정책 및 지원에 관한 내용을 물어봐주시면 친절하게 답변해드릴 수 있습니다."
             return
