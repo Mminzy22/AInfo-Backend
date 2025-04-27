@@ -1,0 +1,71 @@
+search_candidates_task:
+  description: >
+    키워드("{keywords}")를 사용하여 벡터 데이터베이스에서 키워드와 동일하거나 적합한 공공서비스 정보를 검색합니다.
+    키워드에 공식적인 공공서비스명이 있다면 vector_search_tool 사용시 filters를 추가하여 검색합니다.
+    filters는 name을 키로 하고, 검색할 메타데이터를 값으로 갖는 딕셔너리 형태입니다.
+
+    만약 vector_search_tool 검색 결과에 키워드와 동일하거나 적합한 공공서비스가 없다면, web_search_tool을 사용해 웹에서 공공서비스 정보를 검색합니다.
+
+    예를 들어, '산대특'(산업구조변화대응 등 특화훈련)의 경우 벡터 데이터베이스에서 찾을 수 없으니, 반드시 web_search_tool을 사용해 웹에서 검색합니다.
+
+    주의사항:
+    - vector_search_tool 사용시 키워드("{keywords}")로 검색합니다.
+    - web_search_tool 사용시 사용자의 질문("{original_input}")으로 검색합니다.
+  expected_output: >
+    검색 결과로부터 유사한 공공서비스 리스트입니다.
+    제공 서비스명, 본문, 기타 정보(지원대상, 지원내용, 서비스 URL 등)를 포함하여 깔끔한 리스트로 응답합니다.
+  agent: candidate_searcher
+
+select_best_services_task:
+  description: >
+    검색된 공공서비스 리스트를 기반으로,
+    사용자의 질문("{original_input}")과 프로필 정보("{user_profile}")를 참고하여
+    가장 적합한 1개 또는 2개의 공공서비스를 선별합니다.
+  expected_output: >
+    선택된 공공서비스 1개 또는 2개의 서비스명 리스트입니다.
+    각 서비스명은 질문과 프로필 기준 적합성을 고려하여 선정된 결과입니다.
+  agent: best_service_selector
+  context:
+    - search_candidates_task
+  name: select_best_services
+
+fetch_service_details_task:
+  description: >
+    선택된 1~2개의 공공서비스명을 기반으로,
+    vector_meta_search_tool 사용해 벡터 데이터베이스에서 각 서비스의 상세 정보를 검색합니다.
+    세부 항목(목적, 대상, 지원내용, 신청방법, 문의처 등)을 포함하여 추출합니다.
+    vector_meta_search_tool 검색 결과에 특정 공공서비스가 없다면 반드시 web_search_tool을 사용해 상세 정보를 검색합니다.
+  expected_output: >
+    각 선택된 공공서비스에 대한 상세 정보 리스트입니다.
+    항목별(목적, 대상, 내용, 절차, URL 등)로 정리된 데이터로 응답합니다.
+  agent: service_detail_fetcher
+  context:
+    - select_best_services_task
+  name: fetch_service_details
+
+recommend_or_compare_task:
+  description: >
+    선택된 공공서비스들의 상세 정보를 바탕으로,
+    함께 신청하면 좋은 다른 관련 서비스 추천 또는 유사 서비스와의 장단점을 비교 분석하여 제안합니다.
+  expected_output: >
+    추가 추천할 서비스 목록과 각 서비스와 비교한 장단점 요약본을 자연어 형식으로 제공합니다.
+    서비스를 추천 할 때 항상 신청 URL을 포함합니다.
+  agent: related_service_recommender
+  context:
+    - fetch_service_details_task
+  name: recommend_or_compare
+
+generate_report_task:
+  description: >
+    최종적으로 수집한 상세 정보와 추천/비교 분석 결과를 종합하여,
+    사용자에게 제공할 최종 보고서 문서를 작성합니다.
+    보고서는 제목("{original_input}"에서 제목 추출), 서비스 요약, 추천/비교 결과, 신청방법, 유의사항 등을 포함합니다.
+  expected_output: >
+    완성된 보고서 포맷의 문자열입니다.
+    자연스럽고 읽기 쉬운 문장으로 구성되어 있으며, 각 항목별로 명확히 구분되어 있습니다.
+  agent: report_generator
+  context:
+    - fetch_service_details_task
+    - recommend_or_compare_task
+  name: generate_report
+  async_execution: true
