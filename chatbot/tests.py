@@ -1,5 +1,6 @@
 import asyncio
 import unittest
+import uuid
 from unittest.mock import patch
 
 from channels.db import database_sync_to_async
@@ -57,7 +58,7 @@ class ChatConsumerTestCase(TransactionTestCase):
         """인증된 사용자가 WebSocket에 정상적으로 연결되는지 테스트"""
 
         async def run_test():
-            communicator = await self.connect_ws(self.chatroom.id, self.user.id)
+            communicator = await self.connect_ws(str(self.chatroom.id), self.user.id)
             self.assertIsNotNone(communicator)
             await communicator.disconnect()
 
@@ -67,7 +68,7 @@ class ChatConsumerTestCase(TransactionTestCase):
         """인증되지 않은 사용자가 WebSocket에 접속할 수 없는지 테스트"""
 
         async def run_test():
-            communicator = await self.connect_ws(self.chatroom.id, None)
+            communicator = await self.connect_ws(str(self.chatroom.id), None)
             self.assertIsNone(communicator)
 
         self.loop.run_until_complete(run_test())
@@ -76,8 +77,9 @@ class ChatConsumerTestCase(TransactionTestCase):
         """잘못된 채팅방 ID로 접속 시 차단되는지 테스트"""
 
         async def run_test():
+            invalid_room_id = uuid.uuid4()
             communicator = await self.connect_ws(
-                room_id=9999, user_id=self.user.id
+                str(invalid_room_id), user_id=self.user.id
             )  # 존재하지 않는 room_id
             self.assertIsNone(communicator)
 
@@ -91,7 +93,7 @@ class ChatConsumerTestCase(TransactionTestCase):
                 chatroom=self.chatroom, role="user", message="이전 메시지"
             )
 
-            communicator = await self.connect_ws(self.chatroom.id, self.user.id)
+            communicator = await self.connect_ws(str(self.chatroom.id), self.user.id)
             self.assertIsNotNone(communicator)
 
             chat_history = await communicator.receive_json_from()
@@ -106,7 +108,7 @@ class ChatConsumerTestCase(TransactionTestCase):
         """유저 메시지가 DB에 정상적으로 저장되는지 테스트"""
 
         async def run_test():
-            communicator = await self.connect_ws(self.chatroom.id, self.user.id)
+            communicator = await self.connect_ws(str(self.chatroom.id), self.user.id)
             self.assertIsNotNone(communicator)
 
             message_data = {"message": "안녕"}
@@ -136,7 +138,7 @@ class ChatConsumerTestCase(TransactionTestCase):
         """유저가 메시지를 보내면 챗봇 응답을 정상적으로 받는지 테스트"""
 
         async def run_test():
-            communicator = await self.connect_ws(self.chatroom.id, self.user.id)
+            communicator = await self.connect_ws(str(self.chatroom.id), self.user.id)
             self.assertIsNotNone(communicator)
 
             message_data = {"message": "안녕"}
