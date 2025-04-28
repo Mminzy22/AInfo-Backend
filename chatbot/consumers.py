@@ -1,4 +1,5 @@
 import json
+import uuid
 
 from channels.db import database_sync_to_async
 from channels.generic.websocket import AsyncWebsocketConsumer
@@ -156,8 +157,9 @@ class ChatConsumer(AsyncWebsocketConsumer):
     @database_sync_to_async
     def get_chatroom(self, room_id):
         try:
+            room_id = uuid.UUID(room_id)
             return ChatRoom.objects.get(id=room_id)
-        except ChatRoom.DoesNotExist:
+        except (ChatRoom.DoesNotExist, ValueError, TypeError):
             return None
 
     @database_sync_to_async
