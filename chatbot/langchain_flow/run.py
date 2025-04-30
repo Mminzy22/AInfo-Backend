@@ -149,6 +149,7 @@ async def get_chatbot_response(
 
             user_input = {
                 "original_input": user_message,
+                "summary": llm_keywords + "의 키워드를 중심으로 보고서 만들어줘",
                 "keywords": llm_keywords,
                 "user_profile": profile,
             }
