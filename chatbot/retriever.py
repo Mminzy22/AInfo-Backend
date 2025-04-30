@@ -70,7 +70,7 @@ class VectorRetriever:
         filters = filters or {}
 
         if collection_names is None:
-            collection_names = "unified_data"
+            collection_names = ["unified_data"]
 
         results = []
         for name in collection_names:
