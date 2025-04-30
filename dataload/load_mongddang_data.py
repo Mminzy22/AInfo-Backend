@@ -51,16 +51,27 @@ def build_mongddang_doc(item):
     """
     단일 항목을 Document로 변환
     """
-    content = f"""
-    사업명: {item.get('BIZ_NM', '정보 없음')}
-    사업대분류: {item.get('BIZ_LCLSF_NM', '정보 없음')}
-    사업중분류: {item.get('BIZ_MCLSF_NM', '정보 없음')}
-    사업소분류: {item.get('BIZ_SCLSF_NM', '정보 없음')}
-    사업내용: {item.get('BIZ_CN', '정보 없음')}
-    이용대상: {item.get('UTZTN_TRPR_CN', '정보 없음')}
-    대상지역: {item.get('TRGT_RGN', '정보 없음')}
-    자세히보기: {item.get('DEVIW_SITE_ADDR', '정보 없음')}
-    신청주소: {item.get('APLY_SITE_ADDR', '정보 없음')}
+    # 사업명: {item.get('BIZ_NM', '정보 없음')}
+    # 사업대분류: {item.get('BIZ_LCLSF_NM', '정보 없음')}
+    # 사업중분류: {item.get('BIZ_MCLSF_NM', '정보 없음')}
+    # 사업소분류: {item.get('BIZ_SCLSF_NM', '정보 없음')}
+    # 사업내용: {item.get('BIZ_CN', '정보 없음')}
+    # 이용대상: {item.get('UTZTN_TRPR_CN', '정보 없음')}
+    # 대상지역: {item.get('TRGT_RGN', '정보 없음')}
+    # 자세히보기: {item.get('DEVIW_SITE_ADDR', '정보 없음')}
+    # 신청주소: {item.get('APLY_SITE_ADDR', '정보 없음')}
+    page_content = f"""
+    정책명/강좌명: {item.get('BIZ_NM', '정보 없음')}
+    정책/강좌 내용: {item.get('BIZ_CN', '정보 없음')}
+    지원 대상: {item.get('UTZTN_TRPR_CN', '정보 없음')}
+    카테고리/분야: {item.get('BIZ_LCLSF_NM', '정보 없음')}
+    지역: {item.get('TRGT_RGN', '정보 없음')}
+    시작일: 정보 없음
+    종료일: 정보 없음
+    접수방법: {item.get('APLY_SITE_ADDR', '정보 없음')}
+    문의처: {item.get('AREF_CN', '정보 없음')}
+    상세보기 링크: {item.get('DEVIW_SITE_ADDR', '정보 없음')}
+    구비서류: 정보 없음
     """.strip()
 
     metadata = sanitize_metadata(
@@ -74,7 +85,7 @@ def build_mongddang_doc(item):
         }
     )
 
-    return Document(page_content=content, metadata=metadata)
+    return Document(page_content=page_content, metadata=metadata)
 
 
 def process_and_store_mongddang_data():
@@ -86,8 +97,11 @@ def process_and_store_mongddang_data():
         start_time = time.time()
 
         embeddings = get_embeddings()
-        collection = get_chroma_collection("mongddang_data", embeddings)
-        clear_collection(collection, "mongddang_data")
+        mongddang_collection = get_chroma_collection("mongddang_data", embeddings)
+        unified_collection = get_chroma_collection("unified_data", embeddings)
+
+        # 기존 데이터 초기화
+        clear_collection(mongddang_collection, "mongddang_data")
 
         all_docs = []
 
@@ -109,7 +123,15 @@ def process_and_store_mongddang_data():
                 tqdm.write(f"[ERROR] 페이지 {page + 1} 수집 실패: {e}")
             time.sleep(API_RATE_LIMIT_DELAY)
 
-        save_documents_with_progress(collection, prepare_metadata_for_chroma(all_docs))
+        # 개별 컬렉션 저장
+        save_documents_with_progress(
+            mongddang_collection, prepare_metadata_for_chroma(all_docs)
+        )
+
+        # 개별 컬렉션 저장
+        save_documents_with_progress(
+            unified_collection, prepare_metadata_for_chroma(all_docs)
+        )
 
         elapsed = time.time() - start_time
         tqdm.write(f"\n총 {len(all_docs)}건 저장 완료. 소요 시간: {elapsed:.2f}초")

@@ -92,12 +92,23 @@ def build_list_doc(policy):
     """
     단일 정책 데이터를 Document로 변환
     """
+    # 정책명: {policy.get('plcyNm', '정보 없음')}
+    # 정책지원내용: {policy.get('plcySprtCn', '정보 없음')}
+    # 심사방법내용: {policy.get('srngMthdCn', '정보 없음')}
+    # 상세설명URL주소: {policy.get('refUrlAddr1', '정보 없음')}
+    # 등록기관명: {policy.get('rgtrInstCdNm', '정보 없음')}
     page_content = f"""
-    정책명: {policy.get('plcyNm', '정보 없음')}
-    정책지원내용: {policy.get('plcySprtCn', '정보 없음')}
-    심사방법내용: {policy.get('srngMthdCn', '정보 없음')}
-    상세설명URL주소: {policy.get('refUrlAddr1', '정보 없음')}
-    등록기관명: {policy.get('rgtrInstCdNm', '정보 없음')}
+    정책명/강좌명: {policy.get('plcyNm', '정보 없음')}
+    정책/강좌 내용: {policy.get('plcySprtCn', '정보 없음')}
+    지원 대상: {policy.get('srngMthdCn', '정보 없음')}
+    카테고리/분야: 정보 없음
+    지역: {policy.get('rgtrInstCdNm', '정보 없음')}
+    시작일: 정보 없음
+    종료일: 정보 없음
+    접수방법: 정보 없음
+    문의처: 정보 없음
+    상세보기 링크: {policy.get('refUrlAddr1', '정보 없음')}
+    구비서류: 정보 없음
     """.strip()
 
     metadata = sanitize_metadata(
@@ -122,7 +133,12 @@ def process_and_store_youth_policy_data():
         tqdm.write("=== 청년정책 데이터 로딩 시작 ===")
         start_time = time.time()
 
+        embeddings = get_embeddings()
+        unified_db = get_chroma_collection("unified_data", embeddings)
+
+        # 컬렉션 초기화
         list_db = clear_collection()
+
         all_list_docs = []
 
         params = {
@@ -153,9 +169,12 @@ def process_and_store_youth_policy_data():
             all_list_docs.extend(list_docs)
             time.sleep(API_RATE_LIMIT_DELAY)
 
-        save_documents_with_progress(
-            list_db, prepare_metadata_for_chroma(all_list_docs)
-        )
+        prepared_docs = prepare_metadata_for_chroma(all_list_docs)
+
+        # 개별 컬렉션 저장
+        save_documents_with_progress(list_db, prepared_docs)
+        # 통합 컬렉션 저장
+        save_documents_with_progress(unified_db, prepared_docs)
 
         elapsed = time.time() - start_time
         tqdm.write(f"\n총 {len(all_list_docs)}건 저장 완료. 소요 시간: {elapsed:.2f}초")
