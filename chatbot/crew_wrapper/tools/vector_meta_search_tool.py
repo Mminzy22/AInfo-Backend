@@ -1,4 +1,7 @@
+# chatbot/crew_wrapper/tools/vector_meta_search_tool.py
+
 from crewai.tools import tool
+
 from chatbot.retriever import VectorRetriever
 
 
@@ -35,4 +38,3 @@ def vector_meta_search_tool(keyword: str, name: str = None, region: str = None) 
         return retriever.format_docs(results)
     except Exception as e:
         return f"검색 도중 오류 발생: {str(e)}"
-    

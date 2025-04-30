@@ -4,10 +4,10 @@ from crewai import Agent, Crew, Process, Task
 from crewai.project import CrewBase, agent, crew, task
 from django.conf import settings
 
+from chatbot.crew_wrapper.tools.plan_web_search_tool import plan_web_search_tool
 from chatbot.crew_wrapper.tools.vector_meta_search_tool import vector_meta_search_tool
 from chatbot.crew_wrapper.tools.vector_search_tool import vector_search_tool
 from chatbot.crew_wrapper.tools.web_search_tool import web_search_tool
-from chatbot.crew_wrapper.tools.plan_web_search_tool import plan_web_search_tool
 
 
 @CrewBase
@@ -109,9 +109,7 @@ class ReportCrew:
 
     @task
     def web_search_task(self) -> Task:
-        return Task(
-            config=self.tasks_config["web_search_task"], async_execution=True
-        )
+        return Task(config=self.tasks_config["web_search_task"], async_execution=True)
 
     @task
     def select_final_services_task(self) -> Task:

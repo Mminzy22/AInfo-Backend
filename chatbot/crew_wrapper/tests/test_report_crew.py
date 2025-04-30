@@ -24,7 +24,11 @@ class ReportCrewTestCase(TestCase):
             "original_input": "나는 경기도에 살아. 나한테 경기패스가 좋을지 기후동행 카드가 좋을지에 대해서 보고서 작성해줘",
             "summary": "경기도 청년에게 적합한 교통비 지원 공공서비스 비교: 경기패스 vs 기후동행카드",
             "keywords": "경기패스 기후동행카드 경기도",
-            "user_profile": {"region": "경기도 안산시", "age": "30", "interests": "취업"},
+            "user_profile": {
+                "region": "경기도 안산시",
+                "age": "30",
+                "interests": "취업",
+            },
         }
 
         mock_kickoff_async.return_value = AsyncMock(raw="Mocked Report Content")

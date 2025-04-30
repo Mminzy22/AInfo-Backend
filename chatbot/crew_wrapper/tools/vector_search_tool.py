@@ -1,4 +1,7 @@
+# chatbot/crew_wrapper/tools/vector_search_tool.py
+
 from crewai.tools import tool
+
 from chatbot.retriever import VectorRetriever
 
 
