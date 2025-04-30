@@ -83,13 +83,24 @@ def build_combined_doc(service_list_item, service_detail_item):
     """
     서비스 목록 Document 객체 생성
     """
+    # 정책명/강좌명: {service_list_item.get('서비스명', '정보 없음')}
+    # 서비스목적요약: {service_list_item.get('서비스목적요약', '정보 없음')}
+    # 서비스분야: {service_list_item.get('서비스분야', '정보 없음')}
+    # 지원대상: {service_list_item.get('지원대상', '정보 없음')}
+    # 지원내용: {service_list_item.get('지원내용', '정보 없음')}
+    # 구비서류: {service_detail_item.get('구비서류', '정보 없음')}
     page_content = f"""
-    서비스명: {service_list_item.get('서비스명', '정보 없음')}
-    서비스목적요약: {service_list_item.get('서비스목적요약', '정보 없음')}
-    서비스분야: {service_list_item.get('서비스분야', '정보 없음')}
-    지원대상: {service_list_item.get('지원대상', '정보 없음')}
-    지원내용: {service_list_item.get('지원내용', '정보 없음')}
-    구비서류: {service_detail_item.get('구비서류', '정보 없음')}
+        정책명/강좌명: {service_list_item.get('서비스명', '정보 없음')}
+        정책/강좌 내용: {service_list_item.get('지원내용', '정보 없음')}
+        지원 대상: {service_list_item.get('지원대상', '정보 없음')}
+        카테고리/분야: {service_list_item.get('서비스분야', '정보 없음')}
+        지역: 정보 없음
+        시작일: 정보 없음
+        종료일: 정보 없음
+        접수방법: 정보 없음
+        문의처: 정보 없음
+        상세보기 링크: {service_list_item.get('상세조회URL', '정보 없음')}
+        구비서류: {service_detail_item.get('구비서류', '정보 없음')}
     """.strip()
 
     metadata = sanitize_metadata(
@@ -111,8 +122,12 @@ def process_and_store_combined_gov24():
         tqdm.write("=== 정부24 통합 데이터 로딩 시작 ===")
 
         embeddings = get_embeddings()
-        collection = get_chroma_collection("gov24_services", embeddings)
-        clear_collection(collection, "gov24_services")
+        gov24_collection = get_chroma_collection("gov24_services", embeddings)
+        unified_collection = get_chroma_collection("unified_data", embeddings)
+
+        # 기존 컬렉션 초기화
+        clear_collection(gov24_collection, "gov24_services")
+        clear_collection(unified_collection, "unified_data")
 
         combined_documents = []
         page = 1
@@ -144,7 +159,10 @@ def process_and_store_combined_gov24():
                 page += 1
                 time.sleep(API_RATE_LIMIT_DELAY)
 
-        save_documents_with_progress(collection, combined_documents)
+        # 개별 컬렉션 저장
+        save_documents_with_progress(gov24_collection, combined_documents)
+        # 통합 컬렉션 저장
+        save_documents_with_progress(unified_collection, combined_documents)
         tqdm.write(f"총 {len(combined_documents)}건 저장 완료")
 
     except Exception as e:
