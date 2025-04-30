@@ -41,7 +41,9 @@ class VectorRetriever:
             "gov24_services",
             "youth_policy_list",
             "mongddang_data",
-            "pdf_sections",
+            "fifty_portal_edu_data",
+            "unified_data",
+            # "pdf_sections",
         ]
         return {
             name: Chroma(
@@ -60,7 +62,7 @@ class VectorRetriever:
             query (str): 검색 쿼리 문자열.
             k (int): 각 컬렉션별 검색 결과 수 (기본값 5).
             filters (dict, optional): 메타데이터 필터링 조건. 예: {"title": "청년"}.
-            collection_names (list, optional): 검색 대상 컬렉션 이름 리스트. None이면 모든 컬렉션 사용.
+            collection_names (list, optional): 검색 대상 컬렉션 이름 리스트. None이면 통합 컬렉션 사용.
 
         Returns:
             list: [(컬렉션 이름, Document)] 형태의 튜플 리스트. score 기준 내림차순 정렬됨.
@@ -68,7 +70,7 @@ class VectorRetriever:
         filters = filters or {}
 
         if collection_names is None:
-            collection_names = list(self.collections.keys())
+            collection_names = "unified_data"
 
         results = []
         for name in collection_names:
