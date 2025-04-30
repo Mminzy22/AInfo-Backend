@@ -5,15 +5,15 @@ from langchain_tavily import TavilySearch
 
 
 @tool("web_search_tool")
-def web_search_tool(original_input: str) -> str:
+def web_search_tool(summary: str) -> str:
     """
     신뢰도 높은 도메인 (예: gov.kr, moel.go.kr 등)에서 공공서비스 정보를 검색하는 Tavily 검색 도구입니다.
 
     Args:
-        original_input (str): 검색에 사용할 쿼리 문자열.
+        summary (str): 검색에 사용할 쿼리 문자열.
 
     Returns:
-        str: 검색 결과 리스트 (제목, 상세내용, 링크 포함)
+        str: 검색 결과 리스트 (제목, 서비스 실행 지역, 지원대상, 지원내용, 서비스 관련 링크, 본문 요약 포함)
     """
     # TavilySearch 인스턴스 생성
     tavily_search = TavilySearch(
@@ -36,5 +36,5 @@ def web_search_tool(original_input: str) -> str:
         ],
     )
 
-    result = tavily_search.invoke({"query": original_input})
+    result = tavily_search.invoke({"query": summary})
     return result
