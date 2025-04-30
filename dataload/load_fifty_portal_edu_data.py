@@ -50,16 +50,27 @@ def build_fifty_portal_edu_doc(item):
     """
     단일 강좌 항목을 Document로 변환
     """
-    content = f"""
-    강좌명: {item.get('LCT_NM', '정보 없음')}
-    등록 시작일: {item.get('REG_STDE', '정보 없음')}
-    등록 종료일: {item.get('REG_EDDE', '정보 없음')}
-    강좌 시작일: {item.get('CR_STDE', '정보 없음')}
-    강좌 종료일: {item.get('CR_EDDE', '정보 없음')}
-    정원: {item.get('CR_PPL_STAT', '정보 없음')}
-    강좌상태: {item.get('LCT_STAT', '정보 없음')}
-    수강비용: {item.get('LCT_COST', '정보 없음')}
-    상세보기: {item.get('CR_URL', '정보 없음')}
+    # 강좌명: {item.get('LCT_NM', '정보 없음')}
+    # 등록 시작일: {item.get('REG_STDE', '정보 없음')}
+    # 등록 종료일: {item.get('REG_EDDE', '정보 없음')}
+    # 강좌 시작일: {item.get('CR_STDE', '정보 없음')}
+    # 강좌 종료일: {item.get('CR_EDDE', '정보 없음')}
+    # 정원: {item.get('CR_PPL_STAT', '정보 없음')}
+    # 강좌상태: {item.get('LCT_STAT', '정보 없음')}
+    # 수강비용: {item.get('LCT_COST', '정보 없음')}
+    # 상세보기: {item.get('CR_URL', '정보 없음')}
+    page_content = f"""
+    정책명/강좌명: {item.get('LCT_NM', '정보 없음')}
+    정책/강좌 내용: 정보 없음
+    지원 대상: 정보 없음
+    카테고리/분야: 정보 없음
+    지역: 서울시
+    시작일: {item.get('CR_STDE', '정보 없음')}
+    종료일: {item.get('CR_EDDE', '정보 없음')}
+    접수방법: 정보 없음
+    문의처: 정보 없음
+    상세보기 링크: {item.get('CR_URL', '정보 없음')}
+    구비서류: 정보 없음
     """.strip()
 
     metadata = sanitize_metadata(
@@ -71,7 +82,7 @@ def build_fifty_portal_edu_doc(item):
         }
     )
 
-    return Document(page_content=content, metadata=metadata)
+    return Document(page_content=page_content, metadata=metadata)
 
 
 def process_and_store_fifty_portal_edu_data():
@@ -84,6 +95,9 @@ def process_and_store_fifty_portal_edu_data():
 
         embeddings = get_embeddings()
         collection = get_chroma_collection("fifty_portal_edu_data", embeddings)
+        unified_collection = get_chroma_collection("unified_data", embeddings)
+
+        # 컬렉션 초기화
         clear_collection(collection, "fifty_portal_edu_data")
 
         all_docs = []
@@ -106,7 +120,12 @@ def process_and_store_fifty_portal_edu_data():
                 tqdm.write(f"[ERROR] 페이지 {page + 1} 수집 실패: {e}")
             time.sleep(API_RATE_LIMIT_DELAY)
 
-        save_documents_with_progress(collection, prepare_metadata_for_chroma(all_docs))
+        prepared_docs = prepare_metadata_for_chroma(all_docs)
+
+        # 개별 컬렉션 저장
+        save_documents_with_progress(collection, prepared_docs)
+        # 통합 컬렉션 저장
+        save_documents_with_progress(unified_collection, prepared_docs)
 
         elapsed = time.time() - start_time
         tqdm.write(f"\n총 {len(all_docs)}건 저장 완료. 소요 시간: {elapsed:.2f}초")
