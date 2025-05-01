@@ -38,11 +38,12 @@ class VectorRetriever:
             dict: 컬렉션 이름을 key로, Chroma 컬렉션 인스턴스를 value로 하는 딕셔너리.
         """
         collection_names = [
-            "gov24_service_list",
-            "gov24_service_detail",
+            "gov24_services",
             "youth_policy_list",
-            "employment_programs",
-            "pdf_sections",
+            "mongddang_data",
+            "fifty_portal_edu_data",
+            "unified_data",
+            # "pdf_sections",
         ]
         return {
             name: Chroma(
@@ -61,7 +62,7 @@ class VectorRetriever:
             query (str): 검색 쿼리 문자열.
             k (int): 각 컬렉션별 검색 결과 수 (기본값 5).
             filters (dict, optional): 메타데이터 필터링 조건. 예: {"title": "청년"}.
-            collection_names (list, optional): 검색 대상 컬렉션 이름 리스트. None이면 모든 컬렉션 사용.
+            collection_names (list, optional): 검색 대상 컬렉션 이름 리스트. None이면 통합 컬렉션 사용.
 
         Returns:
             list: [(컬렉션 이름, Document)] 형태의 튜플 리스트. score 기준 내림차순 정렬됨.
@@ -69,21 +70,19 @@ class VectorRetriever:
         filters = filters or {}
 
         if collection_names is None:
-            collection_names = list(self.collections.keys())
+            collection_names = ["unified_data"]
 
         results = []
         for name in collection_names:
             if name not in self.collections:
-                continue  # 등록되지 않은 컬렉션은 스킵
+                continue
             collection = self.collections[name]
-            docs = collection.similarity_search(query, k=k)
-            for doc in docs:
+            docs_with_scores = collection.similarity_search_with_score(query, k=k)
+            for doc, score in docs_with_scores:
                 if self._metadata_match(doc.metadata, filters):
-                    results.append((name, doc))
+                    results.append((name, doc, score))
 
-        return sorted(
-            results, key=lambda x: x[1].metadata.get("score", 0), reverse=True
-        )
+        return sorted(results, key=lambda x: x[2])
 
     def _metadata_match(self, metadata, filters):
         """
@@ -109,40 +108,40 @@ class VectorRetriever:
         """
         검색된 문서 리스트를 사용자에게 제공할 수 있는 포맷으로 변환.
 
-        - 각 문서에서 제목, 본문 내용, URL을 추출하여 마크다운 형식으로 가공.
-        - URL이 없을 경우 안내 문구로 대체.
+        - 각 문서에서 표준화된 메타데이터(name, region, subject, detail, link)와 본문을 추출하여 마크다운 형식으로 가공.
+        - 링크가 없을 경우 안내 문구로 대체.
+        - score는 내부 정렬용으로만 사용되며 사용자에게 노출되지 않음.
 
         Args:
-            docs (list): [(컬렉션 이름, Document)] 튜플 리스트.
-                        Document는 langchain.schema.Document 객체.
+            docs (list): [(컬렉션 이름, Document, score)] 튜플 리스트.
 
         Returns:
-            str: 문서들의 제목, 내용, URL을 포함한 마크다운 문자열.
-                각 문서는 '\n\n---\n\n' 구분선으로 구분됨.
+            str: 문서들의 제목, 내용, 메타데이터를 포함한 마크다운 문자열.
         """
         formatted = []
-        for name, doc in docs:
+        for name, doc, _ in docs:
             meta = doc.metadata
             content = doc.page_content.strip()
-            title = (
-                meta.get("서비스명")
-                or meta.get("plcyNm")
-                or meta.get("pgmNm")
-                or meta.get("title")
-                or "제목 없음"
-            )
-            link = (
-                meta.get("온라인신청사이트URL")
-                or meta.get("상세조회URL")
-                or meta.get("aplyUrlAddr")
-                or meta.get("refUrlAddr1")
+
+            title = meta.get("name", "제목 없음")
+            region = meta.get("region", "정보 없음")
+            subject = meta.get("subject", "정보 없음")
+            detail = meta.get("detail", "정보 없음")
+            link = meta.get("link")
+
+            link_md = (
+                f"[바로가기]({link})"
+                if link
+                else "해당 서비스는 URL이 제공되지 않습니다."
             )
 
-            if link:
-                link_md = f"[바로가기]({link}) "
-            else:
-                link_md = "해당 서비스는 URL이 제공되지 않습니다. "
-
-            formatted.append(f"**[{title}]**\n- 내용: {content}\n- 링크: {link_md} ")
+            formatted.append(
+                f"**[{title}]**\n"
+                f"- 지역: {region}\n"
+                f"- 지원대상: {subject}\n"
+                f"- 지원내용: {detail}\n"
+                f"- 링크: {link_md}\n"
+                f"- 본문 요약: {content}"
+            )
 
         return "\n\n---\n\n".join(formatted)

@@ -31,6 +31,7 @@ CHROMA_DB_DIR = env("CHROMA_DB_DIR", default=str(BASE_DIR / "chroma_db"))
 GOV24_API_KEY = env("GOV24_API_KEY")
 YOUTH_POLICY_API_KEY = env("YOUTH_POLICY_API_KEY")
 EMPLOYMENT_API_KEY = env("EMPLOYMENT_API_KEY")
+SEOUL_API_KEY = env("SEOUL_API_KEY")
 
 # PDF 저장 폴더 설정
 PDF_DIR = BASE_DIR / "data" / "pdf"

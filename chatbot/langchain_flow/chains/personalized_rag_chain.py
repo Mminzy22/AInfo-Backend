@@ -10,7 +10,7 @@ from chatbot.langchain_flow.prompts.personalized_rag_prompt import (
 from chatbot.langchain_flow.tools.detail_rag_tool import detail_rag_tool
 from chatbot.langchain_flow.tools.tavily_web_tool import tavily_web_search_tool
 
-llm = ChatOpenAI(model="gpt-4o", temperature=0.5, streaming=True)
+llm = ChatOpenAI(model="gpt-4o-mini", temperature=0.5, streaming=True)
 current_date = datetime.now()
 current_year_month = f"{current_date.year}년 {current_date.month}월"
 
