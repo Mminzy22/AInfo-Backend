@@ -6,6 +6,7 @@ from channels.generic.websocket import AsyncWebsocketConsumer
 
 from accounts.models import User
 from chatbot.langchain_flow.run import get_chatbot_response
+from chatbot.langgraph_flow.run import get_chatbot_response_v2
 from chatbot.models import ChatLog, ChatRoom
 from chatbot.serializers import ChatbotSerializer
 
@@ -123,7 +124,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
         bot_message = []  # 청크 저장 할 곳
 
         # 생성되고 있는 답변의 chunk과 스트리밍 중임을 알림
-        async for chunk in get_chatbot_response(
+        async for chunk in get_chatbot_response_v2(
             user_message,
             self.user_id,
             self.room_id,
